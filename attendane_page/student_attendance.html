@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attendance</title>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #059669;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text);
+    }
+
+    /* CARD */
+    .card {
+      width: 100%;
+      max-width: 1600px;
+      background: var(--card);
+      border-radius: 18px;
+      padding: 26px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    /* FORM */
+    label {
+      font-size: 12px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+
+    input:disabled {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* BUTTON */
+    button {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .1s ease, box-shadow .1s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+
+    /* STATUS */
+    .status {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .status.success {
+      color: var(--success);
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .locked {
+      text-align: center;
+      color: var(--danger);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* FOOTER NOTE */
+    .note {
+      margin-top: 20px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+    @media (max-width: 1023px) and (min-width: 768px) {
+
+  body {
+    padding: 24px;
+  }
+
+  .card {
+    max-width: 520px;
+    padding: 28px;
+  }
+
+  .card h2 {
+    font-size: 22px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 767px) {
+
+  body {
+    padding: 16px;
+  }
+
+  .card {
+    max-width: 100%;
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .card h2 {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  input {
+    font-size: 15px;
+    padding: 13px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .note {
+    font-size: 10px;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h2>Mark Attendance</h2>
+  <div class="subtitle">Location-based attendance verification</div>
+
+  <div id="lockedMessage" class="locked">
+    Attendance session is not active
+  </div>
+
+  <div id="attendanceForm">
+
+    <label>Full Name</label>
+    <input id="name" placeholder="Enter your name">
+
+    <label>Roll Number</label>
+    <input id="roll" placeholder="Enter roll number">
+
+    <label>Batch</label>
+    <input id="batch" disabled placeholder="Auto-filled">
+
+    <label>Subject</label>
+    <input id="subject" disabled placeholder="Auto-filled">
+
+    <button onclick="markAttendance()">Mark Attendance</button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <div class="note">
+    Ensure location access is enabled on your device
+  </div>
+
+</div>
+
+<script>
+  function markAttendance() {
+    const statusEl = document.getElementById("status");
+    statusEl.textContent = "Verifying location...";
+    statusEl.className = "status";
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        google.script.run.withSuccessHandler(res => {
+          statusEl.textContent = res.message;
+          statusEl.className = "status " + (res.success ? "success" : "error");
+        }).markAttendance({
+          name: name.value,
+          roll: roll.value,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        });
+      },
+      () => {
+        statusEl.textContent = "Location permission denied";
+        statusEl.className = "status error";
+      }
+    );
+  }
+</script>
+
+</body>
+</html>

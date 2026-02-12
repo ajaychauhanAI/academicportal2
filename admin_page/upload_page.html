@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Content Upload</title>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --bg:#f3f6fb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial,sans-serif;
+  background:transparent;
+  color:var(--text);
+  visibility: hidden;
+}
+
+.wrapper{
+  max-width:100%;
+  padding:20px;
+}
+
+.panel{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+.panel-header{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  padding:24px 28px;
+}
+
+.form{
+  padding:26px;
+  display:grid;
+  gap:26px;
+}
+
+.section{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px;
+}
+
+.section-title{
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:14px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+.grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+@media(max-width:900px){
+  .grid-2{grid-template-columns:1fr}
+}
+
+label{
+  font-weight:600;
+  font-size:14px;
+  margin-bottom:6px;
+  display:block;
+}
+input,select,textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-size:14px;
+}
+textarea{resize:vertical}
+
+.batch-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:10px;
+}
+.batch-pill{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:13px;
+}
+.batch-pill input{accent-color:var(--primary)}
+
+.badge{
+  background:#e6f4ea;
+  color:#137333;
+  border:1px solid #b7dfc2;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+}
+
+.actions{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+button{
+  background:var(--primary);
+  color:#fff;
+  padding:14px 30px;
+  border:none;
+  border-radius:12px;
+  font-size:15px;
+  cursor:pointer;
+}
+button.secondary{
+  background:#e5e7eb;
+  color:#111;
+}
+
+.help{
+  font-size:13px;
+  color:#6b7280;
+}
+
+/* ===============================
+   📱 MOBILE (max-width: 600px)
+================================ */
+@media (max-width: 600px) {
+
+  body {
+    font-size: 14px;
+  }
+  
+  #historyPanel table button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  #historyPanel table td button {
+    display: inline-block;
+    margin: 4px 6px;   /* 👈 yahi gap hai */
+  }
+  
+  #selectedBadges {
+    justify-content: center;
+  }
+
+  .wrapper {
+    padding: 10px;
+  }
+
+  .panel {
+    border-radius: 10px;
+  }
+
+  .panel-header {
+    padding: 16px;
+  }
+
+  .panel-header h1 {
+    font-size: 18px;
+  }
+
+  .panel-header p {
+    font-size: 13px;
+  }
+
+  .form {
+    padding: 16px;
+    gap: 18px;
+  }
+
+  .section {
+    padding: 14px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr; /* single column */
+  }
+
+  label {
+    font-size: 13px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  textarea {
+    min-height: 90px;
+  }
+
+  /* ===============================
+     ✅ BATCH SELECTION (FIXED)
+  ================================ */
+
+  .batch-grid {
+    display: flex;              /* ⬅️ grid se hatake */
+    flex-direction: column;     /* ⬅️ vertical list */
+    gap: 10px;
+  }
+
+  .batch-pill {
+    width: 100%;                /* ⬅️ full width */
+    justify-content: flex-start;
+    font-size: 14px;
+    padding: 10px 14px;         /* ⬅️ touch-friendly */
+  }
+
+  /* =============================== */
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  /* Modals */
+  #previewModal > div,
+  #historyPanel > div {
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  table th,
+  table td {
+    padding: 6px;
+  }
+
+  label.batch-pill:has(#selectAllBatches) {
+    padding: 12px;
+    font-size: 14px;
+  }
+ 
+}
+
+/* ===============================
+   📲 TABLET (601px – 900px)
+================================ */
+@media (min-width: 601px) and (max-width: 900px) {
+
+  .wrapper {
+    padding: 16px;
+  }
+
+  .panel-header {
+    padding: 20px 22px;
+  }
+
+  .panel-header h1 {
+    font-size: 20px;
+  }
+
+  .form {
+    padding: 22px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr; /* tablet me bhi single column for clarity */
+  }
+
+  .batch-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .actions {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .actions button {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  #historyPanel > div {
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* ===============================
+   📜 HISTORY TABLE BUTTONS
+================================ */
+#historyPanel table button {
+  padding: 6px 12px;        /* 🔽 height kam */
+  font-size: 12px;          /* 🔽 text chhota */
+  border-radius: 8px;       /* thoda compact */
+  line-height: 1.2;
+}
+
+/* Secondary look for Edit */
+#historyPanel table button:first-child {
+  background: #e5e7eb;
+  color: #111;
+}
+
+/* Hover effect (optional, clean) */
+#historyPanel table button:hover {
+  opacity: 0.9;
+}
+
+/* ===============================
+   ✅ CENTER "SELECT ALL BATCHES"
+================================ */
+#selectAllBatches {
+  margin-right: 8px;
+}
+
+/* Label that CONTAINS selectAll checkbox */
+label.batch-pill:has(#selectAllBatches) {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+/* Select All ko center me rakhne ke liye */
+.batch-pill.select-all {
+  grid-column: 1 / -1;        /* poori row le */
+  justify-content: center;    /* center align */
+  font-weight: 600;
+}
+
+/* ✅ Fix mobile overflow after Select All */
+#selectedBadges {
+  display: flex;
+  flex-wrap: wrap;          /* 🔑 allow wrapping */
+  gap: 8px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Each badge should not force width */
+#selectedBadges .badge {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+/* Extra safety for mobile */
+.section {
+  overflow-x: hidden;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+<div class="panel">
+
+<div class="panel-header">
+  <h1>Content Upload</h1>
+  <p>Publish assignments, notes, PYQs & announcements</p>
+</div>
+
+<div class="form">
+
+<!-- CONTENT DETAILS -->
+<div class="section">
+  <div class="section-title">Content Details</div>
+
+  <div class="grid-2">
+    <div>
+      <label>Content Type *</label>
+      <select id="type">
+        <option value="ASSIGNMENT">Assignment</option>
+        <option value="NOTES">Notes</option>
+        <option value="PYQ">PYQ</option>
+        <option value="LATEST_NEWS">Latest News</option>
+        <option value="MESSAGE">Message</option>
+        <option value="ACADEMIC_CALENDAR">Academic Calendar</option>
+      </select>
+    </div>
+
+    <div id="deadlineBox">
+      <label>Assignment Deadline *</label>
+      <input type="date" id="deadline">
+    </div>
+  </div>
+
+  <div style="margin-top:16px">
+    <label>Title *</label>
+    <input id="title">
+  </div>
+</div>
+
+<!-- TARGET AUDIENCE -->
+<div class="section">
+  <div class="section-title">Target Audience</div>
+
+  <div class="batch-grid">
+
+    <!-- ✅ Select All (center aligned inside grid) -->
+    <label class="batch-pill select-all">
+      <input type="checkbox" id="selectAllBatches">
+      Select All Batches
+    </label>
+
+    <!-- Individual batches -->
+    <label class="batch-pill">
+      <input class="batch" type="checkbox" value="BCADS21"> BCADS21
+    </label>
+    <label class="batch-pill">
+      <input class="batch" type="checkbox" value="BCADS22"> BCADS22
+    </label>
+    <label class="batch-pill">
+      <input class="batch" type="checkbox" value="BCADS23"> BCADS23
+    </label>
+    <label class="batch-pill">
+      <input class="batch" type="checkbox" value="BCADS24"> BCADS24
+    </label>
+    <label class="batch-pill">
+      <input class="batch" type="checkbox" value="BCADS25"> BCADS25
+    </label>
+    <label class="batch-pill">
+      <input class="batch" type="checkbox" value="BCADS26"> BCADS26
+    </label>
+
+  </div>
+
+  <div id="selectedBadges"></div>
+  <div id="batchCount" class="help">0 / 6 batches selected</div>
+</div>
+
+
+<!-- 🔥 ATTACHMENT → LINK ONLY -->
+<div class="section" id="uploadSection">
+  <div class="section-title">Attachment (PDF / Drive Link)</div>
+
+  <label>Paste PDF / Google Drive / OneDrive link *</label>
+  <input
+    type="url"
+    id="fileUrlInput"
+    placeholder="https://drive.google.com/..."
+    required
+  >
+
+  <div class="help">
+    📌 Tip: Google Drive → Share → Anyone with link → Viewer
+  </div>
+</div>
+
+<!-- MESSAGE -->
+<div class="section">
+  <div class="section-title">Message</div>
+  <textarea id="message" rows="4"></textarea>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+  <button onclick="openPreview()">Preview & Publish</button>
+  <button class="secondary" onclick="openHistory()">📜 Upload History</button>
+  <div class="help">Students: <span id="pCount">—</span></div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div id="previewModal"
+  style="display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  align-items:center;justify-content:center;
+  z-index:9999">
+
+  <div style="background:#fff;width:95%;max-width:520px;border-radius:16px">
+
+    <div style="padding:20px;border-bottom:1px solid #e5e7eb">
+      <h3>📄 Preview Content</h3>
+    </div>
+
+    <div style="padding:20px;font-size:14px">
+      <p><b>Type:</b> <span id="pType"></span></p>
+      <p><b>Title:</b> <span id="pTitle"></span></p>
+      <p><b>Batches:</b> <span id="pBatches"></span></p>
+
+      <p id="pDeadlineWrap">
+        <b>Deadline:</b> <span id="pDeadline"></span>
+      </p>
+
+      <!-- ✅ ATTACHMENT PREVIEW -->
+      <p id="pFileWrap">
+        <b>Attachment:</b>
+        <a id="pFileUrl" href="#" target="_blank">View PDF</a>
+      </p>
+
+      <p><b>Message:</b></p>
+      <div style="background:#f9fafb;padding:12px;border-radius:8px">
+        <span id="pMessage"></span>
+      </div>
+    </div>
+
+    <div style="padding:16px;text-align:right;border-top:1px solid #e5e7eb">
+      <button class="secondary" onclick="closePreview()">Cancel</button>
+      <button type="button" onclick="confirmPublish(event)">
+        Confirm & Publish
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div id="historyPanel"
+  style="display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  align-items:center;justify-content:center;
+  z-index:9999">
+
+  <div style="background:#fff;width:95%;max-width:900px;border-radius:16px;padding:20px">
+
+    <h3>📜 Upload History</h3>
+
+    <table width="100%" border="1" cellpadding="6" cellspacing="0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Title</th>
+          <th>Batches</th>
+          <th>Deadline</th>
+          <th>Date & Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="historyBody">
+        <tr>
+          <td colspan="7">No records</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:right;margin-top:14px">
+      <button class="secondary" onclick="closeHistory()">Close</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="admin-common.js"></script>
+
+<script>
+/* =========================
+   PAGE INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  // page visible
+  document.body.style.visibility = "visible";
+
+  /* ===== DOM REFERENCES (SAFE INIT) ===== */
+  window.selectAll = document.getElementById("selectAllBatches");
+  window.batches = Array.from(document.querySelectorAll(".batch"));
+  window.batchCount = document.getElementById("batchCount");
+  window.selectedBadges = document.getElementById("selectedBadges");
+
+  window.type = document.getElementById("type");
+  window.deadlineBox = document.getElementById("deadlineBox");
+  window.uploadSection = document.getElementById("uploadSection");
+
+  window.title = document.getElementById("title");
+  window.message = document.getElementById("message");
+  window.deadline = document.getElementById("deadline");
+  window.fileUrlInput = document.getElementById("fileUrlInput");
+
+  window.previewModal = document.getElementById("previewModal");
+  window.historyPanel = document.getElementById("historyPanel");
+
+  window.pType = document.getElementById("pType");
+  window.pTitle = document.getElementById("pTitle");
+  window.pBatches = document.getElementById("pBatches");
+  window.pMessage = document.getElementById("pMessage");
+  window.pDeadline = document.getElementById("pDeadline");
+  window.pDeadlineWrap = document.getElementById("pDeadlineWrap");
+  window.pFileWrap = document.getElementById("pFileWrap");
+  window.pFileUrl = document.getElementById("pFileUrl");
+
+  window.pCount = document.getElementById("pCount");
+
+  /* ===== INIT ===== */
+  initUploadUI();
+  updateUI();
+});
+
+function isValidDriveUrl(url) {
+  return /^https:\/\/(drive|docs)\.google\.com\//i.test(url);
+}
+
+/* =========================
+   UI ELEMENTS
+========================= */
+function updateUI() {
+  const checked = batches.filter(b => b.checked);
+
+  batchCount.innerText =
+    `${checked.length} / ${batches.length} batches selected`;
+
+  selectedBadges.innerHTML =
+    checked.map(b => `<span class="badge">${b.value}</span>`).join("");
+}
+
+function initUploadUI() {
+
+  selectAll.onchange = () => {
+    if (selectAll.checked && !confirm("Send to ALL batches?")) {
+      selectAll.checked = false;
+      return;
+    }
+    batches.forEach(b => b.checked = selectAll.checked);
+    updateUI();
+  };
+
+  batches.forEach(b =>
+    b.onchange = () => {
+      updateUI();
+    }
+  );
+
+  type.onchange = () => {
+
+    /* DEADLINE */
+    deadlineBox.style.display =
+      type.value === "ASSIGNMENT" ? "block" : "none";
+
+    uploadSection.style.display =
+      type.value === "MESSAGE" ? "none" : "block";
+
+    if (type.value === "ACADEMIC_CALENDAR") {
+      batches.forEach(b => b.checked = true);
+    }
+
+    updateUI();
+  };
+
+  updateUI();
+}
+
+/* =========================
+   PREVIEW
+========================= */
+function openPreview() {
+
+  /* =========================
+     BASIC VALIDATIONS
+  ========================= */
+
+  if (!title || !title.value || !title.value.trim()) {
+    alert("⚠️ Title is required");
+    return;
+  }
+
+  if (type?.value === "MESSAGE" && !message?.value?.trim()) {
+    alert("⚠️ Message content is required");
+    return;
+  }
+
+  const selectedBatches = batches
+    .filter(b => b && b.checked)
+    .map(b => b.value);
+
+  if (!selectedBatches.length) {
+    alert("⚠️ Select at least one batch");
+    return;
+  }
+
+  /* =========================
+     OPEN MODAL SAFELY
+  ========================= */
+  if (!previewModal) {
+    alert("Preview not available");
+    return;
+  }
+
+  previewModal.style.display = "flex";
+
+  /* =========================
+     PREVIEW DATA (SAFE SET)
+  ========================= */
+
+  // Content type (human readable)
+  pType.innerText =
+    type?.options?.[type.selectedIndex]?.text || "-";
+
+  // Title
+  pTitle.innerText = title.value.trim();
+
+  // Batches
+  pBatches.innerText = selectedBatches.join(", ");
+
+  // Message
+  pMessage.innerText =
+    message?.value?.trim() || "—";
+
+  /* =========================
+     DEADLINE (ASSIGNMENT ONLY)
+  ========================= */
+  const isAssignment = type?.value === "ASSIGNMENT";
+
+  pDeadlineWrap.style.display =
+    isAssignment ? "block" : "none";
+
+  pDeadline.innerText =
+    isAssignment ? formatUIDate(deadline?.value) : "-";
+
+  /* =========================
+     FILE / LINK PREVIEW
+  ========================= */
+  const link = fileUrlInput?.value?.trim();
+
+  if (link) {
+    pFileWrap.style.display = "block";
+    pFileUrl.href = link;
+  } else {
+    pFileWrap.style.display = "none";
+    pFileUrl.removeAttribute("href");
+  }
+}
+
+function closePreview() {
+  previewModal.style.display = "none";
+}
+
+/* =========================
+   PUBLISH (LINK BASED)
+========================= */
+let isPublishing = false;
+
+async function confirmPublish(e) {
+  if (e?.preventDefault) e.preventDefault();
+
+  /* =========================
+     🔒 PREVENT DOUBLE SUBMIT
+  ========================= */
+  if (isPublishing) {
+    alert("⏳ Publishing in progress, please wait...");
+    return;
+  }
+
+  isPublishing = true;
+
+  const btn = e?.target;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "Publishing...";
+  }
+
+  try {
+    /* =========================
+       BASIC DATA
+    ========================= */
+    const batchesSelected = Array.isArray(batches)
+      ? batches.filter(b => b?.checked).map(b => b.value)
+      : [];
+
+    const fileUrl = fileUrlInput?.value?.trim() || "";
+    const token   = localStorage.getItem("SESSION");
+
+    /* =========================
+       HARD VALIDATIONS
+    ========================= */
+    if (!token) {
+      alert("❌ Session expired. Please login again.");
+      return;
+    }
+
+    if (!batchesSelected.length) {
+      alert("⚠️ Select at least one batch");
+      return;
+    }
+
+    if (!title?.value?.trim()) {
+      alert("⚠️ Title required");
+      return;
+    }
+
+    if (type?.value !== "MESSAGE" && !fileUrl) {
+      alert("⚠️ Paste Google Drive link");
+      return;
+    }
+
+    /* =========================
+       PAYLOAD
+    ========================= */
+    const payload = {
+      action: "uploadContent",
+      sessionToken: token,
+      type: type.value.toUpperCase(),
+      title: title.value.trim(),
+      message: message?.value?.trim() || "",
+      batches: batchesSelected.join(","),
+      deadline: deadline?.value || "",
+      fileUrl: fileUrl
+    };
+
+    console.log("UPLOAD PAYLOAD 👉", payload);
+
+    /* =========================
+       API CALL
+    ========================= */
+    let d = await adminFetch(payload);
+
+    /* =========================
+       🔥 RESPONSE NORMALIZATION (KEY FIX)
+    ========================= */
+    if (typeof d === "string") {
+      try { d = JSON.parse(d); } catch (_) {}
+    }
+
+    if (d && typeof d === "object" && d.data) {
+      d = d.data;
+    }
+
+    console.log("FINAL RESPONSE 👉", d);
+
+    /* =========================
+       ✅ SUCCESS = uploadId OR status
+    ========================= */
+    if (d && (d.uploadId || d.status === "uploaded")) {
+      alert("✅ Content uploaded successfully. Emails are being sent in background.");
+      closePreview?.();
+      location.reload();
+      return;
+    }
+
+    /* =========================
+       ⚠️ TRUE FALLBACK (VERY RARE)
+    ========================= */
+    alert("⚠️ Upload processed. Please check upload history.");
+    closePreview?.();
+    location.reload();
+
+  } catch (err) {
+    console.error("UPLOAD ERROR 👉", err);
+
+    alert("⚠️ Upload processed. Please check upload history.");
+    closePreview?.();
+    location.reload();
+
+  } finally {
+    isPublishing = false;
+
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "Confirm & Publish";
+    }
+  }
+}
+
+/* =========================
+   HISTORY
+========================= */
+async function openHistory() {
+  pCount.innerText = "—";
+  historyPanel.style.display = "flex";
+
+  const tbody = document.getElementById("historyBody");
+  tbody.innerHTML = "<tr><td colspan='7'>Loading...</td></tr>";
+
+  try {
+    const data = await fetchUploadHistory();
+
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML =
+        "<tr><td colspan='7'>No upload records found</td></tr>";
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    data.forEach((u, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${u.type}</td>
+        <td>${u.title}</td>
+        <td>${u.batches}</td>
+        <td>${formatUIDate(u.deadline)}</td>
+        <td>${formatDateTimeupload(u.date, u.time)}</td>
+        <td>
+          <button onclick="editUpload('${u.id}')">✏️ Edit</button>
+          <button onclick="updateContentViewCount('${u.id}')">
+            👁 Students
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (e) {
+    tbody.innerHTML =
+      "<tr><td colspan='7'>Failed to load upload history</td></tr>";
+  }
+}
+
+async function updateContentViewCount(uploadId) {
+
+  if (!uploadId) {
+    pCount.innerText = "—";
+    return;
+  }
+
+  try {
+    const res = await adminFetch({
+      action: "get_content_view_count",
+      uploadId,
+      sessionToken: localStorage.getItem("SESSION")
+    });
+    
+    const viewed = res?.viewed ?? 0;
+    const total  = res?.total ?? 0;
+
+    pCount.innerText = `${viewed} / ${total}`;
+
+  } catch (e) {
+    pCount.innerText = "—";
+  }
+}
+
+function closeHistory() {
+  pCount.innerText = "—";
+  historyPanel.style.display = "none";
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    closePreview();
+    closeHistory();
+  }
+});
+
+function formatUIDate(d) {
+  if (!d) return "-";
+  const dt = new Date(d);
+  return isNaN(dt)
+    ? d
+    : dt.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+}
+
+async function fetchUploadHistory() {
+  return adminFetch({ action: "get_upload_history" });
+}
+
+async function editUpload(id) {
+  const newTitle = prompt("Enter new title");
+  if (!newTitle) return;
+
+  const res = await adminFetch({
+    action: "edit_upload",
+    uploadId: id,
+    title: newTitle
+  });
+
+  if (res.status === "updated") {
+    alert("✅ Content updated");
+    openHistory();
+  }
+}
+
+function formatDateTimeupload(dateStr, timeStr) {
+  if (!dateStr) return "-";
+
+  // Combine date + time safely
+  const d = new Date(dateStr);
+  if (timeStr) {
+    const t = new Date(timeStr);
+    d.setHours(t.getHours(), t.getMinutes(), t.getSeconds());
+  }
+
+  return d.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  });
+}
+
+</script>
+
+
+</body>
+</html>

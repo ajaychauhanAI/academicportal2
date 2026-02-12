@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+
+  <style>
+/* ================= GLOBAL ================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', Arial;
+  background: transparent;
+  visibility: hidden;
+}
+
+/* ================= CONTENT BOX ================= */
+.box {
+  width: 100%;
+  max-width: 1160px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 30px auto 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+  margin: 24px auto;
+}
+
+h2, h3 {
+  margin-top: 0;
+}
+
+/* ================= TABLE ================= */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #f0f2ff;
+}
+
+/* ================= STATUS ================= */
+.locked {
+  color: orange;
+  font-weight: bold;
+}
+
+.blocked {
+  color: red;
+  font-weight: bold;
+}
+
+/* ================= BUTTON ================= */
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #667eea;
+  color: white;
+  cursor: pointer;
+  min-height: 42px;
+  font-size: 14px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* ================= LOCK FORM ================= */
+.lock-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.lock-form input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+  min-width: 150px;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+
+  /* Box */
+  .box {
+    margin: 20px 12px;
+    padding: 16px;
+  }
+
+  h2, h3 {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  table th, table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  button {
+    width: 100%;
+    font-size: 15px;
+  }
+
+  .lock-form {
+    flex-direction: column;
+  }
+
+  .lock-form input {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .box {
+    width: calc(100% - 25px);   
+    margin: 20px auto;          
+    padding: 16px;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+<!-- ================= MANUAL BLOCK ================= -->
+<div class="box">
+  <h3>🔒 Lock Account (Admin)</h3>
+
+  <div class="lock-form">
+    <input id="lockRoll" placeholder="Roll No">
+    <input id="lockBatch" placeholder="Batch">
+    <button onclick="blockAccount()">Block</button>
+  </div>
+</div>
+
+<!-- ===== CONFIRM MODAL ===== -->
+<div id="confirmModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:9999;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    width:90%;
+    max-width:420px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25)
+  ">
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmText"></p>
+
+    <input id="confirmInput"
+      placeholder="Type CONFIRM"
+      style="width:100%;padding:10px;margin-top:10px">
+
+    <textarea id="adminReason"
+      placeholder="Reason (required)"
+      style="width:100%;margin-top:10px;padding:10px"></textarea>
+
+    <div style="margin-top:15px;text-align:right">
+      <button onclick="closeConfirmModal()">Cancel</button>
+      <button id="confirmYesBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LOCKED ACCOUNTS ================= -->
+<div class="box">
+  <h2>🔐 Admin – Locked / Blocked Accounts</h2>
+
+  <div class="table-wrap">
+    <table id="lockedTable">
+      <thead>
+        <tr>
+          <th>Roll</th>
+          <th>Batch</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Locked By</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="admin-common.js"></script>
+<script>
+/*************************************************
+ * admin-locked-accounts.js
+ * ONLY FOR LOCKED / BLOCKED ACCOUNTS PAGE
+ *************************************************/
+
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  // page visible
+  document.body.style.visibility = "visible";
+
+  // initial data load
+  loadLockedAccounts();
+});
+
+/* ================= LOAD DATA ================= */
+function loadLockedAccounts() {
+  adminFetch({ action: "get_locked_accounts" })
+    .then(res => {
+      if (handleAdminSoftFail(res)) return;
+      const rows = res.rows; // 🔥 IMPORTANT
+
+      const tbody = document.querySelector("#lockedTable tbody");
+      tbody.innerHTML = "";
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align:center;color:#777">
+              No locked or blocked accounts
+            </td>
+          </tr>`;
+        return;
+      }
+
+      rows.forEach(r => {
+        const status = String(r[3]).toUpperCase();
+        const statusClass = status === "BLOCKED" ? "blocked" : "locked";
+
+        const actionBtn =
+          (status === "LOCKED" || status === "BLOCKED")
+            ? `<button onclick="unlockAccount('${r[0]}','${r[1]}')">
+                ${status === "BLOCKED" ? "Unblock" : "Unlock"}
+              </button>`
+            : "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r[0]}</td>
+          <td>${r[1]}</td>
+          <td>${r[2]}</td>
+          <td class="${statusClass}">${status}</td>
+          <td>${r[4]}</td>
+          <td>${formatDate(r[5])}</td>
+          <td>${formatTime(r[6])}</td>
+          <td>${actionBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+  .catch(err => {
+    if (String(err).includes("UNAUTHORIZED")) {
+      adminLogout();
+    } else {
+      console.warn("Skipped:", err);
+    }
+  });
+}
+
+/* ================= UNLOCK / UNBLOCK ================= */
+function unlockAccount(roll, batch) {
+  openConfirmModal(
+    "Unlock / Unblock Account",
+    `Roll: ${roll} | Batch: ${batch}`,
+    (reason) => doUnlock(roll, batch, reason)
+  );
+}
+
+function doUnlock(roll, batch, reason) {
+  adminFetch({
+    action: "admin_unlock",
+    roll,
+    batch,
+    reason,
+    sessionToken: localStorage.getItem("SESSION") // 🔑 MOST IMPORTANT
+  })
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    // ❌ fail case
+    if (!res || res.ok !== true) {
+      alert("❌ Unlock failed");
+      return;
+    }
+
+    // ✅ SUCCESS MESSAGE (backend se)
+    alert("✅ " + (res.message || "Account unlocked successfully"));
+
+    // 🔄 refresh locked list
+    loadLockedAccounts();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ Failed to unlock account");
+  });
+}
+
+function blockAccount() {
+
+  const rollInput  = document.getElementById("lockRoll");
+  const batchInput = document.getElementById("lockBatch");
+
+  const roll  = rollInput.value.trim();
+  const batch = batchInput.value.trim();
+
+  if (!roll || !batch) {
+    alert("Roll & Batch required");
+    return;
+  }
+
+  const confirmText = prompt("Type CONFIRM to continue");
+  if (confirmText !== "CONFIRM") return;
+
+  adminFetch({
+    action: "admin_block",
+    roll,
+    batch,
+    sessionToken: localStorage.getItem("SESSION") // 🔑 IMPORTANT
+  })
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    // ❌ fail case
+    if (!res || res.ok !== true) {
+      alert("❌ Failed to block account");
+      return;
+    }
+
+    // ✅ SUCCESS MESSAGE (backend se)
+    alert("⛔ " + (res.message || "Account blocked successfully"));
+
+    rollInput.value  = "";
+    batchInput.value = "";
+    loadLockedAccounts();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ Failed to block account");
+  });
+}
+
+/* ================= CONFIRM MODAL ================= */
+let confirmCallback = null;
+
+function openConfirmModal(title, text, onConfirm) {
+  document.getElementById("confirmTitle").innerText = title;
+  document.getElementById("confirmText").innerText = text;
+  document.getElementById("confirmInput").value = "";
+  document.getElementById("adminReason").value = "";
+  confirmCallback = onConfirm;
+  document.getElementById("confirmModal").style.display = "flex";
+}
+
+function closeConfirmModal() {
+  document.getElementById("confirmModal").style.display = "none";
+}
+
+document.getElementById("confirmYesBtn").onclick = () => {
+  const v = document.getElementById("confirmInput").value;
+  const reason = document.getElementById("adminReason").value.trim();
+
+  if (v !== "CONFIRM") {
+    alert("Type CONFIRM exactly");
+    return;
+  }
+  if (!reason) {
+    alert("Reason is required");
+    return;
+  }
+
+  closeConfirmModal();
+  confirmCallback?.(reason);
+};
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+}
+</script>
+</body>
+</html>

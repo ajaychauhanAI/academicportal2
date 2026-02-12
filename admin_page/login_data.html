@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Registered Users</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', Arial, sans-serif;
+  visibility: hidden;
+}
+
+.container {
+  width: 95%;
+  max-width: 1210px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0,0,0,.15);
+}
+
+h3 {
+  margin-bottom: 15px;
+}
+
+/* 🔍 Filters */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filters input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* 📊 Table */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead {
+  background: #4f46e5;
+  color: #fff;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background: #f3f4ff;
+}
+
+td.mono {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ⬇️ Load more */
+.load-more {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.load-more button {
+  padding: 10px 20px;
+  border: none;
+  background: #667eea;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.load-more button:hover {
+  opacity: .9;
+}
+tr.locked td {
+  color: #d97706;   /* yellow */
+  font-weight: 500;
+}
+
+tr.blocked td {
+  color: #dc2626;   /* red */
+  font-weight: 600;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h3>Registered Users (Live Sheet View)</h3>
+
+  <!-- 🔍 FILTERS -->
+  <div class="filters">
+    <input type="text" id="filterRoll" placeholder="Filter by Roll No">
+    <input type="text" id="filterBatch" placeholder="Filter by Batch">
+  </div>
+
+  <!-- 📊 TABLE -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Sr No</th>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Batch</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody id="loginDataBody">
+        <tr><td colspan="7">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ⬇️ LOAD MORE -->
+  <div class="load-more" id="loadMoreBox" style="display:none">
+    <button onclick="loadMore()">Load More</button>
+  </div>
+</div>
+
+<script src="admin-common.js"></script>
+
+<script>
+  /*************************************************
+ * admin-login-data.js
+ * ONLY FOR LOGIN DATA PAGE
+ *************************************************/
+
+let ALL_ROWS = [];
+let FILTERED_ROWS = [];
+let LIMIT = 10;
+let OFFSET = 0;
+let ACCOUNT_STATUS = {};
+let STATUS_TIMER = null;
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && STATUS_TIMER) {
+    clearInterval(STATUS_TIMER);
+    STATUS_TIMER = null;
+  }
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+  document.body.style.visibility = "visible";
+
+  try {
+    await fetchStatusMap();  // 🔐 locked / blocked map
+    setupFilters();          // 🔍 filters
+    fetchData();             // 📊 main table data
+  } catch (e) {
+    console.error("Login data load failed:", e);
+    loginDataBody.innerHTML =
+      `<tr><td colspan="7">Failed to load data</td></tr>`;
+  }
+});
+
+/* ================= FETCH LOGIN DATA ================= */
+function fetchData() {
+  adminFetch({ action: "get_login_data_raw" })
+    .then(rows => {
+
+      if (!Array.isArray(rows)) {
+        loginDataBody.innerHTML =
+          `<tr><td colspan="7">No data</td></tr>`;
+        return;
+      }
+
+      ALL_ROWS = rows;
+      applyFilters();
+    });
+}
+
+/* ================= ACCOUNT STATUS MAP ================= */
+function fetchStatusMap() {
+  return adminFetch({ action: "get_account_status_map" })
+    .then(map => {
+      ACCOUNT_STATUS = map || {};
+    });
+}
+
+/* ================= FILTER SETUP ================= */
+function setupFilters() {
+  document.getElementById("filterRoll")
+    .addEventListener("input", applyFilters);
+
+  document.getElementById("filterBatch")
+    .addEventListener("input", applyFilters);
+}
+
+/* ================= APPLY FILTER ================= */
+function applyFilters() {
+
+  if (!Array.isArray(ALL_ROWS)) {
+    loginDataBody.innerHTML =
+      `<tr><td colspan="7">No data</td></tr>`;
+    return;
+  }
+
+  const roll = filterRoll.value.toLowerCase();
+  const batch = filterBatch.value.toLowerCase();
+
+  FILTERED_ROWS = ALL_ROWS.filter(r =>
+    (!roll || String(r[1]).toLowerCase().includes(roll)) &&
+    (!batch || String(r[3]).toLowerCase().includes(batch))
+  );
+
+  OFFSET = 0;
+  renderRows(true);
+}
+
+/* ================= RENDER TABLE ================= */
+let RENDERING = false;
+
+function renderRows(reset) {
+  if (RENDERING) return;
+  RENDERING = true;
+
+  const body = document.getElementById("loginDataBody");
+  if (reset) body.innerHTML = "";
+
+  const slice = FILTERED_ROWS.slice(OFFSET, OFFSET + LIMIT);
+
+  if (!slice.length && OFFSET === 0) {
+    body.innerHTML = `<tr><td colspan="7">No data found</td></tr>`;
+    loadMoreBox.style.display = "none";
+    RENDERING = false;
+    return;
+  }
+
+  slice.forEach(r => {
+    const key = r[1] + "_" + r[3];
+    const status = ACCOUNT_STATUS[key];
+
+    let rowClass = "";
+    if (status === "BLOCKED") rowClass = "blocked";
+    else if (status === "LOCKED") rowClass = "locked";
+
+    body.insertAdjacentHTML("beforeend", `
+      <tr class="${rowClass}">
+        <td>${r[0]}</td>
+        <td>${r[1]}</td>
+        <td>${r[2]}</td>
+        <td>${r[3]}</td>
+        <td>${formatDate(r[5])}</td>
+        <td>${formatTime(r[6])}</td>
+        <td>${r[7]}</td>
+      </tr>
+    `);
+  });
+
+  OFFSET += LIMIT;
+  loadMoreBox.style.display =
+    OFFSET < FILTERED_ROWS.length ? "block" : "none";
+
+  RENDERING = false;
+}
+
+/* ================= LOAD MORE ================= */
+function loadMore() {
+  renderRows(false);
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+}
+</script>
+
+</body>
+</html>

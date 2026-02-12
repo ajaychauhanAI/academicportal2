@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin & Students Activity Logs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+
+  *, *::before, *::after {
+  box-sizing: border-box;
+}
+
+  body {
+  margin: 0;
+  font-family: 'Poppins', Arial;
+  background: transparent;
+  visibility: hidden;
+}
+
+  .card {
+  background: rgba(255, 255, 255, 0.95);
+  width: 95%;
+  max-width: 1210px;
+  padding: 0;
+  border-radius: 18px;
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  margin-top: 40px;
+  margin: 24px auto;
+}
+
+    /* HEADER */
+    .header {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+    }
+
+    .header img {
+      max-width: 140px;
+    }
+
+    .header h2 {
+      margin: 0;
+      text-align: center;
+      font-size: 18px;
+      color: #333;
+    }
+
+    input, select {
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    label {
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .divider {
+      height: 1px;
+      background: #ddd;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 7px;
+      text-align: left;
+    }
+
+    th {
+      background: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    tr:hover {
+      background: #eef2ff;
+    }
+
+    .load-more {
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+    }
+
+    .load-more:hover {
+      opacity: 0.9;
+    }
+
+/* 📱 MOBILE VIEW */
+@media (max-width: 768px) {
+
+  /* Header stack */
+  .header {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .header h2 {
+    font-size: 16px;
+  }
+
+  /* Inputs full width */
+  .header input,
+  .header select {
+    width: 100%;
+  }
+
+  label {
+    justify-self: center;
+  }
+
+  /* Card spacing */
+  .card {
+    width: 94%;
+    margin-top: 24px;
+  }
+
+  /* Table scroll */
+  .content {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  /* Load more button */
+  .load-more {
+    width: 100%;
+    font-size: 14px;
+  }
+
+}
+@media (max-width: 600px) {
+  .date-time {
+    width: 100%;
+    text-align: center;
+    margin-top: 6px;
+  }
+}
+
+  </style>
+</head>
+
+<body class="portal-theme">
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h2>🔐 Security Logs</h2>
+
+    <input
+  id="searchBox"
+  placeholder="Search by (Roll, Batch)"
+  oninput="filterLogs()"
+>
+
+    <select id="actionFilter" onchange="filterLogs()">
+      <option value="">All Actions</option>
+      <option>Login Success</option>
+      <option>Login Failed</option>
+      <option>Password Reset</option>
+      <option>Account Locked</option>
+      <option>Logout</option>
+    </select>
+
+   <input
+  type="date"
+  id="fromDate"
+  title="From"
+  aria-label="From Date"
+  onchange="filterLogs()"
+>
+
+<input
+  type="date"
+  id="toDate"
+  title="To"
+  aria-label="To Date"
+  onchange="filterLogs()"
+>
+
+
+    <label>
+      <input type="checkbox" id="autoRefresh" onchange="toggleAutoRefresh()"> Auto
+    </label>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TABLE -->
+  <div class="content">
+    <table id="logTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Roll</th>
+          <th>Batch</th>
+          <th>Action</th>
+          <th>By</th>
+          <th>Device</th>
+          <th>Browser</th>
+          <th>OS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <button class="load-more" onclick="loadMore()">⏬ Load More</button>
+  </div>
+
+</div>
+
+<script src="admin-common.js"></script>
+<script>
+/*************************************************
+ * admin-student-activity.js
+ * ONLY FOR STUDENT ACTIVITY / SECURITY LOGS
+ *************************************************/
+
+let ALL_LOGS = [];
+let VIEW_LOGS = [];
+let LIMIT = 20;
+let refreshTimer = null;
+let LOGS_TIMER = null;
+
+/* =====================
+   DOM CACHE (FIXED)
+===================== */
+const searchBox     = document.getElementById("searchBox");
+const actionFilter  = document.getElementById("actionFilter");
+const fromDate      = document.getElementById("fromDate");
+const toDate        = document.getElementById("toDate");
+const autoRefresh   = document.getElementById("autoRefresh");
+const loadMoreBtn   = document.querySelector(".load-more");
+
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", async () => {
+  document.body.style.visibility = "visible";
+
+  try {
+    loadLogs();        // 📊 initial data load
+    startLiveLogs();   // 🔁 auto refresh loop
+  } catch (e) {
+    console.error("Security logs load failed:", e);
+  }
+});
+
+/* ================= LIVE LOOP ================= */
+function startLiveLogs() {
+  if (LOGS_TIMER) return;
+
+  LOGS_TIMER = setInterval(loadLogs, 5000); // every 5 sec
+}
+
+function stopLiveLogs() {
+  clearInterval(LOGS_TIMER);
+  LOGS_TIMER = null;
+}
+
+/* ================= LOAD LOGS ================= */
+function loadLogs() {
+  adminFetch({ action: "get_security_logs" })
+    .then(res => {
+      if (handleAdminSoftFail(res)) return;
+      if (!Array.isArray(res)) return;
+
+      ALL_LOGS  = res;
+      VIEW_LOGS = res;
+      LIMIT = 20;
+      render();
+    })
+    .catch(err => {
+    if (String(err).includes("UNAUTHORIZED")) {
+      adminLogout();
+    } else {
+      console.warn("Skipped:", err);
+    }
+  });
+}
+
+/* ================= RENDER ================= */
+function render() {
+  const tbody = document.querySelector("#logTable tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  const rows = VIEW_LOGS.slice(0, LIMIT);
+
+  if (!rows.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="9" style="text-align:center;color:#888">
+        No logs found
+      </td></tr>`;
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+
+    r.forEach((c, i) => {
+      const td = document.createElement("td");
+      if (i === 0) td.textContent = formatDate(c);
+      else if (i === 1) td.textContent = formatTime(c);
+      else td.textContent = c;
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  if (loadMoreBtn) {
+    loadMoreBtn.style.display =
+      VIEW_LOGS.length > LIMIT ? "block" : "none";
+  }
+}
+
+/* ================= LOAD MORE ================= */
+function loadMore() {
+  LIMIT += 20;
+  render();
+}
+
+/* ================= FILTER ================= */
+function normalizeDate(d) {
+  const nd = new Date(d);
+  nd.setHours(0, 0, 0, 0);
+  return nd;
+}
+
+function filterLogs() {
+  const q      = searchBox.value.trim().toLowerCase();
+  const action = actionFilter.value.trim().toLowerCase();
+  const from   = fromDate.value;
+  const to     = toDate.value;
+
+  const fromD = from ? normalizeDate(from) : null;
+  const toD   = to   ? normalizeDate(to)   : null;
+
+  VIEW_LOGS = ALL_LOGS.filter(r => {
+
+    const roll  = String(r[2]).toLowerCase();
+    const batch = String(r[3]).toLowerCase();
+    const act   = String(r[4]).toLowerCase();
+
+    if (q && !roll.includes(q) && !batch.includes(q)) return false;
+    if (action && !act.includes(action)) return false;
+
+    const logDate = normalizeDate(r[0]);
+    if (fromD && logDate < fromD) return false;
+    if (toD   && logDate > toD)   return false;
+
+    return true;
+  });
+
+  LIMIT = 20;
+  render();
+}
+
+/* ================= AUTO REFRESH (PAGE) ================= */
+function toggleAutoRefresh() {
+  clearInterval(refreshTimer);
+  refreshTimer = null;
+
+  if (autoRefresh.checked) {
+    refreshTimer = setInterval(loadLogs, 10000);
+  }
+}
+
+/* ================= PERFORMANCE ================= */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    stopLiveLogs();
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  } else {
+    startLiveLogs();
+    if (autoRefresh?.checked) toggleAutoRefresh();
+  }
+});
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+}
+</script>
+
+</body>
+</html>

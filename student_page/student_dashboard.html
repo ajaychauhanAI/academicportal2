@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BCADS ACADEMIC PORTAL</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="student_dashboard.css">
+
+</head>
+
+<body>
+
+<div class="layout">
+
+  <!-- =========================
+       SIDEBAR
+  ========================= -->
+  <aside id="sidebar" class="sidebar">
+    <button class="close-btn" aria-label="Close sidebar">✕</button>
+
+    <!-- LOGO -->
+    <div class="logo-card">
+      <img src="../logo/logo2.png"
+           alt="BCADS Academic Portal"
+           class="logo-img">
+
+      <div class="logo-text">
+        <div class="logo-title">BCADS</div>
+        <div class="logo-subtitle">ACADEMIC PORTAL</div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="nav">
+      <div id="welcomeText"></div>
+
+      <a class="active" onclick="showDashboard()">
+        <i class="fa-solid fa-gauge"></i> Dashboard
+      </a>
+
+      <a onclick="showFiltered('Assignment')">
+        <i class="fa-solid fa-book"></i> Assignments
+      </a>
+
+      <a onclick="showFiltered('Notes')">
+        <i class="fa-solid fa-note-sticky"></i> Notes
+      </a>
+
+      <a onclick="showFiltered('PYQ')">
+        <i class="fa-solid fa-file-lines"></i> PYQ
+      </a>
+
+      <a onclick="showFiltered('Message')">
+        <i class="fa-solid fa-bullhorn"></i>
+        Latest Notice <span id="newsBadge"></span>
+      </a>
+    </nav>
+
+    <!-- LOGOUT -->
+    <div class="logout" onclick="logout()">
+      <i class="fa-solid fa-power-off"></i> Logout
+    </div>
+  </aside>
+
+  <!-- =========================
+       MAIN CONTENT
+  ========================= -->
+  <main class="main">
+
+    <!-- ================= TOP BAR ================= -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button id="menuToggle"
+                class="menu-btn"
+                aria-label="Open sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput"
+                 placeholder="Search..."
+                 oninput="handleDashboardSearch(this.value)">
+        </div>
+      </div>
+
+      <div class="user-chip">
+        <div class="avatar" id="avatar">S</div>
+        <div>
+          <strong id="studentName">Student</strong><br>
+          <small id="studentBatch"></small>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= PAGE HEADER ================= -->
+<section class="over">
+
+  <div class="over-left">
+    <h2 id="pageTitle">📊 STUDENT DASHBOARD OVERVIEW</h2>
+  </div>
+
+  <div class="over-right">
+    <div id="liveDateTime"></div>
+
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </div>
+
+</section>
+
+    <!-- ================= SUMMARY CARDS ================= -->
+    <section class="cards">
+
+      <div class="card summary-card" onclick="openSummaryPopup('Notes')">
+        <div>
+          <span>Total Notes</span>
+          <h2 id="totalNotes">--</h2>
+        </div>
+        <div class="icon blue">
+          <i class="fa-solid fa-book"></i>
+        </div>
+      </div>
+
+      <div class="card" onclick="openSummaryPopup('Assignment')">
+        <div>
+          <span>Total Assignments</span>
+          <h2 id="totalAssignments">--</h2>
+        </div>
+        <div class="icon blue">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+      </div>
+
+      <div class="card" onclick="openSummaryPopup('Pending')">
+        <div>
+          <span>Pending</span>
+          <h2 id="pendingAssignments">--</h2>
+        </div>
+        <div class="icon orange">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+      </div>
+
+      <div class="card" onclick="openSummaryPopup('Expired')">
+        <div>
+          <span>Expired</span>
+          <h2 id="expiredAssignments">--</h2>
+        </div>
+        <div class="icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+      </div>
+
+      <div class="card" onclick="openSummaryPopup('PYQ')">
+        <div>
+          <span>PYQ</span>
+          <h2 id="totalPyq">--</h2>
+        </div>
+        <div class="icon green">
+          <i class="fa-solid fa-folder"></i>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= SUBJECT TABS ================= -->
+    <div id="subjectTabs"
+         class="subject-tabs"
+         style="display:none"></div>
+
+    <!-- ================= LATEST NEWS ================= -->
+<!-- ===== Announcement + Subject Wrapper ===== -->
+<div class="dashboard-lower-grid">
+
+  <!-- LEFT : ANNOUNCEMENTS -->
+  <section id="newsSection" class="news-panel">
+
+    <div class="news-panel-header">
+      <h3>📢 Announcements</h3>
+    </div>
+
+    <div class="news-block">
+      <div class="news-block-title">Latest News</div>
+      <div id="newsContainer" class="news-list"></div>
+    </div>
+
+    <div class="news-block">
+      <div class="news-block-title">Notice Documents</div>
+      <div id="noticeDocsContainer" class="docs-list"></div>
+    </div>
+
+  </section>
+
+  <!-- RIGHT : SUBJECT PROGRESS -->
+<div>
+  <div id="subjectProgress"></div>
+  <div id="deadlineBox" class="news-panel" style="margin-top:20px;"></div>
+</div>
+
+
+</div>
+
+    <!-- ================= CONTENT GRID ================= -->
+    <div id="contentGrid" class="grid"></div>
+
+    <!-- ================= SUMMARY POPUP ================= -->
+    <div id="summaryModal" class="summary-modal">
+      <div class="summary-box">
+        <div class="summary-header">
+          <h3 id="summaryTitle"></h3>
+          <button onclick="closeSummaryPopup()">✖</button>
+        </div>
+        <div id="summaryBody"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../login_page/style.js"></script>
+<script src="student_common.js"></script>
+</body>
+</html>

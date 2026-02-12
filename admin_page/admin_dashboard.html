@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BCADS ACADEMIC PORTAL - ADMIN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <link rel="stylesheet" href="admin_dashboard.css"> 
+
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <!-- Sidebar header after card -->
+
+<!-- 🔷 ADMIN WELCOME CARD -->
+<div class="admin-welcome">
+
+  <div class="welcome-logo">
+    <img src="../logo/logo2.png" alt="Portal Logo">
+  </div>
+
+  <div class="brand">
+    <span class="brand-main">BBDU BCADS</span><br>
+    <span class="brand-gradient">ACADEMIC PORTAL</span>
+  </div>
+
+  <!-- Greeting inside card -->
+  <div class="welcome-greeting">
+    <span id="greetingText">Good Evening</span>,
+    <span id="welcomeAdminName">Admin</span>
+  </div>
+
+</div>
+
+    <nav class="nav">
+      <a class="active" onclick="openTab('dashboard',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z"/>
+        </svg>
+          Dashboard
+      </a>
+
+      <a onclick="openTab('data',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5Z"/>
+        </svg>
+          Student Data
+      </a>
+
+      <a onclick="openTab('activity',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16l4-4h6a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Zm4 4v12a2 2 0 0 1-2 2H8v2h10l4 4V6h-4Z"/>
+        </svg>
+          Activity Logs
+      </a>
+
+      <a onclick="openTab('email',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5Z"/>
+        </svg>
+          Email Audit
+      </a>
+
+      <a onclick="openTab('locked',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-6h-1V9a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-3 0H9V9a3 3 0 0 1 6 0v2Z"/>
+        </svg>
+          Locked Accounts
+      </a>
+
+      <a onclick="goHome()">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M12 3 2 12h3v9h6v-6h2v6h6v-9h3L12 3Z"/>
+        </svg>
+          Student Page
+      </a>
+
+      <a onclick="openTab('academic',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm0 13L3.74 11.2 12 6.75l8.26 4.45L12 16Z"/>
+        </svg>
+          Academic Activity
+      </a>
+
+      <a onclick="openTab('upload',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M5 20h14v-2H5v2Zm7-16-5 5h3v4h4v-4h3l-5-5Z"/>
+        </svg>
+          Upload  
+      </a>
+    </nav>
+    
+    <div class="nav-bottom">
+      <a onclick="logout()" class="logout-link">
+      <svg class="nav-icon" viewBox="0 0 24 24">
+        <path d="M16 13v-2H7V8l-5 4 5 4v-3h9Zm3-10H9a2 2 0 0 0-2 2v4h2V5h10v14H9v-4H7v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/>
+      </svg>
+         Logout
+      </a>
+    </div>
+  </aside>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="mobile-menu-btn" onclick="toggleSidebar()">
+          ☰
+        </div>
+      
+        <span class="page-title">📊 DASHBOARD OVERVIEW</span>
+
+        <span class="active-circle" id="activeCircle" title="">
+          <span id="activeStudentCount">0</span>
+        </span>
+      
+
+
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      <div class="time" id="dateTime"></div>
+
+      <div class="admin">
+        <span id="adminName"></span>
+        <span class="dot">●</span>
+        <span id="adminBatch" style="margin-left:6px;"></span>
+        <span id="adminRole" style="margin-left:6px; opacity:0.7; font-size:12px;"></span>
+
+        <div class="avatar-wrapper" onclick="toggleProfileMenu(event)">
+          <div class="avatar online">
+            <img src="../logo/admin.jpg" alt="Admin"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <span class="initials">AJ</span>
+          </div>
+
+        <div class="profile-menu">
+         <a href="../admin_profile/profile.html">👤 Profile</a>
+        </div>
+      </div>  
+    </div>
+  </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="tab">
+      <div class="cards">
+      <div class="card"><h4>Total Accounts</h4><p id="totalAccounts">--</p></div>
+      <div class="card"><h4>Active Accounts</h4><p id="activeAccounts">--</p>
+      <small id="activeDelta" class="delta up"></small></div>
+      <div class="card"><h4>Locked Accounts</h4><p id="lockedAccounts">--</p></div>
+      <div class="card"><h4>Blocked Accounts</h4><p id="blockedAccounts">--</p></div>
+      <div class="card"><h4>Failed Logins (Today)</h4><p id="failedLogins">--</p></div>
+      <div class="card"><h4>Login Growth</h4><p id="loginGrowth">--</p></div>
+      <div class="card"><h4>Password Resets</h4><p id="resetCount">--</p></div>
+      <div class="card"><h4>Last Admin Action</h4><p id="lastAdminAction"></p></div>
+      </div>
+
+      <div class="grid">
+        <div class="panel dashboard-panel">
+            <div class="trend-controls">
+              <button onclick="loadTodayTrend()" id="btnToday">Today</button> 
+              <button onclick="loadWeeklyTrend()" id="btnWeekly">Weekly</button>
+              <button onclick="loadMonthlyTrend()" id="btnMonthly">Monthly</button>
+            </div>
+          <canvas id="trendChart"></canvas>
+        </div>
+        <div class="panel dashboard-panel">
+          <canvas id="courseChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULES -->
+
+    <section id="data" class="tab" style="display:none"><iframe src="login_data.html"></iframe></section>
+    <section id="activity" class="tab" style="display:none"><iframe src="student_activity.html"></iframe></section>
+    <section id="email" class="tab" style="display:none"><iframe src="admin_email_audit.html"></iframe></section>
+    <section id="locked" class="tab" style="display:none"><iframe src="locked_accounts.html"></iframe></section>
+    <section id="academic" class="tab" style="display:none"><iframe src="./academic_activity.html"></iframe></section>
+    <section id="upload" class="tab" style="display:none"><iframe src="upload_page.html"></iframe></section>
+
+<div id="activeStudentModal" class="modal hidden">
+  <div class="modal-box">
+
+    <!-- 🔹 HEADER -->
+    <div class="modal-header">
+      <h3>🟢 Active Students</h3>
+
+        <div class="batch-selector">
+          <label for="activeBatchSelect">Batch:</label>
+
+          <select id="activeBatchSelect"
+             onchange="onActiveBatchChange(this.value)">
+            <option value="">All Active Batches</option>
+          </select>
+        </div>
+
+      <!-- ✅ 4️⃣ BATCH LOGOUT BUTTON -->
+      <button class="force-btn"
+        onclick="forceLogoutBatch(currentBatch)">
+        🚫 Logout This Batch
+      </button>
+    </div>
+
+    <!-- 🔹 TABLE -->
+    <table class="active-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Roll</th>
+          <th>Batch</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="activeStudentTable"></tbody>
+    </table>
+
+    <!-- 🔹 FOOTER -->
+    <div class="modal-footer">
+
+      <!-- 🚨 5️⃣ EMERGENCY LOGOUT ALL -->
+      <button class="force-btn danger"
+        onclick="forceLogoutAll()">
+        🚨 Logout ALL Active Students
+      </button>
+
+      <button onclick="closeActiveStudentModal()">
+        Close
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+  </main>
+</div>
+
+<script src="admin-common.js"></script>
+<script>
+ 
+/*************************************************
+ * admin-dashboard.js
+ * ONLY FOR ADMIN DASHBOARD
+ *************************************************/
+// 🔁 Trend mode tracker
+let currentTrendMode = "today";
+
+// 🔒 SAFETY FLAGS
+let dashboardLiveStarted = false;
+
+let cachedTodayTrend = null;   // ✅ ADD THIS
+
+let lastTodayTrendFetch = 0;
+
+// 🧮 Admin stats throttle
+let lastAdminStatsTime = 0;
+
+let __IS_LIVE_REFRESH__ = false;
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  /* ===============================
+     ⏰ BASIC UI (INSTANT)
+  =============================== */
+  setActiveTrendButton("btnToday");
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+
+  /* ===============================
+     🔒 SESSION TOKEN CHECK
+  =============================== */
+  const token = localStorage.getItem("SESSION");
+  if (!token) {
+    adminLogout();
+    return;
+  }
+
+  /* ===============================
+     🔐 VERIFY SESSION (ONLY BLOCKING CALL)
+  =============================== */
+  let session;
+  try {
+    session = await verifySession("admin");
+  } catch (err) {
+
+    if (err.message === "ROLE_MISMATCH") {
+      alert("⛔ Access denied. Please login as Admin.");
+      adminLogout();
+      return;
+    }
+
+    console.warn("verifySession failed:", err);
+    adminLogout();
+    return;
+  }
+  
+  /* ===============================
+     🔄 SYNC USER DATA (FAST)
+  =============================== */
+  if (session.batch) localStorage.setItem("BATCH", session.batch);
+  if (session.email) localStorage.setItem("EMAIL", session.email);
+
+  document.getElementById("adminName").textContent =
+    localStorage.getItem("NAME") || "Admin";
+
+  document.getElementById("adminBatch").textContent =
+    session.batch || "";
+
+  document.getElementById("adminRole").textContent =
+    String(session.role || "").toUpperCase();
+  
+  // 🔷 Welcome Card Name Sync
+  const adminName = localStorage.getItem("NAME") || "Admin";
+  document.getElementById("welcomeAdminName").textContent = adminName;
+
+  // 🔷 Auto Greeting + Emoji
+  function updateGreeting(){
+    const hour = new Date().getHours();
+
+    let greetingText = "";
+    let emoji = "";
+
+    if(hour < 12){
+      greetingText = "Good Morning";
+      emoji = "🌅";
+    } 
+    else if(hour < 17){
+      greetingText = "Good Afternoon";
+      emoji = "☀️";
+    } 
+    else if(hour < 22){
+      greetingText = "Good Evening";
+      emoji = "🌇";
+    } 
+    else {
+      greetingText = "Good Night";
+      emoji = "🌙";
+    }
+
+    document.getElementById("greetingText").textContent = greetingText;
+
+    document.getElementById("welcomeAdminName").textContent =
+      `${adminName} ${emoji}`;
+  }
+
+  updateGreeting();
+
+  /* ===============================
+     ⚡ STAGGERED DASHBOARD LOAD
+  =============================== */
+
+  setTimeout(loadStatusChartData, 500);
+  setTimeout(loadActiveStudentCount, 800);
+
+  requestIdleCallback(() => {
+    initCharts();
+  });
+
+  setTimeout(loadDashboardActivityStats, 1500);
+
+  /* ===============================
+     🔥 LIVE DASHBOARD (DELAYED)
+  =============================== */
+  async function refreshAllDashboard() {
+
+    if (typeof __RATE_LIMITED_UNTIL__ === "number" &&
+        Date.now() < __RATE_LIMITED_UNTIL__) {
+      return;
+    }
+
+    if (window.__IS_LIVE_REFRESH__ === true) {
+      return;
+    }
+
+    try {
+      window.__IS_LIVE_REFRESH__ = true;
+
+      await updateDashboardLive();
+      loadAdminStatsSafe();
+
+    } finally {
+      window.__IS_LIVE_REFRESH__ = false;
+    }
+  }
+
+  setTimeout(refreshAllDashboard, 3000);
+
+  if (!window.__DASHBOARD_LIVE_STARTED__) {
+    window.__DASHBOARD_LIVE_STARTED__ = true;
+
+    window.DASHBOARD_TIMER = setInterval(
+      refreshAllDashboard,
+      15000
+    );
+  }
+
+  /* =========================================
+     📱 SIDEBAR MOBILE CONTROLLER (MERGED)
+  ========================================= */
+
+  const sidebar = document.querySelector(".sidebar");
+  const overlay = document.querySelector(".sidebar-overlay");
+  const menuBtn = document.querySelector(".mobile-menu-btn");
+  const navLinks = document.querySelectorAll(".nav a");
+
+  function openSidebar() {
+    sidebar.classList.add("open");
+    overlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  function toggleSidebar() {
+    if (sidebar.classList.contains("open")) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  }
+  
+
+  if(menuBtn) menuBtn.addEventListener("click", toggleSidebar);
+  if(overlay) overlay.addEventListener("click", closeSidebar);
+
+  navLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        closeSidebar();
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSidebar();
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      closeSidebar();
+    }
+  });
+
+});
+
+/* ===============================
+   🧮 SAFE ADMIN STATS LOADER
+=============================== */
+function loadAdminStatsSafe(force = false) {
+
+  if (!force && Date.now() - lastAdminStatsTime < 15000) {
+    return;
+  }
+
+  lastAdminStatsTime = Date.now();
+  loadAdminStats();
+}
+
+async function loadAdminStats() {
+  loadDashboardActivityStats();
+}
+
+// ✅ FINAL DASHBOARD LIVE LOOP
+let DASHBOARD_TIMER = null;
+
+function startDashboardLive() {
+  if (DASHBOARD_TIMER) return;
+
+  DASHBOARD_TIMER = setInterval(() => {
+    // 🔥 SINGLE SOURCE OF TRUTH
+    updateDashboardLive();
+  }, 15000);
+}
+
+/* =========================
+   🔵 ACTIVE STUDENTS COUNT
+========================= */
+let activeStudentsCache = [];
+
+function loadActiveStudentCount() {
+
+  adminFetch({ action: "get_active_sessions" }, false, { silent: true })
+    .then(res => {
+      if (handleAdminSoftFail(res)) return;
+      const circle  = document.getElementById("activeCircle");
+      const countEl = document.getElementById("activeStudentCount");
+
+      /* ===============================
+         🛑 SAFE GUARDS (NO UI BREAK)
+      =============================== */
+      if (
+        !res ||
+        res.__empty ||
+        res.__invalid ||
+        res.__network ||
+        res.__aborted ||
+        res.__softFail ||
+        !Array.isArray(res)
+      ) {
+        countEl.innerText = 0;
+        circle.title = "0 students online";
+        activeStudentsCache = [];
+        return;
+      }
+
+      /* ===============================
+         ✅ VALID DATA
+      =============================== */
+      const students = res.filter(
+        s => s && s.roll && s.batch
+      );
+
+      activeStudentsCache = students;
+
+      countEl.innerText = students.length;
+      circle.title = `${students.length} students online`;
+
+      /* ===============================
+         🔄 MODAL OPEN → REFRESH TABLE
+      =============================== */
+      const modal =
+        document.getElementById("activeStudentModal");
+
+      if (modal && !modal.classList.contains("hidden")) {
+        loadActiveStudents(currentBatch);
+        populateActiveBatchDropdown();
+      }
+    })
+    .catch(err => {
+      // ❌ NEVER LOGOUT / NEVER THROW
+      console.warn("Active student count skipped:", err);
+
+      const countEl =
+        document.getElementById("activeStudentCount");
+
+      if (countEl) countEl.innerText = 0;
+      activeStudentsCache = [];
+    });
+}
+
+function loadActiveStudents(batch){
+
+  const tbody = document.getElementById("activeStudentTable");
+  tbody.innerHTML = "";
+
+  const list = batch
+    ? activeStudentsCache.filter(s => s.batch === batch)
+    : activeStudentsCache;
+
+  if (!list.length) {
+    tbody.innerHTML =
+      `<tr><td colspan="4">No active students</td></tr>`;
+    return;
+  }
+
+  list.forEach((s, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${s.roll}</td>
+      <td>${s.batch}</td>
+      <td>
+        <button class="force-btn"
+          onclick="forceLogoutStudent('${s.roll}','${s.batch}')">
+          Logout
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById("activeCircle").onclick = () => {
+
+  if (!activeStudentsCache.length) {
+    alert("No active students right now");
+    return;
+  }
+
+  currentBatch = null;
+  document.getElementById("activeBatchSelect").value = "";
+  loadActiveStudents(null);
+
+  document.getElementById("activeStudentModal")
+    .classList.remove("hidden");
+};
+
+function closeActiveStudentModal(){
+  document.getElementById("activeStudentModal")
+    .classList.add("hidden");
+}
+
+document.getElementById("activeStudentModal")
+  .addEventListener("click", e => {
+    if (e.target.id === "activeStudentModal") {
+      closeActiveStudentModal();
+    }
+  });
+
+/* =========================
+   UI HELPERS (DASHBOARD)
+========================= */
+function openTab(id, el) {
+
+  // 🔒 hide all tabs
+  document.querySelectorAll(".tab").forEach(t => {
+    t.style.display = "none";
+  });
+
+  // 🔓 show target tab
+  const tab = document.getElementById(id);
+  if (!tab) return;
+
+  tab.style.display = "block";
+
+  // 🎯 active nav state
+  document.querySelectorAll(".nav a").forEach(a => {
+    a.classList.remove("active");
+  });
+  el?.classList.add("active");
+}
+
+function updateDateTime() {
+  const el = document.getElementById("dateTime");
+  if (!el) return;
+
+  el.innerText = new Date().toLocaleString("en-IN", {
+    dateStyle: "full",
+    timeStyle: "medium"
+  });
+}
+
+function goHome() {
+  location.href = "../student_page/student_dashboard.html";
+}
+
+/* =========================
+   🔐 LOGOUT (CALL COMMON)
+========================= */
+function logout() {
+  adminLogout();
+}
+
+function forceLogoutStudent(roll, batch) {
+
+  /* ===============================
+     🛑 BASIC VALIDATION
+  =============================== */
+  if (!roll || !batch) {
+    alert("❌ Invalid student data");
+    return;
+  }
+
+  const ok = confirm(
+    `🚫 Force Logout Student?\n\nRoll: ${roll}\nBatch: ${batch}`
+  );
+  if (!ok) return;
+
+  adminFetch(
+    {
+      action: "admin_force_logout",
+      target: {
+        mode: "STUDENT",
+        roll,
+        batch
+      }
+    },
+    false,
+    { silent: true }
+  )
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    /* ===============================
+       🛑 SAFE GUARDS
+    =============================== */
+    if (
+      !res ||
+      res.__empty ||
+      res.__invalid ||
+      res.__network ||
+      res.__aborted ||
+      res.__softFail
+    ) {
+      alert("⚠️ Temporary issue. Please try again.");
+      return;
+    }
+
+    /* ===============================
+       ✅ SUCCESS CASE
+    =============================== */
+    if (res.status === "ok") {
+      alert(`✅ Student logged out (${res.removed || 1})`);
+      loadActiveStudentCount(); // refresh UI
+      return;
+    }
+
+    /* ===============================
+       ❌ KNOWN FAILURE
+    =============================== */
+    alert("❌ Logout failed. Student may already be offline.");
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    console.warn("forceLogoutStudent error:", err);
+    alert("⚠️ Server busy. Please try again.");
+  });
+}
+
+/* =========================
+   📈 ACTIVITY STATS
+========================= */
+// 🔥 DASHBOARD ACTIVITY STATE (add once, top of file)
+const activityState = {
+  failedHTML: null,
+  growthHTML: null,
+  resets: null,
+  lastAction: null
+};
+
+function updateLiveHTML(el, key, html) {
+  if (activityState[key] === html) return; // no change
+  el.innerHTML = html;
+  activityState[key] = html;
+}
+
+function updateLiveText(el, key, value) {
+  if (activityState[key] === value) return;
+  el.innerText = value;
+  activityState[key] = value;
+}
+
+function loadDashboardActivityStats() {
+
+  return adminFetch(
+    { action: "getAdminStats" },
+    false,
+    { silent: true }
+  )
+  .then(d => {
+
+    /* ===============================
+       🛑 GLOBAL SAFE GUARDS
+    =============================== */
+    if (
+      !d ||
+      d.__empty ||
+      d.__invalid ||
+      d.__network ||
+      d.__aborted ||
+      d.__softFail ||
+      d.status === "rate_limited"
+    ) {
+      console.warn("AdminStats skipped:", d?.status || d);
+      return;
+    }
+
+    /* ===============================
+       🔴 FAILED LOGINS (TODAY)
+    =============================== */
+    const failedTotal =
+      typeof d.failedLoginsToday === "number"
+        ? d.failedLoginsToday
+        : 0;
+
+    const wrongPwd =
+      typeof d.failedWrongPasswordToday === "number"
+        ? d.failedWrongPasswordToday
+        : 0;
+
+    const locked =
+      typeof d.failedLockedToday === "number"
+        ? d.failedLockedToday
+        : 0;
+
+    const failedHTML = `
+      <strong>${failedTotal}</strong>
+      <br>
+      <small>
+        Wrong Password: ${wrongPwd},
+        Locked: ${locked}
+      </small>
+    `;
+
+    if (
+      typeof failedLogins !== "undefined" &&
+      activityState.failedHTML !== failedHTML
+    ) {
+      failedLogins.innerHTML = failedHTML;
+      activityState.failedHTML = failedHTML;
+    }
+
+    /* ===============================
+       🛡️ LAST ADMIN ACTION
+    =============================== */
+    const lastActionText =
+      typeof d.lastAdminAction === "string" &&
+      d.lastAdminAction.trim()
+        ? "🛡️ " + d.lastAdminAction
+        : "System secure • No admin action";
+
+    if (
+      typeof lastAdminAction !== "undefined" &&
+      activityState.lastAction !== lastActionText
+    ) {
+      lastAdminAction.textContent = lastActionText;
+      activityState.lastAction = lastActionText;
+    }
+
+    /* ===============================
+       📈 LOGIN GROWTH
+    =============================== */
+    const today =
+      typeof d.loginsToday === "number" ? d.loginsToday : 0;
+
+    const yesterday =
+      typeof d.loginsYesterday === "number" ? d.loginsYesterday : 0;
+
+    const diff = today - yesterday;
+
+    let arrow = "—";
+    let text = "0";
+    let cssClass = "neutral";
+
+    if (diff > 0) {
+      arrow = "▲";
+      text = `+${diff}`;
+      cssClass = "positive";
+    } else if (diff < 0) {
+      arrow = "▼";
+      text = `${Math.abs(diff)}`;
+      cssClass = "negative";
+    }
+
+    const growthHTML = `
+      <div class="growth-count">
+        ${arrow} ${text}
+      </div>
+      <small class="compare-text">
+        Compared to yesterday
+      </small>
+    `;
+
+    if (
+      typeof loginGrowth !== "undefined" &&
+      activityState.growthHTML !== growthHTML
+    ) {
+      loginGrowth.className = `growth ${cssClass}`;
+      loginGrowth.innerHTML = growthHTML;
+      activityState.growthHTML = growthHTML;
+    }
+
+    /* ===============================
+       🔐 PASSWORD RESETS (TODAY)
+    =============================== */
+    const resets =
+      typeof d.resetsToday === "number"
+        ? d.resetsToday
+        : 0;
+
+    if (
+      typeof resetCount !== "undefined" &&
+      activityState.resets !== resets
+    ) {
+      resetCount.textContent = resets;
+      activityState.resets = resets;
+    }
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER BREAK UI
+    console.warn(
+      "Dashboard activity stats error (safe):",
+      err
+    );
+  });
+}
+
+/* =========================
+   📊 CHARTS (FINAL)
+========================= */
+let trendChartInstance = null;
+let statusChartInstance = null;
+
+function initCharts() {
+
+  /* ===============================
+     📈 LOGIN TREND LINE CHART
+  =============================== */
+  const trendCanvas = document.getElementById("trendChart");
+
+  if (trendCanvas && !trendChartInstance) {
+
+    const ctx = trendCanvas.getContext("2d");
+
+    trendChartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "Login Success",
+            data: [],
+            borderColor: "#22c55e",
+            backgroundColor: "rgba(34,197,94,0.15)",
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#22c55e"
+          },
+          {
+            label: "Login Failed",
+            data: [],
+            borderColor: "#ef4444",
+            backgroundColor: "rgba(239,68,68,0.15)",
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#ef4444"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        /* 🔥 MOBILE RESIZE LOOP FIX */
+        resizeDelay: 150,
+        devicePixelRatio: 1,
+
+        interaction: {
+          mode: "index",
+          intersect: false
+        },
+
+        animation: false,
+        normalized: true,
+
+        plugins: {
+          title: { display: false },
+
+          tooltip: {
+            enabled: true,
+            mode: "index",
+            intersect: false
+          },
+
+          legend: {
+            labels: {
+              color: "#cbd5f5"
+            }
+          }
+        },
+
+        scales: {
+          x: {
+            ticks: { color: "#94a3b8" },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: "#94a3b8",
+              precision: 0
+            },
+            grid: {
+              color: "rgba(148,163,184,0.15)"
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /* ===============================
+     🍩 ACCOUNT STATUS DOUGHNUT
+  =============================== */
+  const statusCanvas = document.getElementById("courseChart");
+
+  if (statusCanvas && !statusChartInstance) {
+
+    const ctx = statusCanvas.getContext("2d");
+
+    statusChartInstance = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: [
+          "Active Accounts",
+          "Locked Accounts",
+          "Blocked Accounts"
+        ],
+        datasets: [
+          {
+            data: [],
+            backgroundColor: [
+              "#22c55e",
+              "#f97316",
+              "#ef4444"
+            ],
+            borderWidth: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        /* 🔥 MOBILE RESIZE LOOP FIX */
+        resizeDelay: 150,
+        devicePixelRatio: 1,
+
+        cutout: "70%",
+        animation: false,
+
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              color: "#cbd5f5",
+              padding: 14,
+              boxWidth: 14
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// 🧠 DASHBOARD STATE (MEMORY)
+const DASHBOARD_STATE = {
+  cards: {},
+  trendHash: null
+};
+
+async function updateDashboardLive() {
+  try {
+    const d = await adminFetch(
+      { action: "getDashboardLive" },
+      false,
+      { silent: true }
+    );
+
+    /* ===============================
+       🛑 GLOBAL SAFE GUARDS
+    =============================== */
+    if (
+      !d ||
+      d.__empty ||
+      d.__invalid ||
+      d.__network ||
+      d.__aborted ||
+      d.__softFail
+    ) {
+      return; // ❌ UI touch nahi
+    }
+
+    /* ===============================
+       🔢 LIVE CARDS (TOP)
+       (Account status)
+    =============================== */
+    if (d.cards && typeof d.cards === "object") {
+
+      if (
+        typeof totalAccounts !== "undefined" &&
+        typeof d.cards.total === "number"
+      ) {
+        updateLiveCard(totalAccounts, "total", d.cards.total);
+      }
+
+      if (
+        typeof activeAccounts !== "undefined" &&
+        typeof d.cards.active === "number"
+      ) {
+        updateLiveCard(activeAccounts, "active", d.cards.active);
+      }
+
+      if (
+        typeof lockedAccounts !== "undefined" &&
+        typeof d.cards.locked === "number"
+      ) {
+        updateLiveCard(lockedAccounts, "locked", d.cards.locked);
+      }
+
+      if (
+        typeof blockedAccounts !== "undefined" &&
+        typeof d.cards.blocked === "number"
+      ) {
+        updateLiveCard(blockedAccounts, "blocked", d.cards.blocked);
+      }
+
+      // 🧠 cache last known state
+      DASHBOARD_STATE.cards = {
+        total: d.cards.total,
+        active: d.cards.active,
+        locked: d.cards.locked,
+        blocked: d.cards.blocked
+      };
+    }
+
+    /* ===============================
+       📈 TODAY TREND (LINE CHART)
+       (SINGLE SOURCE)
+    =============================== */
+    if (
+      currentTrendMode === "today" &&
+      trendChartInstance &&
+      d.trend &&
+      Array.isArray(d.trend.labels) &&
+      Array.isArray(d.trend.success) &&
+      Array.isArray(d.trend.failed)
+    ) {
+
+      const trendData = {
+        labels: d.trend.labels,
+        success: d.trend.success,
+        failed: d.trend.failed
+      };
+
+      // 🧠 cache today trend
+      cachedTodayTrend = trendData;
+
+      const hash = JSON.stringify(trendData);
+
+      // 🔥 update only if data changed
+      if (DASHBOARD_STATE.trendHash !== hash) {
+
+        trendChartInstance.data.labels =
+          trendData.labels;
+
+        trendChartInstance.data.datasets[0].data =
+          trendData.success;
+
+        trendChartInstance.data.datasets[1].data =
+          trendData.failed;
+
+        trendChartInstance.update("none");
+        DASHBOARD_STATE.trendHash = hash;
+      }
+    }
+
+  } catch (err) {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    console.warn(
+      "Dashboard live update skipped (safe):",
+      err
+    );
+  }
+}
+
+/* ==================================
+  📈 LOAD TREND CHART DATA (TODAY)
+================================== */
+let trendRequestId = 0;
+
+/* ===============================
+   📊 TREND MODE HANDLERS
+================================ */
+function setActiveTrendButton(activeId) {
+  ["btnToday", "btnWeekly", "btnMonthly"].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+
+    btn.classList.toggle("active", id === activeId);
+  });
+}
+
+function loadTodayTrend() {
+  setActiveTrendButton("btnToday");
+  currentTrendMode = "today";
+
+  if (!cachedTodayTrend) return;
+
+  trendChartInstance.data.labels = cachedTodayTrend.labels;
+  trendChartInstance.data.datasets[0].data = cachedTodayTrend.success;
+  trendChartInstance.data.datasets[1].data = cachedTodayTrend.failed;
+  trendChartInstance.update("none");
+}
+
+const CACHE_TTL = 30 * 1000; // 30 seconds
+
+let cachedWeeklyTrend = { data: null, ts: 0 };
+let cachedMonthlyTrend = { data: null, ts: 0 };
+
+function isCacheValid(cache) {
+  return cache.data && (Date.now() - cache.ts < CACHE_TTL);
+}
+
+function loadWeeklyTrend() {
+
+  /* ===============================
+     🧠 MODE + REQUEST TOKEN
+  =============================== */
+  trendRequestId++;
+  currentTrendMode = "weekly";
+
+  setActiveTrendButton("btnWeekly");
+
+  /* ===============================
+     🔥 CACHE HIT (FAST PATH)
+  =============================== */
+  if (isCacheValid(cachedWeeklyTrend)) {
+    applyTrendResult(
+      cachedWeeklyTrend.data,
+      "Weekly Login Activity (Last 7 Days)"
+    );
+    return;
+  }
+
+  /* ===============================
+     ⏳ LOADING STATE
+  =============================== */
+  showTrendLoading("Weekly Login Activity (Last 7 Days)");
+  const myId = trendRequestId;
+
+  adminFetch(
+    { action: "getWeeklyTrend" },
+    false,
+    { silent: true }
+  )
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    /* ===============================
+       🛑 RACE / STALE RESPONSE GUARD
+    =============================== */
+    if (myId !== trendRequestId) return;
+
+    /* ===============================
+       🛑 SAFE GUARDS (NO UI BREAK)
+    =============================== */
+    if (
+      !res ||
+      res.__empty ||
+      res.__invalid ||
+      res.__network ||
+      res.__aborted ||
+      res.__softFail ||
+      !Array.isArray(res.labels)
+    ) {
+      clearTrendChart();
+      return;
+    }
+
+    /* ===============================
+       💾 CACHE RESULT
+    =============================== */
+    cachedWeeklyTrend = {
+      data: res,
+      ts: Date.now()
+    };
+
+    /* ===============================
+       ✅ APPLY RESULT
+    =============================== */
+    applyTrendResult(
+      res,
+      "Weekly Login Activity (Last 7 Days)"
+    );
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    if (myId !== trendRequestId) return;
+    console.warn("Weekly trend load skipped:", err);
+    clearTrendChart();
+  });
+}
+
+function loadMonthlyTrend() {
+
+  /* ===============================
+     🧠 MODE + REQUEST TOKEN
+  =============================== */
+  trendRequestId++;
+  currentTrendMode = "monthly";
+
+  setActiveTrendButton("btnMonthly");
+
+  /* ===============================
+     🔥 CACHE HIT (FAST PATH)
+  =============================== */
+  if (isCacheValid(cachedMonthlyTrend)) {
+    applyTrendResult(
+      cachedMonthlyTrend.data,
+      "Monthly Login Activity (Last 30 Days)"
+    );
+    return;
+  }
+
+  /* ===============================
+     ⏳ LOADING STATE
+  =============================== */
+  showTrendLoading("Monthly Login Activity (Last 30 Days)");
+  const myId = trendRequestId;
+
+  adminFetch(
+    { action: "getMonthlyTrend" },
+    false,
+    { silent: true }
+  )
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    /* ===============================
+       🛑 RACE / STALE RESPONSE GUARD
+    =============================== */
+    if (myId !== trendRequestId) return;
+
+    /* ===============================
+       🛑 SAFE GUARDS (NO UI BREAK)
+    =============================== */
+    if (
+      !res ||
+      res.__empty ||
+      res.__invalid ||
+      res.__network ||
+      res.__aborted ||
+      res.__softFail ||
+      !Array.isArray(res.labels)
+    ) {
+      clearTrendChart();
+      return;
+    }
+
+    /* ===============================
+       💾 CACHE RESULT
+    =============================== */
+    cachedMonthlyTrend = {
+      data: res,
+      ts: Date.now()
+    };
+
+    /* ===============================
+       ✅ APPLY RESULT
+    =============================== */
+    applyTrendResult(
+      res,
+      "Monthly Login Activity (Last 30 Days)"
+    );
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    if (myId !== trendRequestId) return;
+    console.warn("Monthly trend load skipped:", err);
+    clearTrendChart();
+  });
+}
+
+/* ===============================
+   🔄 COMMON APPLY FUNCTION
+================================ */
+function applyTrendResult(res, label) {
+
+  // ❗ FINAL GUARD
+  if (
+    (currentTrendMode === "today" && label.includes("Weekly")) ||
+    (currentTrendMode === "today" && label.includes("Monthly"))
+  ) {
+    return;
+  }
+
+  if (!res || !Array.isArray(res.labels)) return;
+
+  if (res.labels.length === 0) {
+    showTrendLoading("No data available");
+    return;
+  }
+
+  trendChartInstance.data.labels = res.labels;
+  trendChartInstance.data.datasets[0].data = res.success;
+  trendChartInstance.data.datasets[1].data = res.failed;
+  // 🔥 DATA AATE HI TITLE GAYAB
+  trendChartInstance.options.plugins.title.display = false;
+  trendChartInstance.options.plugins.title.text = "";
+
+
+  trendChartInstance.update("none");
+}
+
+/* ===============================
+   ⏳ LOADING STATE
+================================ */
+function showTrendLoading(title) {
+
+  if (!trendChartInstance) return;
+
+  // 🔥 TITLE ONLY DURING LOADING
+  trendChartInstance.options.plugins.title.display = true;
+  trendChartInstance.options.plugins.title.text = title;
+
+  trendChartInstance.data.labels = ["Loading"];
+  trendChartInstance.data.datasets[0].data = [0.1];
+  trendChartInstance.data.datasets[1].data = [];
+
+  trendChartInstance.update("none");
+}
+
+/* ===============================
+   🧹 CLEAR / NO DATA STATE
+================================ */
+function clearTrendChart() {
+
+  if (!trendChartInstance) return;
+
+  trendChartInstance.data.labels = [];
+
+  // ❗ datasets kabhi delete mat karo
+  trendChartInstance.data.datasets[0].data = [];
+  trendChartInstance.data.datasets[1].data = [];
+
+  trendChartInstance.update("none");
+}
+
+/* =========================
+   🍩 LOAD STATUS CHART DATA
+========================= */
+function loadStatusChartData() {
+
+  adminFetch(
+    { action: "getAccountStatusStats" },
+    false,
+    { silent: true }
+  )
+  .then(d => {
+
+    /* ===============================
+       🛑 GLOBAL SAFE GUARDS
+    =============================== */
+    if (
+      !d ||
+      d.__empty ||
+      d.__invalid ||
+      d.__network ||
+      d.__aborted ||
+      d.__softFail
+    ) {
+      return; // ❌ UI touch nahi
+    }
+
+    /* ===============================
+       📊 NORMALIZE DATA
+    =============================== */
+    const active  =
+      typeof d.active === "number" ? d.active : 0;
+
+    const locked  =
+      typeof d.locked === "number" ? d.locked : 0;
+
+    const blocked =
+      typeof d.blocked === "number" ? d.blocked : 0;
+
+    const total = active + locked + blocked;
+
+    /* ===============================
+       📊 LIVE CARDS (TOP)
+    =============================== */
+    if (typeof totalAccounts !== "undefined") {
+      updateLiveCard(totalAccounts, "total", total);
+    }
+
+    if (typeof activeAccounts !== "undefined") {
+      updateLiveCard(activeAccounts, "active", active);
+    }
+
+    if (typeof lockedAccounts !== "undefined") {
+      updateLiveCard(lockedAccounts, "locked", locked);
+    }
+
+    if (typeof blockedAccounts !== "undefined") {
+      updateLiveCard(blockedAccounts, "blocked", blocked);
+    }
+
+    /* ===============================
+       🍩 DONUT CHART (SAFE UPDATE)
+    =============================== */
+    if (
+      statusChartInstance &&
+      statusChartInstance.data &&
+      statusChartInstance.data.datasets &&
+      statusChartInstance.data.datasets[0]
+    ) {
+
+      // labels set once (idempotent)
+      statusChartInstance.data.labels = [
+        "Active Accounts",
+        "Locked Accounts",
+        "Blocked Accounts"
+      ];
+
+      // 🔥 ONLY DATA UPDATE
+      statusChartInstance.data.datasets[0].data = [
+        active,
+        locked,
+        blocked
+      ];
+
+      statusChartInstance.update("none");
+    }
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    console.warn(
+      "Status chart load skipped (safe):",
+      err
+    );
+  });
+}
+
+function toggleProfileMenu(e){
+  e.stopPropagation();
+  const menu = e.currentTarget.querySelector('.profile-menu');
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+/* click outside close */
+document.addEventListener('click', () => {
+  document.querySelectorAll('.profile-menu').forEach(menu => {
+    menu.style.display = 'none';
+  });
+});
+
+let currentBatch = null;
+
+function onActiveBatchChange(batch) {
+  currentBatch = batch || null;
+  loadActiveStudents(currentBatch);
+}
+
+function populateActiveBatchDropdown() {
+
+  const select =
+    document.getElementById("activeBatchSelect");
+
+  // reset dropdown
+  select.innerHTML =
+    `<option value="">All Active Batches</option>`;
+
+  // no active students
+  if (!activeStudentsCache.length) return;
+
+  // unique batches
+  const batches = [
+    ...new Set(activeStudentsCache.map(s => s.batch))
+  ];
+
+  batches.sort(); // optional
+
+  batches.forEach(batch => {
+    const opt = document.createElement("option");
+    opt.value = batch;
+    opt.textContent = batch;
+    select.appendChild(opt);
+  });
+}
+
+function forceLogoutBatch(batch) {
+
+  /* ===============================
+     🛑 BASIC VALIDATION
+  =============================== */
+  if (!batch) {
+    alert("❌ Please select a batch first");
+    return;
+  }
+
+  const ok = confirm(
+    `🚫 Logout ALL active students of ${batch}?`
+  );
+  if (!ok) return;
+
+  adminFetch(
+    {
+      action: "admin_force_logout",
+      target: {
+        mode: "BATCH",
+        batch
+      }
+    },
+    false,
+    { silent: true }
+  )
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    /* ===============================
+       🛑 SAFE GUARDS
+    =============================== */
+    if (
+      !res ||
+      res.__empty ||
+      res.__invalid ||
+      res.__network ||
+      res.__aborted ||
+      res.__softFail
+    ) {
+      alert("⚠️ Temporary issue. Please try again.");
+      return;
+    }
+
+    /* ===============================
+       ✅ SUCCESS CASE
+    =============================== */
+    if (res.status === "ok") {
+      alert(`✅ ${res.removed || 0} students logged out`);
+
+      // 🔄 refresh UI safely
+      loadActiveStudents(batch);
+      loadActiveStudentCount();
+      return;
+    }
+
+    /* ===============================
+       ❌ KNOWN FAILURE
+    =============================== */
+    alert("❌ Batch logout failed. Students may already be offline.");
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    console.warn("forceLogoutBatch error:", err);
+    alert("⚠️ Server busy. Please try again.");
+  });
+}
+
+function forceLogoutAll() {
+
+  const ok = confirm(
+    "🚨 EMERGENCY LOGOUT\n\nAre you sure you want to logout ALL active students?"
+  );
+  if (!ok) return;
+
+  adminFetch(
+    {
+      action: "admin_force_logout",
+      target: {
+        mode: "ALL"
+      }
+    },
+    false,
+    { silent: true }
+  )
+  .then(res => {
+    if (handleAdminSoftFail(res)) return;
+    /* ===============================
+       🛑 SAFE GUARDS
+    =============================== */
+    if (
+      !res ||
+      res.__empty ||
+      res.__invalid ||
+      res.__network ||
+      res.__aborted ||
+      res.__softFail
+    ) {
+      alert("⚠️ Temporary issue. Please try again.");
+      return;
+    }
+
+    /* ===============================
+       ✅ SUCCESS CASE
+    =============================== */
+    if (res.status === "ok") {
+      alert(`🚫 ${res.removed || 0} active sessions terminated`);
+      loadActiveStudentCount(); // refresh UI
+      return;
+    }
+
+    /* ===============================
+       ❌ KNOWN FAILURE
+    =============================== */
+    alert("❌ Emergency logout failed. Sessions may already be inactive.");
+  })
+  .catch(err => {
+    // ❌ NEVER LOGOUT / NEVER CRASH
+    console.warn("forceLogoutAll error:", err);
+    alert("⚠️ Server busy. Please try again.");
+  });
+}
+
+// 🔥 LIVE CARD STATE (STOCK STYLE)
+const cardState = {
+  total: null,
+  active: null,
+  locked: null,
+  blocked: null
+};
+
+function updateLiveCard(el, key, newValue) {
+
+  const oldValue = cardState[key];
+
+  // first time → direct set (no animation)
+  if (oldValue === null) {
+    el.innerText = newValue;
+    cardState[key] = newValue;
+    return;
+  }
+
+  // no change → kuch mat karo
+  if (oldValue === newValue) return;
+
+  // update value
+  el.innerText = newValue;
+
+  // reset classes
+  el.classList.remove("up", "down");
+
+  // stock-style direction
+  if (newValue > oldValue) {
+    el.classList.add("up");
+  } else if (newValue < oldValue) {
+    el.classList.add("down");
+  }
+
+  // save state
+  cardState[key] = newValue;
+}
+
+// =========================
+// ⏳ SESSION EXPIRY WARNING
+// =========================
+(function sessionExpiryWatcher() {
+
+  const MAX_AGE = 60 * 60 * 1000;      // 1 hour
+  const WARNING_TIME = 59 * 60 * 1000; // 59 minutes
+
+  const start = Number(localStorage.getItem("SESSION_START"));
+  if (!start) return;
+
+  const now = Date.now();
+  const elapsed = now - start;
+
+  // ⛔ already expired
+  if (elapsed >= MAX_AGE) {
+    logout();
+    return;
+  }
+
+  // ⏳ show warning
+  const warnIn = WARNING_TIME - elapsed;
+  if (warnIn > 0) {
+    setTimeout(showExpiryWarning, warnIn);
+  }
+
+  // ⏰ logout timer
+  const logoutIn = MAX_AGE - elapsed;
+
+  let __SESSION_EXPIRED__ = false;
+
+  setTimeout(() => {
+    if (__SESSION_EXPIRED__) return;
+    __SESSION_EXPIRED__ = true;
+    alert("Session expired. Please login again.");
+    logout();
+  }, logoutIn);
+
+})();
+
+function showExpiryWarning() {
+
+  if (document.getElementById("sessionWarning")) return;
+
+  const div = document.createElement("div");
+  div.id = "sessionWarning";
+  div.innerHTML = `
+    <div style="
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#9a3412;
+      padding:16px 20px;
+      border-radius:10px;
+      box-shadow:0 10px 25px rgba(0,0,0,.15);
+      font-family:system-ui;
+      z-index:9999;
+      max-width:320px;
+    ">
+      <b>⏳ Session expiring soon</b><br>
+      <span style="font-size:14px">
+        Your session will expire in <b>1 minute</b>.<br>
+        Please save your work.
+      </span>
+    </div>
+  `;
+
+  document.body.appendChild(div);
+
+  setTimeout(() => div.remove(), 55000);
+}
+
+function toggleTheme(){
+
+  document.body.classList.toggle("light-mode");
+
+  const icon = document.querySelector(".theme-toggle i");
+
+  if(document.body.classList.contains("light-mode")){
+    icon.classList.remove("fa-moon");
+    icon.classList.add("fa-sun");
+  } else {
+    icon.classList.remove("fa-sun");
+    icon.classList.add("fa-moon");
+  }
+}
+</script>
+
+</body>
+</html>

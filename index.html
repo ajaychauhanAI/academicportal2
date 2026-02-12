@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description"
+        content="Official academic portal for BBDU BCA Data Science & Artificial Intelligence students." />
+  <meta name="author" content="BBDU BCA DS & AI Department" />
+  <title>BCADS Academic Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Poppins", Arial, sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left,#1f4e5f 0%,transparent 40%),
+        linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ================= HEADER ================= */
+    header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 150px;
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-box{
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .logo-box img{
+      height: 50px;
+      transform: scale(1.45);
+      filter: drop-shadow(0 4px 10px rgba(0,212,255,.25));
+    }
+
+    .brand-text{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+
+    .brand-text strong{
+      font-size: 22px;
+      color:#00d4ff;
+      letter-spacing:.35px;
+    }
+
+    .brand-text span{
+      font-size: 14px;
+      opacity: .85;
+      letter-spacing: .45px;
+    }
+    
+    .auth-actions a:hover{
+      box-shadow: 0 8px 22px rgba(0,212,255,.35);
+    }
+
+    /* ================= AUTH BUTTONS ================= */
+    .auth-actions{
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+
+    .login-btn,
+    .register-btn{
+      text-decoration:none;
+      height: 34px;
+      padding:0 17px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.3px;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:all .25s ease;
+    }
+
+    .login-btn{
+      background:rgba(255,255,255,.06);
+      color:#c7f3ff;
+      border:1px solid rgba(110,231,255,.45);
+      backdrop-filter:blur(6px);
+    }
+
+    .login-btn:hover{
+      background:rgba(110,231,255,.12);
+      color:#fff;
+      transform:translateY(-1px);
+      box-shadow:0 6px 16px rgba(110,231,255,.3);
+    }
+
+    .register-btn{
+      background:rgba(255,255,255,.06);
+      color:#c7f3ff;
+      border:1px solid rgba(110,231,255,.45);
+      backdrop-filter:blur(6px);
+    }
+
+    .register-btn:hover{
+      background:rgba(110,231,255,.12);
+      color:#fff;
+      transform:translateY(-1px);
+      box-shadow:0 6px 16px rgba(110,231,255,.3);
+    }
+
+    /* ================= MAIN ================= */
+    main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:20px;
+    }
+
+    .hero{
+      max-width:760px;
+      animation:fadeUp .9s ease;
+      margin-top: 40px;
+    }
+
+    @keyframes fadeUp{
+      from{opacity:0; transform:translateY(25px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+    .hero h1{
+      font-size:40px;
+      margin-bottom:14px;
+      font-weight:700;
+      line-height: 1.25;
+    }
+
+    .hero h1 span{
+      color:#00d4ff;
+    }
+
+    .authority-line{
+      font-size:14px;
+      color:#9fd9e6;
+      margin-bottom:18px;
+      letter-spacing:.3px;
+    }
+
+    .hero p{
+      font-size:18px;
+      line-height:1.6;
+      color:#dcdcdc;
+      margin-bottom:20px;
+    }
+
+    .login-note{
+      font-size:15px;
+      color:#b8c4cc;
+      max-width:620px;
+      margin:0 auto 32px;
+    }
+
+    .hero-actions{
+      display:flex;
+      justify-content:center;
+      gap:18px;
+      margin-bottom:40px;
+      flex-wrap:wrap;
+    }
+
+    .features{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:20px;
+    }
+
+    .card{
+      background:linear-gradient(
+        180deg,
+        rgba(255,255,255,.10),
+        rgba(255,255,255,.04)
+      );
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 15px 35px rgba(0,0,0,.35);
+      border-radius:15px;
+      padding:20px;
+      backdrop-filter:blur(6px);
+      transition:.3s;
+      cursor: pointer;
+    }
+
+    .card:hover{
+      transform:translateY(-6px);
+      background:rgba(255,255,255,.12);
+      box-shadow: 0 18px 40px rgba(0,212,255,.25);
+    }
+
+    .card h3{
+      color:#00d4ff;
+      margin-bottom:8px;
+      font-weight:600;
+    }
+
+    .card p{
+      font-size:14px;
+      color:#e0e0e0;
+    }
+
+    /* ================= FOOTER ================= */
+    footer{
+      text-align:center;
+      padding:15px;
+      font-size:13px;
+      color:#cfcfcf;
+    }
+
+    .footer-note{
+      margin-top:6px;
+      font-size:12px;
+      opacity:.75;
+    }
+
+    /* ================= MOBILE ================= */
+    @media(max-width:768px){
+      header{
+        flex-wrap:wrap;
+        padding:18px 20px;
+      }
+      
+      .auth-actions{
+        width:100%;
+        justify-content:center;
+        margin-top:12px;
+      }
+
+      .hero h1{
+        font-size:28px;
+      }
+
+      .hero p{
+        font-size:15px;
+      }
+
+      .features{
+        grid-template-columns:1fr;
+      }
+    }
+
+/* ================= TABLETS (768px – 991px) ================= */
+@media (max-width:991px){
+  header{
+    padding: 18px 40px;
+  }
+
+  .logo-box{
+    gap: 12px;
+  }
+
+  .logo-box img{
+    height: 48px;
+    transform: scale(1.25);
+  }
+
+  .brand-text strong{
+    font-size: 18px;
+  }
+
+  .brand-text span{
+    font-size: 13px;
+  }
+
+  .hero h1{
+    font-size: 32px;
+  }
+
+  .hero p{
+    font-size: 16px;
+  }
+}
+
+/* ================= MOBILE (max 767px) ================= */
+@media (max-width:767px){
+  header{
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 18px;
+  }
+
+  .logo-box{
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .logo-box img{
+    height: 44px;
+    transform: scale(1.4); /* mobile pe over-size na lage */
+  }
+
+  .brand-text{
+    text-align: center;
+  }
+
+  .brand-text strong{
+    font-size: 17px;
+  }
+
+  .brand-text span{
+    font-size: 12px;
+  }
+
+  .auth-actions{
+    width:100%;
+    justify-content:center;
+    margin-top:6px;
+  }
+
+  .hero h1{
+    font-size: 26px;
+  }
+
+  .hero p{
+    font-size: 14px;
+  }
+
+  .login-note{
+    font-size: 14px;
+  }
+}
+
+.system-bar{
+  width:100%;
+  padding:4px 0;
+  text-align:center;
+  font-size:12px;
+  color:#cfefff;
+  background:rgba(0,0,0,.25);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  letter-spacing:.3px;
+  opacity: 0.9;
+}
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-box">
+    <img src="../logo/logo2.png" alt="BBDU Logo">
+    <div class="brand-text">
+      <strong>BBDU BCADS</strong>
+      <span>Academic Portal</span>
+    </div>
+  </div>
+
+  <div class="auth-actions">
+    <a href="/login_page/login.html?mode=login" class="login-btn">
+      Student Login
+    </a>
+    <a href="/login_page/login.html?mode=register" class="register-btn">
+      New Registration
+    </a>
+  </div>
+</header>
+
+<div class="system-bar">
+  🕒 <span id="dateTime"></span>
+</div>
+
+<main>
+  <div class="hero">
+    <h1>
+      Official Academic Portal<br>
+      <span>BCA Data Science & Artificial Intelligence</span>
+    </h1>
+
+    <p class="authority-line">
+      Developed & maintained as an internal academic system for BCADS students.
+    </p>
+
+    <p>
+      A structured academic platform providing learning resources,
+      assignments, official notices, and secure access for students of
+      BCA (Data Science & Artificial Intelligence).
+    </p>
+
+    <p class="login-note">
+      Access assignments, notes, academic resources,
+      and official updates using authorized credentials.
+    </p>
+
+    <div class="features">
+      <div class="card">
+        <h3>📘 Subject Notes</h3>
+        <p>Semester-wise, syllabus-aligned academic notes.</p>
+      </div>
+
+      <div class="card">
+        <h3>📝 Assignments</h3>
+        <p>Updated assignments with deadlines.</p>
+      </div>
+
+      <div class="card">
+        <h3>📄 PYQs</h3>
+        <p>Previous year question papers.</p>
+      </div>
+
+      <div class="card">
+        <h3>📅 Academic Calendar</h3>
+        <p>Semester schedules and timelines.</p>
+      </div>
+
+      <div class="card">
+        <h3>📰 Notices</h3>
+        <p>Official academic announcements.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔐 Secure Login</h3>
+        <p>Fast & protected authentication system.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <strong>Babu Banarasi Das University, Lucknow</strong><br>
+  Bachelor of Computer Applications (Data Science & Artificial Intelligence)<br>
+  © 2026 Academic Portal • All Rights Reserved
+  <div class="footer-note">
+    Internal academic use only • Not a public service
+  </div>
+</footer>
+
+<script>
+  function updateDateTime() {
+    const now = new Date();
+
+    // 2-digit helpers
+    const pad = (n) => String(n).padStart(2, "0");
+
+    const weekday = now.toLocaleString("en-IN", { weekday: "long" });
+    const month = now.toLocaleString("en-IN", { month: "long" });
+
+    let hours = now.getHours();
+    const minutes = pad(now.getMinutes());
+    const seconds = pad(now.getSeconds());
+
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+
+    const day = pad(now.getDate());
+    const year = now.getFullYear();
+
+    const formatted =
+      `${weekday}, ${day} ${month} ${year} | ` +
+      `${pad(hours)}:${minutes}:${seconds} ${ampm} IST`;
+
+    const dateTimeEl = document.getElementById("dateTime");
+    if (dateTimeEl) {
+      dateTimeEl.innerText = formatted;
+    }
+  }
+
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+</script>
+
+</body>
+</html>

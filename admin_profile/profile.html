@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajay Chauhan | Professional Profile</title>
+
+<style>
+:root{
+  --bg:#050816;
+  --panel:rgba(15,23,42,.85);
+  --border:rgba(148,163,184,.25);
+  --muted:#9ca3af;
+  --accent:#38bdf8;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+
+body{
+  background:var(--bg);
+  color:#fff;
+  line-height:1.65;
+}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:blur(12px);
+  background:rgba(5,8,22,.85);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.nav{
+  max-width:1100px;
+  margin:auto;
+  padding:1rem 1.2rem;
+}
+.logo{font-weight:700;letter-spacing:.08em}
+
+/* ===== MAIN ===== */
+main{
+  max-width:1100px;
+  margin:auto;
+  padding:2.6rem 1.2rem 3rem;
+}
+section{padding:3.2rem 0 1.8rem}
+
+/* ===== HERO ===== */
+.hero{
+  display:grid;
+  grid-template-columns:3fr 2fr;
+  gap:2.4rem;
+  align-items:center;
+}
+
+.tag{
+  display:inline-block;
+  padding:.25rem .7rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  font-size:.7rem;
+  letter-spacing:.1em;
+  color:var(--muted);
+  margin-bottom:.9rem;
+}
+
+.hero h1{
+  font-size:clamp(2.4rem,3vw,3.1rem);
+  margin-bottom:.6rem;
+}
+.hero h1 span{
+  background:linear-gradient(135deg,#22c55e,#38bdf8,#a855f7);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.hero-sub{
+  max-width:40rem;
+  color:#e5e7eb;
+  margin-bottom:.9rem;
+}
+
+.hero-meta{
+  font-size:.85rem;
+  color:var(--muted);
+}
+
+.status-line{
+  font-size:.82rem;
+  color:#a5b4fc;
+  margin-top:.5rem;
+}
+
+.availability-tag{
+  display:inline-block;
+  margin-top:.7rem;
+  padding:.28rem .75rem;
+  font-size:.75rem;
+  border-radius:999px;
+  color:#22c55e;
+  border:1px solid rgba(34,197,94,.45);
+  background:rgba(34,197,94,.08);
+}
+
+/* ===== HERO CARD ===== */
+.hero-card{
+  padding:1.7rem;
+  border-radius:1.4rem;
+  background:radial-gradient(circle at top,#1f2937 0,#020617 60%);
+  border:1px solid var(--border);
+  box-shadow:0 25px 50px rgba(15,23,42,.9);
+}
+
+.hero-card h2{font-size:1rem;margin-bottom:.6rem}
+
+.badge-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+}
+.badge{
+  padding:.22rem .75rem;
+  border-radius:999px;
+  font-size:.75rem;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.9);
+
+  /* 🔑 FIX */
+  white-space: nowrap;
+  word-break: keep-all;
+  flex-shrink: 0;
+}
+
+
+/* ===== TITLES ===== */
+.section-title{font-size:1.45rem;margin-bottom:.5rem}
+.section-subtitle{font-size:.9rem;color:var(--muted);margin-bottom:1.6rem}
+
+/* ===== CARDS ===== */
+.projects-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.3rem;
+}
+.card{
+  padding:1.25rem;
+  border-radius:1.1rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  box-shadow:0 14px 30px rgba(15,23,42,.9);
+}
+
+/* ===== MINI HIGHLIGHTS ===== */
+.mini-highlights{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.6rem;
+  margin-top:1.2rem;
+}
+.mini-highlights span{
+  font-size:.75rem;
+  padding:.32rem .75rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.7);
+}
+
+/* ===== TIMELINE ===== */
+.timeline{
+  border-left:2px solid rgba(148,163,184,.35);
+  padding-left:1.4rem;
+}
+.timeline-item{
+  margin-bottom:1.2rem;
+  position:relative;
+  padding-left:.6rem;
+  line-height:1.7;
+}
+.timeline-item::before{
+  content:"";
+  position:absolute;
+  left:-0.78rem;
+  top:.5rem;
+  width:.55rem;
+  height:.55rem;
+  background:var(--accent);
+  border-radius:50%;
+}
+
+/* ===== CONTACT (SCREENSHOT STYLE) ===== */
+.contact-section{
+  max-width:720px;
+  margin:0 auto;
+  padding:2.4rem 2rem;
+  text-align:center;
+  border-radius:1.7rem;
+  background:radial-gradient(circle at top,
+    rgba(56,189,248,.18),
+    rgba(15,23,42,.9) 60%);
+  border:1px solid var(--border);
+  box-shadow:0 35px 70px rgba(15,23,42,.95);
+}
+
+.contact-section h2{font-size:1.6rem;margin-bottom:.4rem}
+.contact-section p{font-size:.9rem;color:var(--muted);margin-bottom:1.7rem}
+
+.contact-icons{
+  display:flex;
+  justify-content:center;
+  gap:1rem;
+  margin-bottom:1.7rem;
+}
+.contact-icons a{
+  width:44px;height:44px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:rgba(15,23,42,.9);
+  border:1px solid var(--border);
+  font-size:1.1rem;
+  text-decoration:none;
+  transition:.25s;
+}
+.contact-icons a:hover{
+  transform:translateY(-3px);
+  box-shadow:0 0 18px rgba(56,189,248,.6);
+}
+
+/* FORM */
+.contact-form{
+  display:grid;
+  gap:.75rem;
+}
+.contact-form input,
+.contact-form textarea{
+  background:rgba(15,23,42,.9);
+  border:1px solid var(--border);
+  border-radius:.65rem;
+  padding:.7rem .85rem;
+  color:#e5e7eb;
+  font-size:.85rem;
+}
+.contact-form input:focus,
+.contact-form textarea:focus{
+  outline:none;border-color:var(--accent);
+}
+.contact-form button{
+  margin-top:.5rem;
+  padding:.7rem;
+  border-radius:.65rem;
+  border:none;
+  background:linear-gradient(135deg,#38bdf8,#22c55e);
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* ===== CONTACT – SCREENSHOT STYLE ===== */
+
+/* ===== FINAL CONTACT SECTION ===== */
+
+.contact-wrap{
+  padding:4.5rem 1.2rem 3rem;
+  display:flex;
+  justify-content:center;
+}
+
+.contact-card{
+  width:100%;
+  max-width:900px;
+  padding:3rem 2.5rem;
+  border-radius:1.9rem;
+  text-align:center;
+
+  background:
+    radial-gradient(circle at top,
+      rgba(56,189,248,.22),
+      rgba(15,23,42,.95) 60%);
+  border:1px solid rgba(148,163,184,.25);
+  box-shadow:0 40px 90px rgba(0,0,0,.85);
+}
+
+.contact-card h2{
+  font-size:1.9rem;
+  margin-bottom:.6rem;
+}
+
+.contact-sub{
+  color:#9ca3af;
+  max-width:520px;
+  margin:0 auto 2.2rem;
+  font-size:.95rem;
+}
+
+/* ICONS */
+.contact-icons{
+  display:flex;
+  justify-content:center;
+  gap:1.2rem;
+  margin-bottom:2.6rem;
+}
+
+.contact-icons a{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  text-decoration:none;
+  color:#e5e7eb;
+  font-size:1.1rem;
+  position: relative;
+  background:rgba(15,23,42,.9);
+  border:1px solid rgba(148,163,184,.35);
+  transition: transform .25s ease,
+              box-shadow .25s ease,
+              border-color .25s ease;
+}
+
+.contact-icons a:hover{
+  transform:translateY(-4px);
+  box-shadow:0 0 22px rgba(56,189,248,.65);
+  border-color:#38bdf8;
+}
+
+.contact-icons a::after{
+  content:attr(title);
+  position:absolute;
+  bottom:-32px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:.7rem;
+  padding:.25rem .5rem;
+  border-radius:6px;
+  background:#020617;
+  color:#e5e7eb;
+  opacity:0;
+  pointer-events:none;
+  white-space:nowrap;
+  transition:.2s;
+}
+
+.contact-icons a:hover::after{
+  opacity:1;
+}
+
+.contact-icons a[title="Instagram"]:hover{
+  box-shadow:0 0 22px rgba(236,72,153,.8);
+  border-color:#ec4899;
+}
+
+.contact-icons a[title="Facebook"]:hover{
+  box-shadow:0 0 22px rgba(59,130,246,.8);
+  border-color:#3b82f6;
+}
+
+.contact-icons a[title="Telegram"]:hover{
+  box-shadow:0 0 22px rgba(56,189,248,.9);
+  border-color:#38bdf8;
+}
+
+/* WhatsApp – hover only */
+.contact-icons a[title="WhatsApp"]:hover{
+  box-shadow: 0 0 22px rgba(34,197,94,.6);
+  border-color: #22c55e;
+}
+
+/* WhatsApp – normal state (NO glow, NO animation) */
+.contact-icons a[title="WhatsApp"]{
+  box-shadow: none;
+  animation: none;
+  border-color: rgba(148,163,184,.35);
+}
+
+
+/* MOBILE */
+@media(max-width:600px){
+  .contact-card{
+    padding:2.2rem 1.6rem;
+  }
+  .contact-card h2{
+    font-size:1.6rem;
+  }
+    .contact-icons a{
+    width:52px;
+    height:52px;
+  }
+}
+
+
+/* DETAILS */
+.contact-details{
+  max-width:420px;
+  margin:0 auto;
+  display:grid;
+  gap:1.2rem;
+  text-align:left;
+}
+
+.contact-row span{
+  font-size:.72rem;
+  letter-spacing:.12em;
+  color:#9ca3af;
+}
+
+.contact-row p{
+  font-size:.95rem;
+  color:#e5e7eb;
+}
+
+@keyframes softPulse{
+  0%{box-shadow:0 0 0 rgba(34,197,94,.6)}
+  70%{box-shadow:0 0 18px rgba(34,197,94,.8)}
+  100%{box-shadow:0 0 0 rgba(34,197,94,.6)}
+}
+
+
+/* ===== FOOTER ===== */
+footer{
+  padding:2rem;
+  text-align:center;
+  font-size:.75rem;
+  color:#6b7280;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:850px){
+  .hero{grid-template-columns:1fr}
+}
+
+/* ===== FIX CHROME AUTOFILL WHITE BACKGROUND ===== */
+
+input,
+textarea {
+  color: #e5e7eb;
+  background-color: rgba(15,23,42,.9);
+  caret-color: #38bdf8;
+}
+
+/* Chrome / Edge autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e5e7eb !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(15,23,42,.9) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #38bdf8;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+.logo-img{
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+
+/* ===== PROFILE SIDE ===== */
+.profile-side{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1.6rem;
+}
+
+/* PURE CIRCULAR IMAGE (NO BOX) */
+.profile-image{
+  width:160px;
+  height:160px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#050816;
+
+  /* subtle premium ring */
+  outline:3px solid rgba(56,189,248,.35);
+  outline-offset:6px;
+}
+
+/* hover polish */
+.profile-image:hover{
+  outline-color:#38bdf8;
+  box-shadow:0 0 28px rgba(56,189,248,.45);
+  transition:.3s ease;
+}
+
+/* MOBILE */
+@media(max-width:850px){
+  .profile-image{
+    width:140px;
+    height:140px;
+  }
+}
+
+.hero-grid{
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: auto auto;
+  column-gap: 3rem;
+  row-gap: 3.5rem;
+  align-items: start;
+}
+
+/* ROW 1 */
+.hero-left{
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.hero-right{
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* ROW 2 */
+.hero-summary{
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.hero-focus{
+  grid-column: 2;
+  grid-row: 2;
+}
+
+
+/* MOBILE */
+@media(max-width:850px){
+  .hero-grid{
+    grid-template-columns:1fr;
+    row-gap:1.5rem;
+  }
+
+  .hero-left{ order:1; }
+  .hero-right{ order:2; }
+  .hero-summary{ order:3; }
+  .hero-focus{ order:4; }
+
+  .hero-right{
+    justify-content:center;
+  }
+  .hero-focus{
+    margin-top:.5rem;
+  }
+}
+
+.hero-image{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 6rem; /* tweak: 0.3rem – 1rem */
+}
+
+@media(max-width:850px){
+  .hero-image{
+    margin: 0 auto 1.5rem;
+  }
+}
+
+.profile-section{
+  margin-top:4rem;
+}
+
+.profile-section h2{
+  font-size:1.5rem;
+  margin-bottom:.4rem;
+}
+
+.profile-section p.section-desc{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-bottom:1.6rem;
+}
+
+.skills-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.7rem;
+}
+
+.skill-chip{
+  padding:.35rem .9rem;
+  font-size:.75rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.85);
+  white-space:nowrap;
+}
+
+.tools-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1rem;
+}
+
+.tool-card{
+  padding:.9rem;
+  border-radius:.9rem;
+  border:1px solid var(--border);
+  background:var(--panel);
+  text-align:center;
+  font-size:.85rem;
+}
+
+.exp-list{
+  border-left:2px solid rgba(148,163,184,.25);
+  padding-left:1.5rem;
+}
+
+.exp-item{
+  position:relative;
+  margin-bottom:1.3rem;
+}
+
+.exp-item::before{
+  content:"";
+  position:absolute;
+  left:-.6rem;
+  top:.35rem;
+  width:.6rem;
+  height:.6rem;
+  background:var(--accent);
+  border-radius:50%;
+}
+
+.exp-item h4{
+  font-size:.9rem;
+  margin-bottom:.2rem;
+}
+
+.exp-item p{
+  font-size:.82rem;
+  color:var(--muted);
+}
+
+.project-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.4rem;
+}
+
+.project-card{
+  padding:1.2rem;
+  border-radius:1.1rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+}
+
+.project-card h4{
+  font-size:.95rem;
+  margin-bottom:.4rem;
+}
+
+.project-card p{
+  font-size:.82rem;
+  color:var(--muted);
+}
+
+.achievement-list{
+  display:grid;
+  gap:.7rem;
+}
+
+.achievement-item{
+  padding:.7rem .9rem;
+  border-radius:.7rem;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.75);
+  font-size:.82rem;
+}
+
+@media(max-width:600px){
+  .profile-section{
+    margin-top:3rem;
+  }
+
+  .project-grid,
+  .tools-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+/* ===== PROFILE SECTIONS ===== */
+.profile-section{
+  margin-top:3.5rem;
+}
+
+.profile-section h2{
+  font-size:1.4rem;
+  margin-bottom:.4rem;
+}
+
+.section-desc{
+  color:#9ca3af;
+  font-size:.9rem;
+  margin-bottom:1.6rem;
+}
+
+/* TWO COLUMN INFO */
+.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+}
+
+.info-card{
+  padding:1.2rem;
+  border-radius:1.1rem;
+  background:rgba(15,23,42,.85);
+  border:1px solid rgba(148,163,184,.25);
+}
+
+.info-card h3{
+  font-size:1.1rem;
+  margin-bottom:.4rem;
+}
+
+/* SKILLS */
+.skill-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.6rem;
+}
+
+.skill-grid span{
+  font-size:.75rem;
+  padding:.35rem .8rem;
+  border-radius:999px;
+  background:rgba(15,23,42,.8);
+  border:1px solid rgba(148,163,184,.25);
+}
+
+/* HIGHLIGHTS */
+.highlight-list{
+  list-style:none;
+  padding:0;
+}
+
+.highlight-list li{
+  padding:.5rem 0;
+  border-bottom:1px dashed rgba(148,163,184,.25);
+  font-size:.9rem;
+}
+
+/* MINDSET LINE */
+.mindset-line{
+  text-align:center;
+  color:#9ca3af;
+  margin:3rem 0 1.5rem;
+  font-size:.9rem;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .two-col{
+    grid-template-columns:1fr;
+  }
+}
+.card h4{
+  font-size:1.1rem;
+  margin-bottom:.5rem;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      <img src="/logo/aj_logo.png" alt="Logo" class="logo-img">
+      <span>𝘼𝙅𝘼𝙔 🦋</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+
+  <!-- LEFT TOP -->
+  <div class="hero-left">
+    <div class="tag">DATA SCIENCE & SYSTEM ADMINISTRATION</div>
+    <h1>Hi, I'm <span>Ajay Chauhan</span></h1>
+    <p class="hero-sub">
+      BCA (Data Science & Artificial Intelligence) student focused on
+      secure systems, backend logic, and structured academic platforms.
+    </p>
+
+    <p class="hero-meta">BBD University, Lucknow • System Administration</p>
+    <p class="status-line">Open to internships & project collaboration</p>
+
+    <span class="availability-tag">Available for Internship</span>
+  </div>
+
+  <!-- RIGHT TOP -->
+  <div class="hero-image">
+    <img src="/logo/logo4.jpeg" alt="Ajay Chauhan" class="profile-image">
+  </div>
+
+  <!-- LEFT BOTTOM -->
+  <div class="hero-summary">
+    <h2 class="section-title">Professional Summary</h2>
+    <p class="section-sub">Technical orientation with responsibility</p>
+    <p>
+      Disciplined BCA(DS & AI) student with strong backend thinking,
+      data clarity, and a security-first mindset.
+    </p>
+    <div class="mini-highlights">
+    <span>System Administration</span>
+    <span>Academic Coordination</span>
+    <span>Secure Data Workflows</span>
+    <span>Backend-Oriented Thinking</span>
+  </div>
+  </div>
+
+  <section class="profile-section">
+  <h2>Leadership & System Responsibility</h2>
+  <p class="section-desc">
+    Trusted with both technical administration and academic coordination
+    responsibilities within the class environment.
+  </p>
+
+  <div class="two-col">
+    <div class="info-card">
+      <h3>System Administration</h3>
+      <p>
+        Designed and managed internal academic systems, access control,
+        data structure, and workflow integrity for class operations.
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3>Class Representation (CR)</h3>
+      <p>
+        Served as a structured communication bridge between faculty
+        and students, ensuring clarity and coordination.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="profile-section">
+  <h2>Skills & Tools</h2>
+
+  <div class="skill-grid">
+    <span>Linux</span>
+    <span>Java</span>
+    <span>NoSQL</span>
+    <span>Computer Networks</span>
+    <span>Information Security</span>
+    <span>System Design</span>
+    <span>HTML & CSS</span>
+    <span>Data Handling</span>
+  </div>
+</section>
+
+  <!-- RIGHT -->
+  <div class="hero-focus card">
+    <h2>Professional Focus</h2>
+    <p>System design, access control, and academic data workflows.</p>
+
+    <div class="badge-row">
+      <span class="badge">System Design</span>
+      <span class="badge">Security</span>
+      <span class="badge">Data Integrity</span>
+      <span class="badge">Access Control</span>
+      <span class="badge">Role Based</Base></span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Skills Snapshot</h2>
+  <p class="section-subtitle">Technical strengths at a glance</p>
+
+  <div class="skills-grid">
+    <div class="card">
+      <h4>Programming</h4>
+      <p>Python, Java, SQL</p>
+    </div>
+    <div class="card">
+      <h4>Data</h4>
+      <p>Descriptive Analytics, NoSQL</p>
+    </div>
+    <div class="card">
+      <h4>Systems</h4>
+      <p>Linux, Computer Networks, IDS</p>
+    </div>
+    <div class="card">
+      <h4>Tools</h4>
+      <p>Git, GitHub, Google Sheets, Apps Script</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Highlighted Projects</h2>
+
+  <div class="projects-grid">
+    <div class="card">
+      <h4>Secure Student Portal</h4>
+      <p>Designed & developed a secure academic management portal using Google Apps Script, role-based authentication, activity tracking, and dynamic dashboards.</p>
+    </div>
+    <div class="card">
+      <h4>Attendance Automation System</h4>
+      <p>Data-integrity focused automation using Google Sheets.</p>
+    </div>
+    <div class="card">
+      <h4>Personal Portfolio Website</h4>
+      <p>Responsive, performance-optimized professional profile.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Core Strengths</h2>
+
+  <div class="mini-highlights">
+    <span>Security-First Mindset</span>
+    <span>Structured Backend Logic</span>
+    <span>Clean Data Handling</span>
+    <span>Documentation Discipline</span>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Education</h2>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      BCA (Data Science & Artificial Intelligence) — BBD University, Lucknow
+    </div>
+    <div class="timeline-item">
+      SGPA: 8.85 (Semester 1)
+    </div>
+    <div class="timeline-item">
+      SGPA: 9.0 (Semester 2)
+    </div>
+    <div class="timeline-item">
+      SGPA: 9.14 (Semester 3)
+    </div>
+    
+    <div class="timeline-item">
+      Currently in 4th Semester
+    </div>
+  </div>
+</section>
+
+<section class="profile-section">
+  <h2>ADCA – Technical Foundation</h2>
+  <p class="section-desc">
+    Foundational diploma focused on practical computer applications and early technical exposure.
+  </p>
+
+  <div class="achievement-list">
+    <div class="achievement-item">
+      <strong>Productivity & Office Tools:</strong>
+      MS Word and essential computer operations for documentation and workflow efficiency.
+    </div>
+
+    <div class="achievement-item">
+      <strong>Business & Accounting Exposure:</strong>
+      Hands-on understanding of Tally ERP, accounting entries, and basic financial workflows.
+    </div>
+
+    <div class="achievement-item">
+      <strong>Creative & Visual Design:</strong>
+      Graphic designing fundamentals with emphasis on layouts and visual clarity.
+    </div>
+
+    <div class="achievement-item">
+      <strong>Web Fundamentals:</strong>
+      HTML and CSS for basic webpage structure and styling, forming the foundation of frontend development.
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Currently Seeking</h2>
+
+  <div class="mini-highlights">
+    <span>Internship Opportunities</span>
+    <span>Backend / Data Projects</span>
+    <span>System & Security Roles</span>
+    <span>Academic Collaborations</span>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Learning & Certifications</h2>
+  <div class="learn">
+  <ul style="color:#e5e7eb;font-size:.9rem;line-height:1.8">
+    <li>Linux System Administration (Ongoing)</li>
+    <li>Data Analytics Fundamentals</li>
+    <li>Network & Information Security Basics</li>
+  </ul>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Growth Timeline</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+  Early Technical Exposure (ADCA) — Hands-on foundation in
+  MS Word, Tally ERP, Graphic Designing, and HTML & CSS
+</div>
+
+    <div class="timeline-item">
+      Semester 1 — Programming fundamentals & problem solving
+    </div>
+    <div class="timeline-item">
+      Semester 2 — Data handling, OS basics, analytical thinking
+    </div>
+    <div class="timeline-item">
+      Semester 3 — Descriptive Analytics, Linux, Java, CN, IDS,
+      Blockchain, NoSQL
+    </div>
+  </div>
+</section>
+<section class="profile-section">
+  <h2>Academic Highlights</h2>
+
+  <ul class="highlight-list">
+    <li>● Consistent SGPA above 8.5</li>
+    <li>● Peak SGPA: 9.14 (till date)</li>
+    <li>● 7 core technical subjects in the third Semester.</li>
+  </ul>
+</section>
+
+
+<div style="text-align:center;margin:3rem 0 2rem">
+  <hr style="width:80px;border:none;border-top:1px solid rgba(148,163,184,.25);margin:0 auto 1.2rem">
+  <p class="mindset-line"; style="color:#9ca3af;font-size:.9rem">
+    Open to meaningful technical discussions and learning-driven opportunities.
+  </p>
+</div>
+
+<section class="contact-wrap">
+  <div class="contact-card">
+
+    <h2>Let’s Connect & Collaborate 💙</h2>
+        <p class="contact-sub">
+          Open to internships, project collaborations, and technical discussions.
+        <br>Feel free to reach out for opportunities or professional connections.</br>
+        </p>
+
+    <!-- ICON ROW -->
+   <div class="contact-icons">
+
+  <!-- GitHub -->
+  <a href="https://github.com/aj12121212"
+     target="_blank" rel="noopener"
+     title="GitHub" aria-label="GitHub">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 .5C5.7.5.5 5.8.5 12.2c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.1c-3.2.7-3.9-1.6-3.9-1.6-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.9 2.7 1.4.1-.7.4-1.1.7-1.4-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C17 4.7 18 5 18 5c.6 1.7.2 3 .1 3.3.8.9 1.2 2 1.2 3.3 0 4.6-2.8 5.6-5.4 5.9.4.3.8 1 .8 2v3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.8 18.3.5 12 .5z"/>
+    </svg>
+  </a>
+
+  <!-- LinkedIn -->
+  <a href="https://www.linkedin.com/in/ajay-chauhan-9053893a3?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+     target="_blank" rel="noopener"
+     title="LinkedIn" aria-label="LinkedIn">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M4.98 3.5C4.98 4.9 3.9 6 2.5 6S0 4.9 0 3.5 1.08 1 2.48 1s2.5 1.1 2.5 2.5zM.5 23.5h4V7.5h-4v16zM8.5 7.5h3.8v2.2h.1c.5-1 1.8-2.3 3.8-2.3 4 0 4.8 2.6 4.8 6v9.9h-4v-8.8c0-2.1 0-4.8-3-4.8s-3.4 2.3-3.4 4.6v9H8.5v-16z"/>
+    </svg>
+  </a>
+
+  <!-- Email -->
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ajaycha1232a@gmail.com"
+   target="_blank"
+   rel="noopener"
+   title="Email" aria-label="Email">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+    </svg>
+  </a>
+
+  <!-- WhatsApp -->
+  <a href="https://wa.me/916386773934?text=Hello%20Ajay"
+     target="_blank" rel="noopener"
+     title="WhatsApp" aria-label="WhatsApp">
+  <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor">
+    <path d="M16.01 2.01C8.83 2.01 3 7.84 3 15.02c0 2.64.69 5.12 1.9 7.28L3 30l7.92-2.06a12.9 12.9 0 0 0 5.09 1.02h.01c7.18 0 13.01-5.83 13.01-13.01 0-7.18-5.83-12.94-13.02-12.94zm0 23.57c-1.63 0-3.23-.43-4.63-1.25l-.33-.2-4.7 1.23 1.26-4.57-.21-.34a9.57 9.57 0 0 1-1.48-5.13c0-5.33 4.34-9.67 9.69-9.67 5.34 0 9.68 4.34 9.68 9.67 0 5.34-4.34 9.67-9.68 9.67zm5.32-7.24c-.29-.15-1.71-.84-1.98-.94-.27-.1-.47-.15-.66.15-.2.29-.76.94-.93 1.14-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.49-.66-.5h-.57c-.2 0-.52.07-.79.37-.27.29-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.11 3.23 5.11 4.53.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.08 1.71-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.27-.2-.56-.35z"/>
+  </svg>
+</a>
+
+  <!-- Instagram -->
+  <a href="https://www.instagram.com/ajay_chauhan_._._/"
+     target="_blank" rel="noopener"
+     title="Instagram" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm10 2c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 7.3A2.8 2.8 0 1 1 14.8 12 2.8 2.8 0 0 1 12 14.8zM17.8 6.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+    </svg>
+  </a>
+
+  <!-- Facebook -->
+  <a href="https://www.facebook.com/profile.php?id=100030164265023"
+     target="_blank" rel="noopener"
+     title="Facebook" aria-label="Facebook">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-2.9h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6v2h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12z"/>
+    </svg>
+  </a>
+
+  <!-- Telegram -->
+  <a href="https://t.me/AJAY"
+     target="_blank" rel="noopener"
+     title="Telegram" aria-label="Telegram">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M9.9 16.2 9.7 19c.4 0 .6-.2.8-.4l1.9-1.8 4 2.9c.7.4 1.2.2 1.4-.7l2.5-11.8c.3-1-.3-1.4-1-1.1L3.1 10c-1 .4-1 .9-.2 1.1l4.3 1.3 9.9-6.3c.5-.3.9-.1.6.2"/>
+    </svg>
+  </a>
+
+</div>
+
+    <!-- CONTACT DETAILS -->
+  <form class="contact-form" id="contactForm">
+  <input type="text" name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+  <button type="submit">Send Message</button>
+</form>
+
+  </div>
+</section>
+
+</main>
+
+<footer>
+© <span id="year"></span> 
+<svg width="11" height="11" viewBox="0 0 100 100" fill="none">
+      <!-- Your logo path here -->
+      <circle cx="50" cy="50" r="41" stroke="#38bdf8" stroke-width="8"/>
+      <text x="50" y="62" text-anchor="middle"
+            font-size="42" fill="#38bdf8"
+            font-family="Segoe UI, sans-serif"> AJ </text>
+</svg>
+    Ajay Chauhan • BCA (Data Science & AI) • BCADS21
+</footer>
+
+<script>
+document.getElementById("year").textContent=new Date().getFullYear();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+(function(){
+  emailjs.init("Ovn91nnDAY-vXD8K1"); 
+})();
+
+document.getElementById("contactForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  emailjs.sendForm(
+    "service_zu2vkfg",
+    "template_htfei0a",
+    this
+  ).then(() => {
+    alert("Message sent successfully to Gmail!");
+    this.reset();
+  }, (error) => {
+    alert("Message failed. Check console.");
+    console.error(error);
+  });
+});
+</script>
+
+</body>
+</html>

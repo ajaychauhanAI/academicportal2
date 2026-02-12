@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Activity Logs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    :root{
+      --card: rgba(255,255,255,.95);
+      --border: #ddd;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #667eea;
+    }
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+
+      font-family:Inter,system-ui,Arial;
+      background:transparent;
+      color:var(--text);
+      visibility: hidden;
+    }
+
+    /* CONTAINER */
+    .container{
+      max-width:100%;
+      margin:0;
+      padding:18px;
+    }
+
+    /* CARD */
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:0 20px 45px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+
+    /* HEADER */
+    .header{
+      padding:18px 20px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      border-bottom:1px solid var(--border);
+    }
+    .header h2{
+      margin:0;
+      font-size:18px;
+      flex:1;
+    }
+
+    /* FILTERS */
+    .header input,
+    .header select{
+      background:#fff;
+      border:1px solid #d1d5db;
+      color:#111827;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:13px;
+    }
+
+    .header input::placeholder{color:#9ca3af}
+
+    .header input:focus,
+    .header select:focus{
+      outline:none;
+      border-color:#667eea;
+      box-shadow:0 0 0 2px rgba(102,126,234,.25);
+    }
+
+    /* TABLE */
+    .table-wrap{
+      overflow:auto;
+      max-height:calc(100vh - 220px);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      background:#fff;
+    }
+    th,td{
+      padding:10px;
+      border:1px solid var(--border);
+      white-space:nowrap;
+    }
+    th{
+      position:sticky;
+      top:0;
+      background:#f3f4f6;
+      z-index:2;
+      background:#f9fafb;       /* Security logs jaisa */
+      font-weight:600;
+      text-align:left;
+    }
+    tr:hover{background:#eef2ff}
+
+    /* BADGES */
+    .badge{
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:600;
+    }
+    .badge-view{
+      background:#e0f2fe;
+      color:#0369a1;
+    }
+    .badge-download{
+      background:#dcfce7;
+      color:#166534;
+    }
+
+    /* FOOTER */
+    .footer{
+      padding:14px;
+      text-align:center;
+      border-top:1px solid var(--border);
+    }
+    button{
+      background:var(--primary);
+      border:none;
+      padding:10px 18px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:14px;
+    }
+
+    /* MOBILE */
+    @media(max-width:700px){
+      body{background:#e5e7eb}
+      .container{padding:10px}
+      .card{border-radius:14px}
+      .header{flex-direction:column}
+      .header input,.header select{width:100%}
+      .table-wrap{max-height:calc(100vh - 260px)}
+    }
+
+    /* TABLET */
+    @media (min-width:701px) and (max-width:1024px){
+      body{background:#f1f5f9}
+      .container{padding:14px}
+      .header input,.header select{
+        flex:1 1 calc(50% - 8px);
+        min-width:180px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="card">
+
+      <!-- HEADER -->
+      <div class="header">
+        <h2>📊 Student Activity Logs</h2>
+        <input id="search" placeholder="Search name / email / batch">
+        <select id="actionFilter">
+          <option value="">All Actions</option>
+          <option value="VIEWED">VIEWED</option>
+          <option value="DOWNLOADED">DOWNLOADED</option>
+        </select>
+        <input type="date" id="fromDate">
+        <input type="date" id="toDate">
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Batch</th>
+              <th>Action</th>
+              <th>Content</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
+      </div>
+
+    </div>
+  </div>
+
+<script src="admin-common.js"></script>
+<script>
+/* =========================
+   PAGE INIT
+   (Security handled by admin-common.js)
+========================= */
+
+let ACTIVITY_TIMER = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  // page visible
+  document.body.style.visibility = "visible";
+
+  // initial data load
+  loadStudentActivity();
+
+  // start auto-refresh
+  startLiveActivity();
+});
+/* =========================
+   STATE
+========================= */
+let ALL = [];
+let VIEW = [];
+let LIMIT = 20;
+let LOADING = false;
+let LAST_TS = null;   // 🔥 last activity timestamp
+
+/* =========================
+   LOAD DATA
+========================= */
+async function loadStudentActivity() {
+
+  if (LOADING) return;
+  LOADING = true;
+
+  try {
+    const r = await fetch(APP_CONFIG.WEB_APP_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        action: "studentActivity",
+        sessionToken: localStorage.getItem("SESSION"),
+        since: LAST_TS || "",   // 🔥 ONLY NEW DATA
+        limit: 200
+      })
+    });
+
+    const d = await r.json();
+
+    if (d?.status === "unauthorized") {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const rows = Array.isArray(d?.data) ? d.data : [];
+    if (!rows.length) return;   // 🔥 no new data
+
+    /* =========================
+       🔥 STOCK-STYLE MERGE
+    ========================= */
+    rows.forEach(r => {
+      if (!ALL.some(x => x.logId === r.logId)) {
+        ALL.unshift(r); // NEW row on top
+      }
+    });
+
+    // 🔥 update last timestamp
+    LAST_TS = rows[0].ts;
+
+    VIEW = ALL;
+    render();
+
+  } catch (e) {
+
+    if (e.message === "UNAUTHORIZED") {
+      document.body.innerHTML = "";
+      location.replace("../login_page/login.html");
+    } else {
+      console.warn("StudentActivity fetch failed:", e);
+    }
+
+  } finally {
+    LOADING = false;
+  }
+}
+
+/* =========================
+   RENDER
+========================= */
+function render() {
+  const tb  = document.getElementById("tbody");
+  const btn = document.getElementById("loadMoreBtn");
+
+  if (!tb) return;
+
+  tb.innerHTML = "";
+
+  const total   = VIEW.length;
+  const visible = Math.min(LIMIT, total);
+
+  VIEW.slice(0, visible).forEach(r => {
+    tb.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${r.ts ? formatDate(r.ts) : "—"}</td>
+        <td>${r.ts ? formatTime(r.ts) : "—"}</td>
+        <td>${r.name || "—"}</td>
+        <td>${r.email || "—"}</td>
+        <td>${r.batch || "—"}</td>
+        <td>
+          <span class="badge ${
+            r.action === "DOWNLOADED"
+              ? "badge-download"
+              : "badge-view"
+          }">
+            ${r.action || "—"}
+          </span>
+        </td>
+        <td>
+          ${r.contentType || "—"}
+        </td>
+      </tr>
+    `);
+  });
+
+  // Load more button visibility
+  if (!btn) return;
+  btn.style.display =
+    total > visible ? "inline-block" : "none";
+}
+
+/* =========================
+   LOAD MORE
+========================= */
+function loadMore() {
+  LIMIT += 20;
+  render();
+}
+
+/* =========================
+   FILTERS
+========================= */
+document
+  .querySelectorAll("#search,#actionFilter,#fromDate,#toDate")
+  .forEach(el => el.addEventListener("input", filter));
+
+function filter() {
+  const q   = document.getElementById("search").value.toLowerCase();
+  const act = document.getElementById("actionFilter").value;
+  const f   = document.getElementById("fromDate").value;
+  const t   = document.getElementById("toDate").value;
+
+  VIEW = ALL.filter(r => {
+
+    if (
+      q &&
+      !(`${r.name}${r.email}${r.batch}`.toLowerCase().includes(q))
+    ) return false;
+
+    if (act && r.action !== act) return false;
+
+    if (f && r.date && r.date < f.split("-").reverse().join("-")) return false;
+    if (t && r.date && r.date > t.split("-").reverse().join("-")) return false;
+
+    return true;
+  });
+
+  LIMIT = 20;
+  render();
+}
+
+/* =========================
+   🔄 AUTO REFRESH (FIXED)
+========================= */
+function startLiveActivity() {
+  if (ACTIVITY_TIMER) return;
+  ACTIVITY_TIMER = setInterval(loadStudentActivity, 12000);
+}
+
+function stopLiveActivity() {
+  clearInterval(ACTIVITY_TIMER);
+  ACTIVITY_TIMER = null;
+}
+
+// 🔥 page hidden → stop | visible → resume
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopLiveActivity();
+  else startLiveActivity();
+});
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true
+  });
+}
+</script>
+
+</body>
+</html>
