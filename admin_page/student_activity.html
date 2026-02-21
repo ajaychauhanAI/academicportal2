@@ -286,25 +286,42 @@ function stopLiveLogs() {
 
 /* ================= LOAD LOGS ================= */
 function loadLogs() {
+
   adminFetch({ action: "get_security_logs" })
     .then(res => {
+
       if (handleAdminSoftFail(res)) return;
       if (!Array.isArray(res)) return;
 
-      ALL_LOGS  = res;
-      VIEW_LOGS = res;
-      LIMIT = 20;
-      render();
+      /* 🔁 Always update master data */
+      ALL_LOGS = res;
+
+      /* ✅ Check if any filter is active */
+      const isFilterActive =
+        searchBox.value.trim() !== "" ||
+        actionFilter.value.trim() !== "" ||
+        fromDate.value !== "" ||
+        toDate.value !== "";
+
+      if (isFilterActive) {
+        /* 🔥 Reapply existing filter */
+        filterLogs();
+      } else {
+        /* 🟢 No filter → normal render */
+        VIEW_LOGS = ALL_LOGS;
+        LIMIT = 20;
+        render();
+      }
+
     })
     .catch(err => {
-    if (String(err).includes("UNAUTHORIZED")) {
-      adminLogout();
-    } else {
-      console.warn("Skipped:", err);
-    }
-  });
+      if (String(err).includes("UNAUTHORIZED")) {
+        adminLogout();
+      } else {
+        console.warn("Skipped:", err);
+      }
+    });
 }
-
 /* ================= RENDER ================= */
 function render() {
   const tbody = document.querySelector("#logTable tbody");
@@ -357,26 +374,41 @@ function normalizeDate(d) {
 }
 
 function filterLogs() {
+
   const q      = searchBox.value.trim().toLowerCase();
   const action = actionFilter.value.trim().toLowerCase();
   const from   = fromDate.value;
   const to     = toDate.value;
 
-  const fromD = from ? normalizeDate(from) : null;
-  const toD   = to   ? normalizeDate(to)   : null;
+  const fromD = from ? new Date(from + "T00:00:00") : null;
+  const toD   = to   ? new Date(to + "T23:59:59")   : null;
 
   VIEW_LOGS = ALL_LOGS.filter(r => {
 
-    const roll  = String(r[2]).toLowerCase();
-    const batch = String(r[3]).toLowerCase();
-    const act   = String(r[4]).toLowerCase();
+    const dateValue = new Date(r[0]);
 
-    if (q && !roll.includes(q) && !batch.includes(q)) return false;
-    if (action && !act.includes(action)) return false;
+    const roll    = String(r[2] || "").toLowerCase();
+    const batch   = String(r[3] || "").toLowerCase();
+    const act     = String(r[4] || "").toLowerCase();
+    const by      = String(r[5] || "").toLowerCase();
+    const device  = String(r[6] || "").toLowerCase();
+    const browser = String(r[7] || "").toLowerCase();
+    const os      = String(r[8] || "").toLowerCase();
 
-    const logDate = normalizeDate(r[0]);
-    if (fromD && logDate < fromD) return false;
-    if (toD   && logDate > toD)   return false;
+    /* 🔎 Global Search */
+    if (q) {
+      const searchable =
+        roll + batch + act + by + device + browser + os;
+
+      if (!searchable.includes(q)) return false;
+    }
+
+    /* 🎯 Exact Action Match */
+    if (action && act !== action) return false;
+
+    /* 📅 Date Range */
+    if (fromD && dateValue < fromD) return false;
+    if (toD   && dateValue > toD)   return false;
 
     return true;
   });
@@ -384,7 +416,6 @@ function filterLogs() {
   LIMIT = 20;
   render();
 }
-
 /* ================= AUTO REFRESH (PAGE) ================= */
 function toggleAutoRefresh() {
   clearInterval(refreshTimer);

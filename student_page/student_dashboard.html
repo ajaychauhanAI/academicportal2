@@ -15,9 +15,9 @@
 
 <div class="layout">
 
-  <!-- =========================
-       SIDEBAR
-  ========================= -->
+  <!-- ===================================== -->
+  <!-- =============== SIDEBAR ============== -->
+  <!-- ===================================== -->
   <aside id="sidebar" class="sidebar">
     <button class="close-btn" aria-label="Close sidebar">✕</button>
 
@@ -26,7 +26,6 @@
       <img src="../logo/logo2.png"
            alt="BCADS Academic Portal"
            class="logo-img">
-
       <div class="logo-text">
         <div class="logo-title">BCADS</div>
         <div class="logo-subtitle">ACADEMIC PORTAL</div>
@@ -41,11 +40,11 @@
         <i class="fa-solid fa-gauge"></i> Dashboard
       </a>
 
-      <a onclick="showFiltered('Assignment')">
+      <a onclick="showFiltered('ASSIGNMENT')">
         <i class="fa-solid fa-book"></i> Assignments
       </a>
 
-      <a onclick="showFiltered('Notes')">
+      <a onclick="showFiltered('NOTES')">
         <i class="fa-solid fa-note-sticky"></i> Notes
       </a>
 
@@ -53,25 +52,26 @@
         <i class="fa-solid fa-file-lines"></i> PYQ
       </a>
 
-      <a onclick="showFiltered('Message')">
+      <a onclick="showFiltered('MESSAGE')">
         <i class="fa-solid fa-bullhorn"></i>
         Latest Notice <span id="newsBadge"></span>
       </a>
     </nav>
 
-    <!-- LOGOUT -->
     <div class="logout" onclick="logout()">
       <i class="fa-solid fa-power-off"></i> Logout
     </div>
   </aside>
 
-  <!-- =========================
-       MAIN CONTENT
-  ========================= -->
+
+  <!-- ===================================== -->
+  <!-- ============ MAIN CONTENT ============ -->
+  <!-- ===================================== -->
   <main class="main">
 
-    <!-- ================= TOP BAR ================= -->
+    <!-- ================= TOPBAR ================= -->
     <header class="topbar">
+
       <div class="topbar-left">
         <button id="menuToggle"
                 class="menu-btn"
@@ -87,36 +87,39 @@
         </div>
       </div>
 
-      <div class="user-chip">
+      <div class="user-chip" onclick="toggleProfileDropdown()" style="cursor:pointer;">
         <div class="avatar" id="avatar">S</div>
         <div>
           <strong id="studentName">Student</strong><br>
           <small id="studentBatch"></small>
         </div>
       </div>
+      <div id="profileDropdown" class="profile-dropdown"></div>
+
     </header>
 
+
     <!-- ================= PAGE HEADER ================= -->
-<section class="over">
+    <section class="over">
+      <div class="over-left">
+        <h2 id="pageTitle">📊 STUDENT DASHBOARD OVERVIEW</h2>
+      </div>
 
-  <div class="over-left">
-    <h2 id="pageTitle">📊 STUDENT DASHBOARD OVERVIEW</h2>
-  </div>
+      <div class="over-right">
+        <div id="liveDateTime"></div>
+        <button class="theme-toggle"
+                onclick="toggleTheme()"
+                aria-label="Toggle theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </section>
 
-  <div class="over-right">
-    <div id="liveDateTime"></div>
-
-    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-      <i class="fa-solid fa-moon"></i>
-    </button>
-  </div>
-
-</section>
 
     <!-- ================= SUMMARY CARDS ================= -->
     <section class="cards">
 
-      <div class="card summary-card" onclick="openSummaryPopup('Notes')">
+      <div class="card" onclick="openSummaryPopup('NOTES')">
         <div>
           <span>Total Notes</span>
           <h2 id="totalNotes">--</h2>
@@ -126,7 +129,7 @@
         </div>
       </div>
 
-      <div class="card" onclick="openSummaryPopup('Assignment')">
+      <div class="card" onclick="openSummaryPopup('ASSIGNMENT')">
         <div>
           <span>Total Assignments</span>
           <h2 id="totalAssignments">--</h2>
@@ -136,7 +139,7 @@
         </div>
       </div>
 
-      <div class="card" onclick="openSummaryPopup('Pending')">
+      <div class="card" onclick="openSummaryPopup('PENDING')">
         <div>
           <span>Pending</span>
           <h2 id="pendingAssignments">--</h2>
@@ -146,7 +149,7 @@
         </div>
       </div>
 
-      <div class="card" onclick="openSummaryPopup('Expired')">
+      <div class="card" onclick="openSummaryPopup('EXPIRED')">
         <div>
           <span>Expired</span>
           <h2 id="expiredAssignments">--</h2>
@@ -168,47 +171,80 @@
 
     </section>
 
-    <!-- ================= SUBJECT TABS ================= -->
-    <div id="subjectTabs"
-         class="subject-tabs"
-         style="display:none"></div>
 
-    <!-- ================= LATEST NEWS ================= -->
-<!-- ===== Announcement + Subject Wrapper ===== -->
-<div class="dashboard-lower-grid">
+    <!-- ================= QUICK ACTIONS ================= -->
+    <section class="quick-actions" style="display:none;">
 
-  <!-- LEFT : ANNOUNCEMENTS -->
-  <section id="newsSection" class="news-panel">
+      <div class="qa-header">
+        <h3>📚 Academic Resources</h3>
+      </div>
 
-    <div class="news-panel-header">
-      <h3>📢 Announcements</h3>
+      <div class="qa-grid">
+
+        <button type="button"
+                class="qa-card"
+                onclick="showFiltered('ACADEMIC_CALENDAR')">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Academic Calendar</span>
+        </button>
+
+        <button type="button"
+                class="qa-card"
+                onclick="showFiltered('SYLLABUS')">
+          <i class="fa-solid fa-book-open-reader"></i>
+          <span>Syllabus</span>
+        </button>
+
+        <button type="button"
+                class="qa-card"
+                onclick="showFiltered('HOLIDAY_LIST')">
+          <i class="fa-solid fa-umbrella-beach"></i>
+          <span>Holiday List</span>
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= LOWER DASHBOARD GRID ================= -->
+    <div class="dashboard-lower-grid">
+
+      <!-- LEFT: ANNOUNCEMENTS -->
+      <section id="newsSection" class="news-panel">
+
+        <div class="news-panel-header">
+          <h3>📢 Announcements</h3>
+        </div>
+
+        <div class="news-block">
+          <div class="news-block-title">Latest News</div>
+          <div id="newsContainer" class="news-list"></div>
+        </div>
+
+        <div class="news-block">
+          <div class="news-block-title">Notice Documents</div>
+          <div id="noticeDocsContainer" class="docs-list"></div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT: SUBJECT + DEADLINES -->
+      <div class="right-dashboard-panel">
+        <div id="subjectProgress"></div>
+        <div id="deadlineBox"
+             class="news-panel"
+             style="margin-top:20px;"></div>
+      </div>
+
     </div>
 
-    <div class="news-block">
-      <div class="news-block-title">Latest News</div>
-      <div id="newsContainer" class="news-list"></div>
-    </div>
-
-    <div class="news-block">
-      <div class="news-block-title">Notice Documents</div>
-      <div id="noticeDocsContainer" class="docs-list"></div>
-    </div>
-
-  </section>
-
-  <!-- RIGHT : SUBJECT PROGRESS -->
-<div>
-  <div id="subjectProgress"></div>
-  <div id="deadlineBox" class="news-panel" style="margin-top:20px;"></div>
-</div>
-
-
-</div>
 
     <!-- ================= CONTENT GRID ================= -->
     <div id="contentGrid" class="grid"></div>
 
-    <!-- ================= SUMMARY POPUP ================= -->
+
+    <!-- ================= SUMMARY MODAL ================= -->
     <div id="summaryModal" class="summary-modal">
       <div class="summary-box">
         <div class="summary-header">
@@ -220,9 +256,575 @@
     </div>
 
   </main>
-</div>
 
+</div>
 <script src="../login_page/style.js"></script>
 <script src="student_common.js"></script>
+<!-- ===========================
+        NEOBOT AI WIDGET
+=========================== -->
+
+<style>
+#neo-toggle {
+  position: fixed;
+  bottom: 22px;
+  right: 28px;
+  background: linear-gradient(135deg,#00eaff,#00c3ff);
+  color: #000;
+  padding: 07px 07px;
+  font-size: 12px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,195,255,.45);
+  z-index: 9999;
+  transition: all .3s ease;
+  backdrop-filter: blur(10px);
+}
+#neo-toggle:hover{
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(0,195,255,.6);
+}
+
+#neo-box{
+  position: fixed;
+  bottom: 90px;
+  right: 22px;
+  width: 380px;
+  max-height: 420px;
+  background: linear-gradient(145deg,#0f172a,#0c1424);
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,.5),
+    0 0 0 1px rgba(255,255,255,.05) inset;
+  z-index: 9999;
+  animation: slideUp .3s ease;
+  backdrop-filter: blur(14px);
+}
+
+@keyframes slideUp{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+#neo-header{
+  padding: 16px;
+  background: linear-gradient(90deg,#111827,#0f1a2d);
+  color: #00eaff;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+#neo-messages{
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.neo-msg{
+  max-width: 80%;
+  padding: 12px 15px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  animation: fadeIn .25s ease;
+  backdrop-filter: blur(6px);
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(6px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.neo-user{
+  align-self: flex-end;
+  background: linear-gradient(135deg,#00eaff33,#009dff33);
+  color: #e6ffff;
+  border: 1px solid rgba(0,234,255,.3);
+  box-shadow: 0 4px 15px rgba(0,195,255,.2);
+}
+
+.neo-bot{
+  align-self: flex-start;
+  background: linear-gradient(135deg,#1f2937,#18212f);
+  color: #f1f5f9;
+  border: 1px solid rgba(255,255,255,.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,.3);
+}
+
+.typing{
+  font-style: italic;
+  opacity: .75;
+}
+
+#neo-footer{
+  display: flex;
+  border-top: 1px solid rgba(255,255,255,.05);
+  background: linear-gradient(90deg,#111827,#0f1a2d);
+}
+
+#neo-input{
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: white;
+  outline: none;
+  font-size: 14px;
+}
+
+#neo-input::placeholder{
+  color: rgba(255,255,255,.4);
+}
+
+#neo-send{
+  padding: 12px 16px;
+  border: none;
+  background: linear-gradient(135deg,#00eaff,#00c3ff);
+  font-weight: 600;
+  cursor: pointer;
+  transition: .25s;
+  box-shadow: 0 4px 15px rgba(0,195,255,.4);
+}
+#neo-send:hover{
+  background: linear-gradient(135deg,#00c3ff,#009dff);
+  box-shadow: 0 6px 18px rgba(0,195,255,.6);
+}
+
+/* ===============================
+   TABLET RESPONSIVE
+=============================== */
+@media (max-width: 1024px) {
+
+  #neo-box {
+    width: 90%;
+    right: 5%;
+    bottom: 90px;
+  }
+
+  #neo-toggle {
+    right: 5%;
+  }
+
+}
+
+/* ===============================
+   MOBILE RESPONSIVE
+=============================== */
+@media (max-width: 600px) {
+
+  #neo-toggle {
+    bottom: 15px;
+    right: 25px;
+    padding: 08px 08px;
+    font-size: 12px;
+  }
+
+  #neo-box {
+    position: fixed;
+    width: 92%;
+    right: 4%;
+    left: 4%;
+    bottom: 20px;
+    height: 35vh;
+    max-height: 35vh;
+    display: none;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 9999;
+  }
+
+  #neo-header {
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  #neo-messages {
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  #neo-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  #neo-send {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+}
+
+/* ===============================
+   MACOS / LARGE DESKTOP SUPPORT
+   (No size change, only alignment safety)
+=============================== */
+@media (min-width: 1440px) {
+
+  #neo-box {
+    right: 22px;   /* Same spacing maintain */
+    bottom: 90px;  /* Same structure */
+  }
+
+  #neo-toggle {
+    right: 28px;   /* Same position */
+  }
+
+}
+
+/* ===============================
+   TABLET RESPONSIVE (768px)
+=============================== */
+@media (max-width: 1024px) {
+
+  #neo-box {
+    width: 90%;
+    right: 5%;
+    bottom: 90px;
+  }
+
+  #neo-toggle {
+    right: 5%;
+  }
+
+}
+
+/* ===============================
+   MOBILE RESPONSIVE (600px)
+=============================== */
+@media (max-width: 600px) {
+
+  #neo-toggle {
+    bottom: 15px;
+    right: 25px;
+    padding: 08px 08px;
+    font-size: 12px;
+  }
+
+  #neo-box {
+  position: fixed;
+  width: 92%;              /* 🔥 100% hata diya */
+  right: 4%;               /* Center align */
+  left: 4%;                /* Equal margin */
+  bottom: 20px;            /* Slight gap from bottom */
+  height: 65vh;
+  max-height: 65vh;
+  display: none;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+  @keyframes slideUpMobile {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  #neo-header {
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  #neo-messages {
+    padding: 12px;
+    overflow-y: auto;             /* 🔥 Scroll only inside chat */
+  }
+
+  #neo-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  #neo-send {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+}
+
+/* ===============================
+   DESKTOP OPTIMIZATION
+=============================== */
+@media (min-width: 1200px) {
+
+  #neo-box {
+    right: 40px;              /* 🔥 Sidebar se door */
+    bottom: 110px;            /* 🔥 Cards cover na kare */
+    width: 360px;             /* Slight compact feel */
+    max-height: 500px;
+  }
+
+  #neo-toggle {
+    right: 40px;
+    bottom: 30px;
+  }
+
+}
+.neo-action-btn{
+  padding:6px 12px;
+  font-size:12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  background:linear-gradient(135deg,#00eaff,#00c3ff);
+  font-weight:600;
+  transition:.25s;
+}
+.neo-action-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,195,255,.5);
+}
+</style>
+
+<div id="neo-toggle">🤖 NEOBOT</div>
+
+<div id="neo-box">
+  <div id="neo-header">
+    NEOBOT
+    <span style="cursor:pointer;" onclick="toggleNeo()">✖</span>
+  </div>
+
+  <div id="neo-messages"></div>
+
+  <div id="neo-footer">
+    <input id="neo-input" placeholder="Ask NEOBOT something..." />
+    <button id="neo-send">Send</button>
+  </div>
+</div>
+
+<script>
+const neoToggle = document.getElementById("neo-toggle");
+const neoBox = document.getElementById("neo-box");
+const neoInput = document.getElementById("neo-input");
+const neoSend = document.getElementById("neo-send");
+const neoMessages = document.getElementById("neo-messages");
+
+neoToggle.onclick = toggleNeo;
+
+function toggleNeo(){
+  neoBox.style.display = neoBox.style.display === "flex" ? "none" : "flex";
+  neoBox.style.flexDirection = "column";
+}
+
+/* ===============================
+   Utility Functions
+=============================== */
+
+function getUserName(){
+  return localStorage.getItem("NAME") || "Student";
+}
+
+function getGreeting(){
+  const hour = new Date().getHours();
+  if(hour < 12) return "Good Morning";
+  if(hour < 17) return "Good Afternoon";
+  if(hour < 21) return "Good Evening";
+  return "Hello";
+}
+
+function getTime(){
+  const now = new Date();
+  return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+/* ===============================
+   Add Message UI
+=============================== */
+
+function addNeoMessage(text,type,meta=null){
+
+  const wrapper=document.createElement("div");
+  wrapper.classList.add("neo-msg");
+  wrapper.classList.add(type==="user"?"neo-user":"neo-bot");
+
+  const msg=document.createElement("div");
+
+  // 🔥 If meta content (View/Download)
+  if(meta && meta.fileUrl){
+
+    msg.innerHTML = `
+      <div style="margin-bottom:8px;">${text}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="neo-action-btn"
+          onclick="window.open('${meta.fileUrl}','_blank')">
+          👁 View
+        </button>
+
+        <button class="neo-action-btn"
+          onclick="trackDownload(null,'${meta.fileUrl}','${meta.id}')">
+          ⬇ Download
+        </button>
+      </div>
+    `;
+
+  } else {
+    msg.innerText=text;
+  }
+
+  const time=document.createElement("div");
+  time.style.fontSize="10px";
+  time.style.opacity="0.6";
+  time.style.marginTop="4px";
+  time.innerText=getTime();
+
+  wrapper.appendChild(msg);
+  wrapper.appendChild(time);
+
+  neoMessages.appendChild(wrapper);
+  neoMessages.scrollTop=neoMessages.scrollHeight;
+}
+
+/* ===============================
+   Typing Indicator
+=============================== */
+
+function showTyping(){
+  const typing=document.createElement("div");
+  typing.classList.add("neo-msg","neo-bot");
+  typing.id="neo-typing";
+  typing.innerHTML="<span style='opacity:.6;'>NEOBOT is typing...</span>";
+  neoMessages.appendChild(typing);
+  neoMessages.scrollTop=neoMessages.scrollHeight;
+}
+
+function removeTyping(){
+  const typing=document.getElementById("neo-typing");
+  if(typing) typing.remove();
+}
+
+/* ===============================
+   Main Send Function
+=============================== */
+
+async function sendNeoMessage(){
+
+  if (sendNeoMessage.locked) return;
+
+  const text = neoInput.value.trim();
+  if (!text) return;
+
+  // 🔒 Lock to prevent spam
+  sendNeoMessage.locked = true;
+  neoSend.disabled = true;
+
+  addNeoMessage(text, "user");
+  neoInput.value = "";
+
+  const lower = text.toLowerCase();
+
+  /* ===============================
+     🌍 Greeting Logic (Hindi + English)
+  =============================== */
+  const greetingWords = ["hi","hello","hey","namaste","नमस्ते","hii"];
+
+  if (greetingWords.includes(lower)) {
+
+    const greet = getGreeting();
+    const name  = getUserName();
+
+    addNeoMessage(`${greet}, ${name}. How can I help you today?`, "bot");
+
+    sendNeoMessage.locked = false;
+    neoSend.disabled = false;
+    return;
+  }
+
+  showTyping();
+
+  try {
+
+    const res = await studentFetch({
+      action: "student_ai",
+      message: text,
+      sessionToken: getSessionToken()
+    });
+
+    removeTyping();
+
+    /* ===============================
+       ✅ SUCCESS RESPONSE
+    =============================== */
+    if (res?.status === "ok") {
+
+      // 🔥 If backend sends file data (View/Download support)
+      if (res.file && res.file.fileUrl) {
+
+        addNeoMessage(
+          res.reply || "File available below:",
+          "bot",
+          {
+            id: res.file.id,
+            fileUrl: res.file.fileUrl
+          }
+        );
+
+      } else {
+
+        addNeoMessage(
+          res.reply || "No response generated.",
+          "bot"
+        );
+      }
+
+    }
+
+    /* ===============================
+       ❌ BACKEND ERROR
+    =============================== */
+    else {
+      addNeoMessage(
+        res?.reply || "Something went wrong. Please try again.",
+        "bot"
+      );
+    }
+
+  } catch (err) {
+
+    removeTyping();
+    addNeoMessage("Server error. Please try again later.", "bot");
+
+  } finally {
+
+    // 🔓 Unlock after short delay (prevents rapid spam)
+    setTimeout(() => {
+      sendNeoMessage.locked = false;
+      neoSend.disabled = false;
+    }, 800);
+
+  }
+}
+
+/* ===============================
+   Events
+=============================== */
+
+neoSend.onclick=sendNeoMessage;
+neoInput.addEventListener("keypress",e=>{
+  if(e.key==="Enter") sendNeoMessage();
+});
+</script>
+<!-- ===========================
+        END NEOBOT
+=========================== -->
 </body>
 </html>

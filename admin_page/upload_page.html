@@ -313,64 +313,224 @@ button.secondary{
 /* ===============================
    📜 HISTORY TABLE BUTTONS
 ================================ */
+
 #historyPanel table button {
-  padding: 6px 12px;        /* 🔽 height kam */
-  font-size: 12px;          /* 🔽 text chhota */
-  border-radius: 8px;       /* thoda compact */
-  line-height: 1.2;
+  padding:6px 12px;
+  font-size:12px;
+  border-radius:8px;
+  line-height:1.2;
+  border:none;
+  cursor:pointer;
+  margin-right:6px;
 }
 
-/* Secondary look for Edit */
 #historyPanel table button:first-child {
-  background: #e5e7eb;
-  color: #111;
+  background:#e5e7eb;
+  color:#111;
 }
 
-/* Hover effect (optional, clean) */
-#historyPanel table button:hover {
-  opacity: 0.9;
+#historyPanel table button:last-child {
+  background:#2563eb;
+  color:#fff;
 }
+
+#historyPanel table button:hover {
+  opacity:0.9;
+}
+
 
 /* ===============================
    ✅ CENTER "SELECT ALL BATCHES"
 ================================ */
+
 #selectAllBatches {
-  margin-right: 8px;
+  margin-right:8px;
 }
 
-/* Label that CONTAINS selectAll checkbox */
 label.batch-pill:has(#selectAllBatches) {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
 }
-/* Select All ko center me rakhne ke liye */
+
 .batch-pill.select-all {
-  grid-column: 1 / -1;        /* poori row le */
-  justify-content: center;    /* center align */
-  font-weight: 600;
+  grid-column:1 / -1;
+  justify-content:center;
+  font-weight:600;
 }
 
-/* ✅ Fix mobile overflow after Select All */
+
+/* ===============================
+   ✅ BADGES WRAP FIX
+================================ */
+
 #selectedBadges {
-  display: flex;
-  flex-wrap: wrap;          /* 🔑 allow wrapping */
-  gap: 8px;
-  max-width: 100%;
-  overflow-x: hidden;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  max-width:100%;
 }
 
-/* Each badge should not force width */
 #selectedBadges .badge {
-  max-width: 100%;
-  white-space: nowrap;
+  white-space:nowrap;
 }
 
-/* Extra safety for mobile */
 .section {
-  overflow-x: hidden;
+  overflow-x:hidden;
+}
+
+/* ==========================================
+   📜 FINAL STABLE HISTORY PANEL CSS
+========================================== */
+
+/* Modal container */
+#historyPanel > div{
+  width:95%;
+  max-width:1000px;
+  max-height:90vh;
+  border-radius:16px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+}
+
+/* Scroll wrapper */
+.history-scroll{
+  overflow-y:auto;
+  max-height:65vh;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+}
+
+/* Table base */
+#historyPanel table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+/* Header */
+#historyPanel thead{
+  background:#f3f6fb;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+/* Table cells */
+#historyPanel th,
+#historyPanel td{
+  padding:14px 16px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  vertical-align:middle;
+  line-height:1.5;
+}
+
+/* Column sizing */
+#historyPanel th:nth-child(1){ width:60px; }
+#historyPanel th:nth-child(2){ width:140px; }
+#historyPanel th:nth-child(3){ width:260px; }  /* Title */
+#historyPanel th:nth-child(4){ width:220px; }  /* Batches */
+#historyPanel th:nth-child(5){ width:140px; }
+#historyPanel th:nth-child(6){ width:190px; }
+#historyPanel th:nth-child(7){ width:150px; }
+
+/* Title wrapping clean */
+#historyPanel td:nth-child(3){
+  word-break:break-word;
+}
+
+/* Date column keep clean */
+#historyPanel td:nth-child(6){
+  white-space:nowrap;
+}
+
+/* Hover effect */
+#historyPanel tbody tr:hover{
+  background:#f8fafc;
+}
+
+/* Action buttons */
+#historyPanel table button{
+  padding:6px 12px;
+  font-size:12px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  margin:4px 6px;
+}
+
+#historyPanel table button:first-child{
+  background:#e5e7eb;
+  color:#111;
+}
+
+#historyPanel table button:last-child{
+  background:#2563eb;
+  color:#fff;
+}
+
+/* ===============================
+   📱 MOBILE RESPONSIVE
+================================ */
+
+@media (max-width:900px){
+
+  #historyPanel > div{
+    padding:16px;
+  }
+
+  #historyPanel table{
+    font-size:13px;
+  }
+
+  .history-scroll{
+    max-height:60vh;
+  }
+
+  #historyPanel th,
+  #historyPanel td{
+    padding:10px 12px;
+  }
+
+  /* Allow wrapping on mobile */
+  #historyPanel td:nth-child(4){
+    white-space:normal;
+    word-break:break-word;
+  }
+}
+
+/* Fix column width */
+#historyPanel th:nth-child(4),
+#historyPanel td:nth-child(4){
+  width:220px;
+  max-width:220px;
+}
+
+/* Batch text styling */
+.batch-text{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* If many batches, wrap allowed on mobile */
+@media(max-width:900px){
+  .batch-text{
+    white-space:normal;
+    word-break:break-word;
+  }
+}
+
+/* All batch highlight */
+.batch-text.all-batch{
+  font-weight:600;
+  color:#0369a1;
 }
 
 </style>
@@ -541,11 +701,23 @@ label.batch-pill:has(#selectAllBatches) {
   align-items:center;justify-content:center;
   z-index:9999">
 
-  <div style="background:#fff;width:95%;max-width:900px;border-radius:16px;padding:20px">
+<div style="
+  background:#fff;
+  width:95%;
+  max-width:1000px;
+  max-height:90vh;
+  border-radius:16px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+">
 
-    <h3>📜 Upload History</h3>
+  <h3 style="margin-bottom:16px;">📜 Upload History</h3>
 
-    <table width="100%" border="1" cellpadding="6" cellspacing="0">
+  <!-- ✅ SCROLL WRAPPER -->
+  <div class="history-scroll">
+
+    <table>
       <thead>
         <tr>
           <th>#</th>
@@ -565,11 +737,13 @@ label.batch-pill:has(#selectAllBatches) {
       </tbody>
     </table>
 
-    <div style="text-align:right;margin-top:14px">
-      <button class="secondary" onclick="closeHistory()">Close</button>
-    </div>
-
   </div>
+
+  <div style="text-align:right;margin-top:16px">
+    <button class="secondary" onclick="closeHistory()">Close</button>
+  </div>
+
+</div>
 </div>
 
 <script src="admin-common.js"></script>
@@ -904,18 +1078,20 @@ async function openHistory() {
     data.forEach((u, i) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${i + 1}</td>
-        <td>${u.type}</td>
-        <td>${u.title}</td>
-        <td>${u.batches}</td>
-        <td>${formatUIDate(u.deadline)}</td>
-        <td>${formatDateTimeupload(u.date, u.time)}</td>
-        <td>
+        <td data-label="#">${i + 1}</td>
+        <td data-label="Type">${u.type}</td>
+        <td data-label="Title">${u.title}</td>
+        <td data-label="Batches">
+          ${formatBatchDisplay(u.batches)}
+        </td>
+        <td data-label="Deadline">${formatUIDate(u.deadline)}</td>
+        <td data-label="Date & Time">${formatDateTimeupload(u.date, u.time)}</td>
+        <td data-label="Action">
           <button onclick="editUpload('${u.id}')">✏️ Edit</button>
           <button onclick="updateContentViewCount('${u.id}')">
             👁 Students
           </button>
-        </td>
+        </td> 
       `;
       tbody.appendChild(tr);
     });
@@ -924,6 +1100,26 @@ async function openHistory() {
     tbody.innerHTML =
       "<tr><td colspan='7'>Failed to load upload history</td></tr>";
   }
+}
+
+function formatBatchDisplay(batchString){
+
+  if(!batchString) return "-";
+
+  const batchArray = batchString.split(",").map(b => b.trim());
+  const totalBatches = 6; // change if needed
+
+  // If all selected
+  if(batchArray.length === totalBatches){
+    return `<span class="batch-text all-batch">All Batches</span>`;
+  }
+
+  // Otherwise show names
+  return `
+    <span class="batch-text" title="${batchString}">
+      ${batchArray.join(", ")}
+    </span>
+  `;
 }
 
 async function updateContentViewCount(uploadId) {

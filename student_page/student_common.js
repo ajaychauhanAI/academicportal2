@@ -63,59 +63,72 @@ let dashboardSummary = {};
 /* =========================
    MAIN BOOTSTRAP (SINGLE ENTRY)
 ========================= */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-  const token = getSessionToken();
-  if (!token) {
-    window.location.replace("../login_page/login.html");
-    return;
-  }
+  try {
 
-  /* =========================
-     🚀 FAST UI INIT (NO WAIT)
-  ========================= */
-  initSidebar();
-  renderUserInfo();
-  startClock();
-  renderGreeting();
-  resetStudentSummary();
-  showDashboard();   // 🔥 show instantly
+    const token = getSessionToken();
 
-  /* =========================
-     📡 LOAD DATA (NON-BLOCKING)
-  ========================= */
-  loadDashboardData()
-    .then(data => {
+    if (!token) {
+      window.location.replace("../login_page/login.html");
+      return;
+    }
 
-      if (!data || data.status !== "ok") {
-        showEmptyDashboard();
-        return;
-      }
+    /* =========================
+       🚀 INSTANT UI RENDER
+    ========================= */
+    initSidebar();
+    renderUserInfo();
+    startClock();
+    renderGreeting();
+    resetStudentSummary();
+    showDashboard();   // show UI immediately
 
-      // store content
-      allContent = Array.isArray(data.content) ? data.content : [];
+    /* =========================
+       📡 LOAD DATA (ASYNC)
+    ========================= */
+    const data = await loadDashboardData();
 
-      // summary cards
-      setText("totalNotes", data.summary?.notes);
-      setText("totalAssignments", data.summary?.assignments);
-      setText("pendingAssignments", data.summary?.pending);
-      setText("expiredAssignments", data.summary?.expired);
-      setText("totalPyq", data.summary?.pyq);
-      setText("totalMessages", data.summary?.messages);
-
-      /* =========================
-         ⚡ LAZY RENDER (SMOOTH)
-      ========================= */
-      setTimeout(() => renderNews(), 0);
-      setTimeout(() => renderUpcomingDeadlines(), 0);
-      setTimeout(() => renderSubjectProgress(), 0);
-      setTimeout(() => updateNewsBadge(), 0);
-
-    })
-    .catch(err => {
-      console.error("Dashboard load failed", err);
+    if (!data || data.status !== "ok") {
       showEmptyDashboard();
+      return;
+    }
+
+    /* =========================
+       🧠 SAFE DATA STORE
+    ========================= */
+    allContent = Array.isArray(data.content)
+      ? data.content
+      : [];
+
+    dashboardSummary = data.summary || {};
+
+    /* =========================
+       📊 UPDATE SUMMARY (SAFE)
+    ========================= */
+    setText("totalNotes", dashboardSummary.notes);
+    setText("totalAssignments", dashboardSummary.assignments);
+    setText("pendingAssignments", dashboardSummary.pending);
+    setText("expiredAssignments", dashboardSummary.expired);
+    setText("totalPyq", dashboardSummary.pyq);
+    setText("totalMessages", dashboardSummary.messages);
+
+    /* =========================
+       ⚡ NON-BLOCKING RENDER
+    ========================= */
+    requestAnimationFrame(() => {
+      renderNews();
+      renderUpcomingDeadlines();
+      renderSubjectProgress();
+      updateNewsBadge();
     });
+
+  } catch (err) {
+
+    console.error("❌ Dashboard initialization failed:", err);
+    showEmptyDashboard();
+
+  }
 
 });
 
@@ -137,6 +150,7 @@ function showEmptyDashboard() {
 }
 
 function initSidebar() {
+
   const sidebar = document.getElementById("sidebar");
   const toggleBtn = document.getElementById("menuToggle");
   const overlay = document.querySelector(".sidebar-overlay");
@@ -161,9 +175,19 @@ function initSidebar() {
   overlay?.addEventListener("click", close);
 
   sidebar.querySelectorAll(".nav a").forEach(a => {
+
+    // mobile auto close
     a.addEventListener("click", () => {
       if (window.innerWidth <= 900) close();
     });
+
+    // active highlight
+    a.addEventListener("click", function () {
+      sidebar.querySelectorAll(".nav a.active")
+        .forEach(el => el.classList.remove("active"));
+      this.classList.add("active");
+    });
+
   });
 }
 
@@ -240,15 +264,18 @@ function resetView() {
   hide("#subjectTabs");
   hide("#newsSection");
   hide("#subjectProgress");
-  hide("#deadlineBox");   // 🔥 ADD THIS LINE
+  hide("#deadlineBox");
+  hide(".quick-actions");   // ✅ ADD THIS
 }
 
 function showDashboard() {
   resetView();
   show(".cards", "grid");
+  show(".quick-actions", "block");  // ✅ ADD THIS
   show("#newsSection", "block");
   show("#subjectProgress", "block");
-  show("#deadlineBox", "block");   // 🔥 ADD THIS LINE
+  show("#deadlineBox", "block");
+  
   setPageTitle("Student Dashboard Overview", "📊");
 }
 
@@ -283,14 +310,78 @@ function renderContent(list = []) {
   let html = "";
 
   list.forEach(i => {
-    const isAssignment = safeType(i.type) === "ASSIGNMENT";
 
+    const type = safeType(i.type);
+    const isAssignment = type === "ASSIGNMENT";
+
+    const isResource =
+      type === "ACADEMIC_CALENDAR" ||
+      type === "SYLLABUS" ||
+      type === "HOLIDAY_LIST";
+
+    /* ===================================================
+       🎓 ACADEMIC RESOURCE CARD (Premium Layout)
+    =================================================== */
+    if (isResource) {
+
+      const icon =
+        type === "ACADEMIC_CALENDAR" ? "📅" :
+        type === "SYLLABUS" ? "📚" :
+        "🏖";
+
+      html += `
+        <div class="resource-file-card">
+
+          <div class="rf-header">
+            <div class="rf-icon">${icon}</div>
+
+            <div class="rf-info">
+              <h3>${escapeHTML(i.title || "Untitled")}</h3>
+              <div class="rf-meta">
+                ${formatDateTime(i.date || i.uploadDate, i.time || i.uploadTime, i.uploadedAtTs)}
+              </div>
+            </div>
+          </div>
+
+          <div class="rf-actions">
+            ${
+              i.fileUrl
+                ? `
+                  <a href="${sanitizeURL(i.fileUrl)}"
+                     target="_blank"
+                     class="rf-view"
+                     onclick="trackView('${i.id}')">
+                     View
+                  </a>
+
+                  <a href="#"
+                     class="rf-download"
+                     onclick="return trackDownload(event,'${sanitizeURL(i.fileUrl)}','${i.id}')">
+                     Download
+                  </a>
+                `
+                : `<span class="no-file">❌ File not attached</span>`
+            }
+          </div>
+
+        </div>
+      `;
+
+      return;
+    }
+
+    /* ===================================================
+       📘 NORMAL CONTENT CARD (Assignments / Notes / PYQ)
+    =================================================== */
     html += `
       <div class="card content-card">
         <div class="content-header">
-          <h3 class="content-title">${i.title || ""}</h3>
+          <h3 class="content-title">
+            ${escapeHTML(i.title || "")}
+          </h3>
+
           <div class="content-datetime">
-            ${formatDateTime(i.date, i.time)}
+            ${formatDateTime(i.date || i.uploadDate, i.time || i.uploadTime, i.uploadedAtTs)}
           </div>
         </div>
 
@@ -306,13 +397,16 @@ function renderContent(list = []) {
           ${
             i.fileUrl
               ? `
-                <a href="${i.fileUrl}" target="_blank"
+                <a href="${sanitizeURL(i.fileUrl)}"
+                   target="_blank"
                    class="view"
-                   onclick="trackView('${i.id}')">View</a>
+                   onclick="trackView('${i.id}')">
+                   View
+                </a>
 
-                <a href="${i.fileUrl}" target="_blank"
+                <a href="#"
                    class="download"
-                   onclick="return trackDownload(event,'${i.fileUrl}','${i.id}')">
+                   onclick="return trackDownload(event,'${sanitizeURL(i.fileUrl)}','${i.id}')">
                    Download
                 </a>
               `
@@ -323,16 +417,19 @@ function renderContent(list = []) {
     `;
   });
 
-  grid.innerHTML = html;   // 🔥 Only ONE DOM write
+  grid.innerHTML = html; // 🔥 Single optimized DOM write
 }
 
 /* =========================
    SEARCH / FILTER
 ========================= */
 function showFiltered(type) {
+
   resetView();
 
   const t = safeType(type);
+  const now = Date.now();
+  const grid = document.getElementById("contentGrid");
 
   /* =========================
      📢 ANNOUNCEMENTS
@@ -344,53 +441,67 @@ function showFiltered(type) {
     return;
   }
 
-  /* =========================
-     📦 CONTENT GRID
-  ========================= */
   show("#contentGrid", "grid");
 
   let filtered = [];
 
   /* =========================
-     ⏳ PENDING ASSIGNMENTS
+     ⏳ PENDING / EXPIRED
   ========================= */
-  if (t === "PENDING") {
+  if (t === "PENDING" || t === "EXPIRED") {
+
     filtered = allContent.filter(c => {
+
       if (safeType(c.type) !== "ASSIGNMENT") return false;
-      if (!c.deadlineTs && !c.deadline) return false;
 
-      const ts = c.deadlineTs
-        ? Number(c.deadlineTs)
-        : new Date(c.deadline).getTime();
+      let ts = null;
 
-      return ts >= Date.now();
+      // 🔹 Priority 1: direct timestamp
+      if (c.deadlineTs) {
+        ts = Number(c.deadlineTs);
+      }
+
+      // 🔹 Priority 2: safe parsing
+      else if (c.deadline) {
+
+        const dl = String(c.deadline).trim();
+
+        // YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dl)) {
+          ts = new Date(`${dl}T23:59:59`).getTime();
+        }
+
+        // DD-MM-YYYY
+        else if (/^\d{2}-\d{2}-\d{4}$/.test(dl)) {
+          const [dd, mm, yyyy] = dl.split("-");
+          ts = new Date(`${yyyy}-${mm}-${dd}T23:59:59`).getTime();
+        }
+
+        // Fallback
+        else {
+          const parsed = new Date(dl).getTime();
+          if (!isNaN(parsed)) ts = parsed;
+        }
+      }
+
+      if (!ts) return false;
+
+      return t === "PENDING"
+        ? ts >= now
+        : ts < now;
     });
 
-    setPageTitle("Pending Assignments", "⏳");
-  }
-
-  /* =========================
-     ❌ EXPIRED ASSIGNMENTS
-  ========================= */
-  else if (t === "EXPIRED") {
-    filtered = allContent.filter(c => {
-      if (safeType(c.type) !== "ASSIGNMENT") return false;
-      if (!c.deadlineTs && !c.deadline) return false;
-
-      const ts = c.deadlineTs
-        ? Number(c.deadlineTs)
-        : new Date(c.deadline).getTime();
-
-      return ts < Date.now();
-    });
-
-    setPageTitle("Expired Assignments", "❌");
+    setPageTitle(
+      t === "PENDING" ? "Pending Assignments" : "Expired Assignments",
+      t === "PENDING" ? "⏳" : "❌"
+    );
   }
 
   /* =========================
      📘 NORMAL TYPES
   ========================= */
   else {
+
     filtered = allContent.filter(
       c => safeType(c.type) === t
     );
@@ -398,21 +509,27 @@ function showFiltered(type) {
     const titles = {
       ASSIGNMENT: ["Assignments", "📘"],
       NOTES: ["Notes", "📝"],
-      PYQ: ["Previous Year Questions", "📂"]
+      PYQ: ["Previous Year Questions", "📂"],
+      ACADEMIC_CALENDAR: ["Academic Calendar", "📅"],
+      SYLLABUS: ["Syllabus", "📚"],
+      HOLIDAY_LIST: ["Holiday List", "🏖"]
     };
 
-    if (titles[t]) {
-      setPageTitle(titles[t][0], titles[t][1]);
+    const titleData = titles[t];
+
+    if (titleData) {
+      setPageTitle(titleData[0], titleData[1]);
     } else {
       setPageTitle("Results", "🔍");
     }
   }
 
   /* =========================
-     🧾 EMPTY STATE HANDLING
+     🧾 EMPTY STATE
   ========================= */
   if (!filtered.length) {
-    document.getElementById("contentGrid").innerHTML = `
+
+    grid.innerHTML = `
       <div class="content-card" style="text-align:center">
         <h3>📭 No content found</h3>
         <p style="color:#64748b">
@@ -420,6 +537,7 @@ function showFiltered(type) {
         </p>
       </div>
     `;
+
     return;
   }
 
@@ -430,11 +548,12 @@ function showFiltered(type) {
 }
 
 function handleDashboardSearch(query) {
+
   const q = String(query || "").trim().toLowerCase();
 
-  // ======================
-  // EMPTY SEARCH → DASHBOARD
-  // ======================
+  /* ======================
+     EMPTY SEARCH → DASHBOARD
+  ====================== */
   if (!q) {
     showDashboard();
     return;
@@ -443,91 +562,117 @@ function handleDashboardSearch(query) {
   resetView();
   show("#contentGrid", "grid");
 
-  // ======================
-  // TYPE SEARCH
-  // ======================
-  const typeMap = {
-    assignment: "ASSIGNMENT",
-    assignments: "ASSIGNMENT",
-    note: "NOTES",
-    notes: "NOTES",
-    pyq: "PYQ",
-    message: "MESSAGE",
-    messages: "MESSAGE",
-    news: "MESSAGE"
-  };
+  /* ======================
+     EXCLUDED TYPES
+  ====================== */
+  const EXCLUDED_TYPES = new Set([
+    "MESSAGE",
+    "LATEST_NEWS"
+  ]);
 
-  if (typeMap[q]) {
-    const list = allContent.filter(
-      c => safeType(c.type) === typeMap[q]
-    );
+  /* ======================
+     GLOBAL CONTENT SEARCH
+  ====================== */
+  const results = allContent
+    .filter(c => {
 
-    setPageTitle(`Search: ${query}`, "🔍");
-    renderContent(list);
-    return;
-  }
+      if (!c) return false;
 
-  // ======================
-  // SUBJECT SEARCH
-  // ======================
-  const subjectItems = allContent.filter(c =>
-    String(c.subject || "")
-      .toLowerCase()
-      .includes(q)
-  );
+      // ❌ Skip announcements
+      if (EXCLUDED_TYPES.has(String(c.type).toUpperCase()))
+        return false;
 
-  if (!subjectItems.length) {
+      const title   = String(c.title || "").toLowerCase();
+      const subject = String(c.subject || "").toLowerCase();
+      const message = String(c.message || "").toLowerCase();
+      const type    = String(c.type || "").toLowerCase();
+      const file    = String(c.fileUrl || "").toLowerCase();
+
+      return (
+        title.includes(q) ||
+        subject.includes(q) ||
+        message.includes(q) ||
+        type.includes(q) ||
+        file.includes(q)
+      );
+    })
+    .sort((a, b) => {
+      const at = a.uploadedAtTs || 0;
+      const bt = b.uploadedAtTs || 0;
+      return bt - at;
+    });
+
+  /* ======================
+     EMPTY RESULT
+  ====================== */
+  if (!results.length) {
     setPageTitle("No results found", "❌");
     renderContent([]);
     return;
   }
 
-  // ----------------------
-  // Latest Assignment
-  // ----------------------
-  const latestAssignment = subjectItems
-    .filter(c => safeType(c.type) === "ASSIGNMENT")
-    .sort((a, b) => {
-      const at = a.deadlineTs || 0;
-      const bt = b.deadlineTs || 0;
-      return bt - at;
-    })[0];
-
-  // ----------------------
-  // All Notes
-  // ----------------------
-  const notes = subjectItems.filter(
-    c => safeType(c.type) === "NOTES"
-  );
-
-  // ======================
-  // FINAL RESULT (NO DUPES)
-  // ======================
-  const seen = new Set();
-  const finalList = [];
-
-  [latestAssignment, ...notes].forEach(item => {
-    if (item && !seen.has(item.id)) {
-      seen.add(item.id);
-      finalList.push(item);
-    }
-  });
-
   setPageTitle(`Search: ${query}`, "🔍");
-  renderContent(finalList);
+  renderContent(results);
 }
 
 /* =========================
    UTILITIES
 ========================= */
 function getCountdown(deadline, deadlineTs) {
-  const d = deadlineTs ? new Date(deadlineTs) : deadline ? new Date(deadline) : null;
-  if (!d) return "";
-  const diff = d - new Date();
+
+  let d = null;
+
+  // 🔹 Priority 1: Exact timestamp
+  if (deadlineTs) {
+    d = new Date(Number(deadlineTs));
+  }
+
+  // 🔹 Priority 2: Date string parsing
+  else if (deadline) {
+
+    // DD-MM-YYYY
+    if (/^\d{2}-\d{2}-\d{4}$/.test(deadline)) {
+      const [dd, mm, yyyy] = deadline.split("-");
+      d = new Date(`${yyyy}-${mm}-${dd}T23:59:59`);
+    }
+
+    // YYYY-MM-DD
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(deadline)) {
+      d = new Date(`${deadline}T23:59:59`);
+    }
+
+    // ISO or fallback
+    else {
+      d = new Date(deadline);
+    }
+  }
+
+  // ❌ Invalid date
+  if (!d || isNaN(d.getTime())) return "";
+
+  const now = new Date();
+  const diff = d.getTime() - now.getTime();
+
   if (diff <= 0) return "❌ Expired";
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "⏳ Due Today";
+
+  const ONE_DAY = 86400000;
+  const ONE_HOUR = 3600000;
+
+  const days = Math.floor(diff / ONE_DAY);
+  const hours = Math.floor((diff % ONE_DAY) / ONE_HOUR);
+
+  if (days === 0 && hours === 0) {
+    return "⏳ Due within 1 hour";
+  }
+
+  if (days === 0) {
+    return hours === 1
+      ? "⏳ 1 hour left"
+      : `⏳ ${hours} hours left`;
+  }
+
   if (days === 1) return "⏳ Due Tomorrow";
+
   return `⏳ ${days} days left`;
 }
 
@@ -536,14 +681,16 @@ function setText(id, val) {
   if (el) el.innerText = Number(val) || 0;
 }
 
-function hide(sel) {
-  const el = document.querySelector(sel);
-  if (el) el.style.display = "none";
+function hide(sel){
+  document.querySelectorAll(sel).forEach(el=>{
+    el.style.display="none";
+  });
 }
 
-function show(sel, d) {
-  const el = document.querySelector(sel);
-  if (el) el.style.display = d;
+function show(sel, displayType="block"){
+  document.querySelectorAll(sel).forEach(el=>{
+    el.style.display=displayType;
+  });
 }
 
 function resetStudentSummary() {
@@ -603,7 +750,6 @@ function renderNews() {
   const newsBox = document.getElementById("newsContainer");
   const docsBox = document.getElementById("noticeDocsContainer");
 
-  // 🔒 Hard guards
   if (!section || !newsBox || !docsBox) return;
 
   if (!Array.isArray(allContent)) {
@@ -613,54 +759,87 @@ function renderNews() {
     return;
   }
 
-  // ✅ Backend-aligned news types
-  const NEWS_TYPES = new Set([
-    "MESSAGE",
-    "LATEST_NEWS",
-    "ACADEMIC_CALENDAR"
-  ]);
+  const NEWS_TYPES = new Set(["MESSAGE", "LATEST_NEWS"]);
+
+  const now = Date.now();
+  const ONE_DAY   = 1 * 24 * 60 * 60 * 1000;
+  const THREE_DAY = 3 * 24 * 60 * 60 * 1000;
+
+  /* ===============================
+     📦 Filter only 3-day visible news
+  =============================== */
+  const filtered = allContent
+    .filter(c => {
+      if (!c || !NEWS_TYPES.has(String(c.type).toUpperCase()))
+        return false;
+
+      if (!c.uploadedAtTs) return false;
+
+      const age = now - c.uploadedAtTs;
+
+      // Hide if older than 3 days
+      return age <= THREE_DAY;
+    })
+    .sort((a, b) => (b.uploadedAtTs || 0) - (a.uploadedAtTs || 0));
 
   const textNotices = [];
   const docNotices  = [];
 
-  // 📦 Classify content
-  for (const c of allContent) {
-    if (!c || !c.type) continue;
-
-    const t = String(c.type).toUpperCase();
-    if (!NEWS_TYPES.has(t)) continue;
+  for (const c of filtered) {
 
     const hasFile =
       typeof c.fileUrl === "string" &&
       c.fileUrl.trim().length > 0;
 
     if (hasFile) {
-      docNotices.push(c);     // 📄 Notice Document
+      docNotices.push(c);
     } else {
-      textNotices.push(c);    // 📰 Text Notice
+      textNotices.push(c);
     }
   }
 
-  // 📰 Render text notices
+  /* ===============================
+     📰 Render Text Notices
+  =============================== */
   newsBox.innerHTML = textNotices.length
-    ? textNotices.map(n => `
-        <div class="news-item">
-          <div>${escapeHTML(n.title || "Untitled")}</div>
-        </div>
-      `).join("")
+    ? textNotices.map(n => {
+
+        const age = now - n.uploadedAtTs;
+        const isNew = age <= ONE_DAY;
+
+        return `
+          <div class="news-item">
+            <div>
+              ${escapeHTML(n.message || n.title || "No message")}
+              ${isNew ? `<span class="news-badge">NEW</span>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("")
     : `<div class="news-item">No announcements</div>`;
 
-  // 📄 Render document notices (WITH VIEW LOG)
+  /* ===============================
+     📄 Render Document Notices
+  =============================== */
   docsBox.innerHTML = docNotices.length
-    ? docNotices.map(d => `
-        <div class="news-item">
-          <div>${escapeHTML(d.title || "Untitled")}</div>
-          <a href="#"
-             onclick="openNoticeDocument('${d.id}','${sanitizeURL(d.fileUrl)}')">
-             📄 View Document
-          </a>
-        </div>
-      `).join("")
+    ? docNotices.map(d => {
+
+        const age = now - d.uploadedAtTs;
+        const isNew = age <= ONE_DAY;
+
+        return `
+          <div class="news-item">
+            <div>
+              ${escapeHTML(d.message || d.title || "Untitled")}
+              ${isNew ? `<span class="news-badge">NEW</span>` : ""}
+            </div>
+            <a href="#"
+               onclick="openNoticeDocument('${d.id}','${sanitizeURL(d.fileUrl)}')">
+               📄 View Document
+            </a>
+          </div>
+        `;
+      }).join("")
     : `<div class="news-item">No notice documents</div>`;
 
   section.style.display = "block";
@@ -743,28 +922,42 @@ function trackView(uploadId){
 
 function trackDownload(e, url, uploadId) {
 
-  if (e && e.preventDefault) {
-    e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
+
+  let finalUrl = url || "";
+
+  if (finalUrl.includes("drive.google.com")) {
+
+    const match1 = finalUrl.match(/\/d\/([^\/]+)/);
+    if (match1 && match1[1]) {
+      finalUrl = `https://drive.google.com/uc?export=download&id=${match1[1]}`;
+    }
+
+    const match2 = finalUrl.match(/[?&]id=([^&]+)/);
+    if (match2 && match2[1]) {
+      finalUrl = `https://drive.google.com/uc?export=download&id=${match2[1]}`;
+    }
   }
 
-  studentFetch({
-    action: "track",
-    uploadId,
-    actionType: "DOWNLOADED",
-    sessionToken: getSessionToken()
-  });
+  // 🔥 DIRECT REDIRECT (most reliable)
+  window.location.href = finalUrl;
 
-  // popup-safe download
-  const a = document.createElement("a");
-  a.href = url;
-  a.target = "_blank";
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  // Background tracking
+  try {
+    setTimeout(() => {
+      studentFetch({
+        action: "track",
+        uploadId,
+        actionType: "DOWNLOADED",
+        sessionToken: getSessionToken()
+      });
+    }, 0);
+  } catch (_) {}
 
   return false;
 }
+
+let deadlineInterval = null;
 
 function renderUpcomingDeadlines() {
 
@@ -783,7 +976,7 @@ function renderUpcomingDeadlines() {
   }
 
   const now = Date.now();
-  const ONE_DAY = 86400000;
+  const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
   const upcoming = allContent
     .filter(c => safeType(c.type) === "ASSIGNMENT")
@@ -791,23 +984,43 @@ function renderUpcomingDeadlines() {
 
       let ts = null;
 
+      // 🔹 Priority 1: exact timestamp
       if (c.deadlineTs) {
         ts = Number(c.deadlineTs);
-      } 
+      }
+
+      // 🔹 Priority 2: parse date safely
       else if (c.deadline) {
-        const parsed = new Date(c.deadline).getTime();
-        if (!isNaN(parsed)) ts = parsed;
+
+        const dl = String(c.deadline).trim();
+
+        // YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dl)) {
+          ts = new Date(`${dl}T23:59:59`).getTime();
+        }
+
+        // DD-MM-YYYY
+        else if (/^\d{2}-\d{2}-\d{4}$/.test(dl)) {
+          const [dd, mm, yyyy] = dl.split("-");
+          ts = new Date(`${yyyy}-${mm}-${dd}T23:59:59`).getTime();
+        }
+
+        // fallback
+        else {
+          const parsed = new Date(dl).getTime();
+          if (!isNaN(parsed)) ts = parsed;
+        }
       }
 
       if (!ts) return null;
 
       const diff = ts - now;
-      const days = Math.ceil(diff / ONE_DAY);
+      if (diff < 0 || diff > SEVEN_DAYS) return null;
 
-      return { ...c, days, ts };
+      return { ...c, ts };
     })
-    .filter(c => c && c.days >= 0 && c.days <= 7)
-    .sort((a, b) => a.days - b.days)
+    .filter(Boolean)
+    .sort((a, b) => a.ts - b.ts)
     .slice(0, 3);
 
   box.style.display = "block";
@@ -826,141 +1039,252 @@ function renderUpcomingDeadlines() {
     <div class="news-panel-header">
       <h3>⏰ Upcoming Deadlines</h3>
     </div>
-    ${upcoming.map(a => {
-
-      const dateObj = new Date(a.ts);
-
-      const formattedDate = dateObj.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-
-      const daysText =
-        a.days === 0
-          ? "Due Today"
-          : a.days === 1
-            ? "1 day left"
-            : `${a.days} days left`;
-
-      return `
-        <div class="news-item">
-          <div>
-            <div>${escapeHTML(a.title || "Untitled")}</div>
-            <div style="font-size:12px;color:#64748b;margin-top:4px;">
-              📅 ${formattedDate}
-            </div>
+    ${upcoming.map((a, i) => `
+      <div class="deadline-item" data-ts="${a.ts}">
+        <div class="deadline-left">
+          <div class="deadline-title">
+            ${escapeHTML(a.title || "Untitled")}
           </div>
-          <div class="news-date">
-            ${daysText}
+          <div class="deadline-date">
+            📅 ${new Date(a.ts).toLocaleString("en-IN", {
+              timeZone: "Asia/Kolkata",
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
           </div>
         </div>
-      `;
-    }).join("")}
+        <div class="deadline-countdown" id="countdown-${i}">
+          --:--:--
+        </div>
+      </div>
+    `).join("")}
   `;
+
+  startDeadlineCountdown();
+}
+
+
+/* ===============================
+   🔥 LIVE COUNTDOWN ENGINE
+================================ */
+function startDeadlineCountdown() {
+
+  // 🔒 prevent multiple intervals
+  if (deadlineInterval) {
+    clearInterval(deadlineInterval);
+  }
+
+  function update() {
+
+    const now = Date.now();
+    const items = document.querySelectorAll(".deadline-item");
+
+    items.forEach((el, index) => {
+
+      const ts = Number(el.dataset.ts);
+      const diff = ts - now;
+
+      const cdBox = document.getElementById(`countdown-${index}`);
+      if (!cdBox) return;
+
+      if (diff <= 0) {
+        cdBox.innerHTML = `<span class="deadline-expired">Expired</span>`;
+        return;
+      }
+
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+
+      let colorClass = "deadline-normal";
+
+      if (diff <= 24 * 60 * 60 * 1000) {
+        colorClass = "deadline-urgent";
+      } else if (diff <= 3 * 24 * 60 * 60 * 1000) {
+        colorClass = "deadline-warning";
+      }
+
+      cdBox.innerHTML = `
+        <span class="${colorClass}">
+          ${days > 0 ? days + "d " : ""}
+          ${hours}h ${minutes}m ${seconds}s
+        </span>
+      `;
+    });
+  }
+
+  update();
+  deadlineInterval = setInterval(update, 1000);
 }
 
 /* =========================
    NEWS & SUBJECT
 ========================= */
 function updateNewsBadge(){
+
   const el = document.getElementById("newsBadge");
-  if (!el) return;
+  if (!el || !Array.isArray(allContent)) return;
 
-  const c = allContent.filter(
-    x => norm(x.type) === "MESSAGE"
-  ).length;
+  const count = allContent.filter(x => {
+    const t = String(x?.type || "").toUpperCase();
+    return t === "MESSAGE" || t === "LATEST_NEWS";
+  }).length;
 
-  el.innerText = c ? " " + c : "";
+  el.innerText = count ? " " + count : "";
 }
 
 function renderSubjectProgress() {
+
   const box = document.getElementById("subjectProgress");
   if (!box) return;
 
-  if (!Array.isArray(allContent) || !allContent.length) {
+  if (!Array.isArray(allContent) || allContent.length === 0) {
     box.innerHTML = `
-      <div class="subject-progress-card">
-        <div class="subject-progress-header">
-          <h3>📊 Subject Progress</h3>
-        </div>
-        <div style="color:#64748b;font-size:14px">
-          No subject data available
+      <div class="subject-progress-card empty">
+        <h3>📊 Subject Progress</h3>
+        <div class="subject-empty">
+          No academic data available
         </div>
       </div>
     `;
     return;
   }
 
-  // Count per subject
+  const VALID_TYPES = new Set([
+    "ASSIGNMENT",
+    "NOTES",
+    "PYQ"
+  ]);
+
   const subjectMap = {};
 
-  allContent.forEach(item => {
-    const subject = item.subject || "General";
-    subjectMap[subject] = (subjectMap[subject] || 0) + 1;
-  });
+  for (const item of allContent) {
+
+    const type = String(item.type || "").toUpperCase();
+    if (!VALID_TYPES.has(type)) continue;
+
+    let subject = "";
+
+    if (item.title) {
+      const match = item.title.match(/\((.*?)\)/);
+      if (match) subject = match[1].trim();
+    }
+
+    if (!subject) subject = "General";
+
+    if (!subjectMap[subject]) {
+      subjectMap[subject] = {
+        total: 0,
+        ASSIGNMENT: 0,
+        NOTES: 0,
+        PYQ: 0
+      };
+    }
+
+    subjectMap[subject].total++;
+    subjectMap[subject][type]++;
+  }
 
   const totalItems = Object.values(subjectMap)
-    .reduce((a,b) => a+b, 0);
+    .reduce((sum, s) => sum + s.total, 0);
 
-  // Convert to array & sort highest first
   const subjects = Object.entries(subjectMap)
-    .map(([name,count]) => ({
+    .map(([name, data]) => ({
       name,
-      count,
-      percent: Math.round((count / totalItems) * 100)
+      ...data,
+      percent: Math.round((data.total / totalItems) * 100)
     }))
-    .sort((a,b) => b.count - a.count);
+    .sort((a, b) => b.total - a.total);
 
   box.innerHTML = `
     <div class="subject-progress-card">
       <div class="subject-progress-header">
         <h3>📊 Subject Progress</h3>
         <div class="subject-total">
-          ${totalItems} Total Items
+          ${totalItems} Academic Items
         </div>
       </div>
 
-      ${subjects.map(s => `
-        <div class="subject-row">
-          <div class="subject-top">
-            <div class="subject-name">${s.name}</div>
-            <div class="subject-count">${s.count} (${s.percent}%)</div>
+      <div class="subject-progress-body">
+        ${subjects.map((s, index) => `
+          <div class="subject-row">
+
+            <div class="subject-top">
+              <div class="subject-name">
+                ${index === 0 ? "🏆 " : ""}
+                ${escapeHTML(s.name)}
+              </div>
+
+              <div class="subject-count">
+                ${s.total} • ${s.percent}%
+              </div>
+            </div>
+
+            <div class="subject-meta" style="font-size:12.5px;color:#0f172a;margin-top:4px;">
+              ${s.ASSIGNMENT ? `${s.ASSIGNMENT} Assignment${s.ASSIGNMENT > 1 ? "s" : ""}` : ""}
+              ${s.NOTES ? ` • ${s.NOTES} Notes` : ""}
+              ${s.PYQ ? ` • ${s.PYQ} PYQ` : ""}
+            </div>
+
+            <div class="progress-bar">
+              <div class="progress-fill"
+                   style="width:${s.percent}%">
+              </div>
+            </div>
+
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width:${s.percent}%"></div>
-          </div>
-        </div>
-      `).join("")}
+        `).join("")}
+      </div>
     </div>
   `;
 }
-
 /* =========================
    MISSING FUNCTIONS FIX
 ========================= */
 
+let clockInterval = null;
+
 function startClock() {
+
   const el = document.getElementById("liveDateTime");
   if (!el) return;
 
+  // 🔁 Prevent multiple intervals
+  if (clockInterval) {
+    clearInterval(clockInterval);
+  }
+
   function tick() {
+
     const now = new Date();
+
     el.innerText = now.toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
       weekday: "short",
       day: "2-digit",
       month: "short",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit"
+      second: "2-digit",
+      hour12: true   // 🔥 Clean AM/PM format
     });
   }
 
+  // Run immediately
   tick();
-  setInterval(tick, 1000);
+
+  // Sync to next exact second
+  const delay = 1000 - (Date.now() % 1000);
+
+  setTimeout(() => {
+    tick();
+    clockInterval = setInterval(tick, 1000);
+  }, delay);
 }
 
 function setPageTitle(title, icon = "") {
@@ -972,8 +1296,12 @@ function setPageTitle(title, icon = "") {
 /* =========================
    HELPER
 ========================= */
-function safeType(v){
-  return String(v || "").trim().toUpperCase();
+function safeType(v) {
+  return String(v || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[\s\-]+/g, "_")   // space & hyphen → underscore
+    .replace(/__+/g, "_");      // multiple underscores → single
 }
 
 function norm(v){
@@ -981,36 +1309,96 @@ function norm(v){
 }
 
 function openSummaryPopup(type) {
-  console.warn("openSummaryPopup not implemented yet:", type);
+
+  const t = safeType(type);
+
+  // Direct navigation instead of popup
+  switch (t) {
+
+    case "NOTES":
+      showFiltered("NOTES");
+      break;
+
+    case "ASSIGNMENT":
+      showFiltered("ASSIGNMENT");
+      break;
+
+    case "PENDING":
+      showFiltered("PENDING");
+      break;
+
+    case "EXPIRED":
+      showFiltered("EXPIRED");
+      break;
+
+    case "PYQ":
+      showFiltered("PYQ");
+      break;
+
+    default:
+      showDashboard();
+  }
 }
 
-function formatDateTime(dateStr, timeStr) {
+function formatDateTime(dateStr, timeStr, uploadedAtTs) {
   try {
-    // Case 1: already ISO timestamp
-    if (dateStr && dateStr.includes("T")) {
-      const d = new Date(dateStr);
-      return d.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+
+    let d = null;
+
+    /* ===============================
+       🔥 Priority 1: Exact Timestamp
+    =============================== */
+    if (uploadedAtTs) {
+      const ts = Number(uploadedAtTs);
+      if (!isNaN(ts)) {
+        d = new Date(ts);
+      }
     }
 
-    // Case 2: date + time separately
-    if (dateStr && timeStr) {
-      const d = new Date(`${dateStr} ${timeStr}`);
-      return d.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+    /* ===============================
+       🔹 Priority 2: Date + Time Strings
+    =============================== */
+    else if (dateStr) {
+
+      // ISO format
+      if (typeof dateStr === "string" && dateStr.includes("T")) {
+        d = new Date(dateStr);
+      }
+
+      // DD-MM-YYYY
+      else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+        const [dd, mm, yyyy] = dateStr.split("-");
+        d = new Date(`${yyyy}-${mm}-${dd}T${timeStr || "00:00:00"}`);
+      }
+
+      // YYYY-MM-DD
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        d = new Date(`${dateStr}T${timeStr || "00:00:00"}`);
+      }
+
+      // Fallback
+      else {
+        d = new Date(`${dateStr} ${timeStr || ""}`);
+      }
     }
 
-    return "";
+    // ❌ Invalid date guard
+    if (!d || isNaN(d.getTime())) return "";
+
+    /* ===============================
+       🇮🇳 Force IST Output
+    =============================== */
+    return d.toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true
+    });
+
   } catch {
     return "";
   }
@@ -1111,19 +1499,6 @@ function showExpiryWarning() {
   setTimeout(() => div.remove(), 55000);
 }
 
-  document.querySelectorAll(".nav a").forEach(link => {
-    link.addEventListener("click", function () {
-
-      // sabse pehle sabse active hatao
-      document.querySelectorAll(".nav a.active")
-        .forEach(el => el.classList.remove("active"));
-
-      // clicked item ko active banao
-      this.classList.add("active");
-    });
-  });
-
-
 function toggleTheme(){
 
   document.body.classList.toggle("light-mode");
@@ -1137,4 +1512,149 @@ function toggleTheme(){
     icon.classList.remove("fa-sun");
     icon.classList.add("fa-moon");
   }
+}
+
+let cachedProfileData = null;
+
+function toggleProfileDropdown() {
+
+  const dropdown = document.getElementById("profileDropdown");
+  if (!dropdown) return;
+
+  // If already open → close
+  if (dropdown.style.display === "block") {
+    dropdown.style.display = "none";
+    return;
+  }
+
+  dropdown.style.display = "block";
+
+  // ✅ If cached → render instantly
+  if (cachedProfileData) {
+    renderProfileDropdown(cachedProfileData);
+    return;
+  }
+
+  // Otherwise load once
+  dropdown.innerHTML = `
+    <div style="text-align:center;padding:20px;color:#64748b;">
+      Loading...
+    </div>
+  `;
+
+  studentFetch({
+    action: "student_profile",
+    sessionToken: getSessionToken()
+  }).then(res => {
+
+    if (!res || res.status !== "ok") {
+      dropdown.innerHTML = `
+        <div style="text-align:center;padding:20px;color:#dc2626;">
+          Failed to load profile
+        </div>
+      `;
+      return;
+    }
+
+    cachedProfileData = res.data || {}; // ✅ Cache it
+    renderProfileDropdown(cachedProfileData);
+
+  }).catch(() => {
+    dropdown.innerHTML = `
+      <div style="text-align:center;padding:20px;color:#dc2626;">
+        Failed to load profile
+      </div>
+    `;
+  });
+}
+
+function renderProfileDropdown(d) {
+
+  const dropdown = document.getElementById("profileDropdown");
+  if (!dropdown) return;
+
+  dropdown.innerHTML = `
+    <div class="profile-header">
+      <div class="profile-avatar">
+        ${(d.name || "S").charAt(0).toUpperCase()}
+      </div>
+      <div>
+        <div class="profile-name">
+          ${escapeHTML(d.name || "")}
+        </div>
+        <div class="profile-role">
+          ${escapeHTML(d.batch || "")} • student
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-info">
+      <div class="profile-row">
+        <span class="profile-label">Roll No</span>
+        <span class="profile-value">
+          ${escapeHTML(d.rollNo || "")}
+        </span>
+      </div>
+
+      <div class="profile-row">
+        <span class="profile-label">Email</span>
+        <span class="profile-value">
+          ${escapeHTML(d.email || "")}
+        </span>
+      </div>
+
+      <div class="profile-row">
+        <span class="profile-label">Registered At</span>
+        <span class="profile-value">
+          ${escapeHTML(d.registeredAt || "")}
+        </span>
+      </div>
+    </div>
+
+    <div class="profile-footer">
+      <div class="profile-footer-actions">
+    
+        <button class="admin-btn"
+          onclick="window.location.href='../admin_profile/profile.html'">
+          Admin Profile
+        </button>
+
+        <button onclick="logout()">
+          Logout
+        </button>
+
+      </div>
+    </div>
+  `;
+}
+
+// =========================
+// 🔒 Close Profile On Outside Click
+// =========================
+document.addEventListener("click", function (e) {
+
+  const dropdown = document.getElementById("profileDropdown");
+  const chip = document.querySelector(".user-chip");
+
+  if (!dropdown || dropdown.style.display !== "block") return;
+
+  if (!dropdown.contains(e.target) && !chip.contains(e.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
+// ESC key close
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    const dropdown = document.getElementById("profileDropdown");
+    if (dropdown) dropdown.style.display = "none";
+  }
+});
+
+/* =========================
+   CLOSE FUNCTION
+========================= */
+function closeSummaryPopup() {
+  const modal = document.getElementById("summaryModal");
+  if (modal) modal.style.display = "none";
 }

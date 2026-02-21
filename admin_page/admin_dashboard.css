@@ -1237,24 +1237,98 @@ body{
 ===================================== */
 @media (max-width:768px){
 
-  .sidebar{
-    overflow-x:auto;
+  /* 🔥 Prevent horizontal scroll completely */
+  body{
+    overflow-x:hidden;
   }
 
+  .sidebar{
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+
+  /* 🔥 Cards single column clean layout */
   .cards{
     grid-template-columns:1fr;
+    gap:14px;
   }
 
+  .card{
+    padding:18px 16px;
+  }
+
+  .card h4{
+    font-size:16px;
+  }
+
+  .card p{
+    font-size:20px;
+  }
+
+  /* 🔥 Charts full width */
   .grid{
     grid-template-columns:1fr;
+    gap:16px;
   }
 
   .panel.dashboard-panel{
-    height:240px;   /* slightly smaller for mobile */
+    height:260px;
+    padding:14px;
   }
+
+  .panel.dashboard-panel canvas{
+    width:100% !important;
+    height:100% !important;
+  }
+
+  /* =====================================
+     🔥 MOBILE TOPBAR PROFESSIONAL LAYOUT
+  ===================================== */
+
+  .topbar{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:12px 14px;
+    gap:6px;
+  }
+
+  /* 🔹 First Row (Hamburger + Title + Badge + Theme) */
+  .topbar-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .page-title{
+    font-size:15px;
+  }
+
+  .active-circle{
+    width:24px;
+    height:24px;
+    font-size:12px;
+  }
+
+  /* 🔹 Center Time */
+  .time{
+    text-align:center;
+    font-size:13px;
+    margin:4px 0;
+  }
+
+  /* 🔹 Admin Right Align */
+  .admin{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    font-size:14px;
+    margin-left:0;
+  }
+
 }
-
-
 /* =====================================
    📱 SMALL MOBILE (≤480px)
 ===================================== */
@@ -1321,4 +1395,33 @@ body.light-mode .over-left h2{
 
 body.light-mode .main{
   background:#f1f5f9;
+}
+
+/* =====================================
+   🍎 macOS HEIGHT OPTIMIZATION
+===================================== */
+
+@media (min-width:1400px){
+
+  /* 🔥 Use dynamic viewport height */
+  .main{
+    min-height:100dvh;
+  }
+
+  /* Charts height responsive to screen */
+  .panel.dashboard-panel{
+    height:35vh;           /* auto scale */
+    min-height:340px;
+    max-height:500px;
+  }
+
+  /* Iframe full height properly */
+  .iframe-wrapper{
+    height:calc(100dvh - 120px);
+  }
+
+  .iframe-wrapper iframe{
+    height:100%;
+  }
+
 }
