@@ -863,32 +863,65 @@ body{
 ================================ */
 @media (max-width:900px){
 
-  /* Layout */
+  /* ===============================
+     LAYOUT
+  =============================== */
   .layout{
     flex-direction:column;
   }
 
-  /* Sidebar */
+  /* ===============================
+     SIDEBAR (Mobile Safe Version)
+  =============================== */
   .sidebar{
-    width:100%;
     position:fixed;
     top:0;
     left:0;
-    height:100vh;
+
+    width:100%;
+    height:100dvh;                /* 🔥 Dynamic mobile height */
+    max-height:100dvh;
+
+    display:flex;                  /* 🔥 Proper vertical layout */
+    flex-direction:column;
+
+    padding:16px;
+
+    overflow-y:auto;               /* 🔥 Internal scroll */
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+
     transform:translateX(-100%);
     transition:transform .35s cubic-bezier(.4,0,.2,1);
+
     z-index:999;
-    padding:16px;
+    background:#0f172a;            /* fallback background */
   }
 
   .sidebar.open{
     transform:translateX(0);
   }
 
+  /* 🔥 Lock background when open */
   body.sidebar-open{
     overflow:hidden;
+    height:100dvh;
   }
 
+  /* 🔥 Nav area scroll control */
+  .sidebar .nav{
+    flex:1;
+    overflow-y:auto;
+  }
+
+  /* 🔥 Logout always bottom */
+  .sidebar .logout{
+    margin-top:auto;
+  }
+
+  /* ===============================
+     BUTTONS
+  =============================== */
   .menu-btn{
     display:block;
   }
@@ -897,7 +930,9 @@ body{
     display:block;
   }
 
-  /* Topbar */
+  /* ===============================
+     TOPBAR
+  =============================== */
   .topbar{
     flex-direction:column;
     align-items:stretch;
@@ -908,12 +943,14 @@ body{
     width:100%;
   }
 
-  /* Announcement + Subject Layout */
+  /* ===============================
+     LOWER GRID
+  =============================== */
   .dashboard-lower-grid{
     grid-template-columns:1fr;
   }
-}
 
+}
 
 /* ===============================
    TABLET ONLY (601px – 900px)

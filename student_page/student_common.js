@@ -151,37 +151,56 @@ function showEmptyDashboard() {
 
 function initSidebar() {
 
-  const sidebar = document.getElementById("sidebar");
+  const sidebar   = document.getElementById("sidebar");
   const toggleBtn = document.getElementById("menuToggle");
-  const overlay = document.querySelector(".sidebar-overlay");
-  const closeBtn = document.querySelector(".close-btn");
+  const overlay   = document.querySelector(".sidebar-overlay");
+  const closeBtn  = document.querySelector(".close-btn");
 
   if (!sidebar || !toggleBtn) return;
 
+  /* ===============================
+     OPEN SIDEBAR
+  =============================== */
   const open = () => {
+
     sidebar.classList.add("open");
     overlay?.classList.add("show");
+
+    // 🔥 Lock background scroll properly
     document.body.classList.add("sidebar-open");
+    document.documentElement.style.overflow = "hidden";
+
   };
 
+  /* ===============================
+     CLOSE SIDEBAR
+  =============================== */
   const close = () => {
+
     sidebar.classList.remove("open");
     overlay?.classList.remove("show");
+
     document.body.classList.remove("sidebar-open");
+    document.documentElement.style.overflow = "";
+
   };
 
+  /* ===============================
+     BUTTON EVENTS
+  =============================== */
   toggleBtn.addEventListener("click", open);
   closeBtn?.addEventListener("click", close);
   overlay?.addEventListener("click", close);
 
+  /* ===============================
+     AUTO CLOSE ON MOBILE NAV CLICK
+  =============================== */
   sidebar.querySelectorAll(".nav a").forEach(a => {
 
-    // mobile auto close
     a.addEventListener("click", () => {
       if (window.innerWidth <= 900) close();
     });
 
-    // active highlight
     a.addEventListener("click", function () {
       sidebar.querySelectorAll(".nav a.active")
         .forEach(el => el.classList.remove("active"));
@@ -189,6 +208,14 @@ function initSidebar() {
     });
 
   });
+
+  /* ===============================
+     🔥 MOBILE TOUCH SCROLL FIX
+  =============================== */
+  sidebar.addEventListener("touchmove", function (e) {
+    e.stopPropagation();
+  }, { passive: true });
+
 }
 
 /* =========================
