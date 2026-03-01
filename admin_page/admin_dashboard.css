@@ -441,11 +441,6 @@ body{
   padding: 12px;
 }
 
-.dashboard-panel canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
 /* ONLY dashboard charts */
 .panel.dashboard-panel{
   height:320px;                 /* 🔥 FIXED HEIGHT (must) */
@@ -465,10 +460,7 @@ body{
 
 /* 🔥 MOST IMPORTANT */
 .panel.dashboard-panel canvas{
-  width:100% !important;
   flex:1;
-  max-height:100%;
-  filter:drop-shadow(0 0 12px rgba(34,197,94,.25));
 }
 
 .tab iframe{
@@ -487,10 +479,8 @@ body{
 
 #courseChart{
   display:block;
-  margin:0 auto;          /* hard center */
-  width:100% !important;
+  margin:0 auto;
   max-width:280px;
-  height:300px !important;
 }
 
 #lastAdminAction{
