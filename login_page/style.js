@@ -41,67 +41,61 @@ window.APP_CONFIG = {
  * REGISTER USER
  *************************************************/
 function registerUser(e) {
-  // 🔒 DOUBLE CALL GUARD (ADD THIS)
+
   if (registerUser._busy) return;
   registerUser._busy = true;
 
   e.preventDefault();
-  console.log("🔥 registerUser CALLED");
+
   const msg = document.getElementById("signupErrorMsg");
   const registerBtn = document.getElementById("registerBtn");
 
-  // reset error
+  const nameVal  = signupName?.value.trim();
+  const rollVal  = signupRoll?.value.trim();
+  const batchVal = signupBatch?.value.trim();
+  const passVal  = signupPassword?.value;
+  const emailVal = signupEmail?.value.trim();
+
+  const release = () => {
+    if (registerBtn) registerBtn.disabled = false;
+    registerUser._busy = false;
+  };
+
   if (msg) {
     msg.innerText = "";
     msg.style.display = "none";
   }
 
-  if (!signupName || !signupRoll || !signupBatch ||
-      !signupPassword || !signupEmail) {
-    alert("Form not loaded properly");
-    registerUser._busy = false;
-    return;
-  }
-
-  // 🔎 validations
-  if (!signupName.value.trim()) {
+  if (!nameVal) {
     alert("Please enter your name");
-    registerUser._busy = false;
-    return;
+    return release();
   }
 
-  if (!signupRoll.value.trim() || !signupBatch.value.trim()) {
+  if (!rollVal || !batchVal) {
     alert("Please enter Roll Number and select Batch");
-    signupRoll.focus();
-    registerUser._busy = false;
-    return;
+    signupRoll?.focus();
+    return release();
   }
 
-  if (!signupEmail.value.includes("@")) {
+  if (!emailVal || !emailVal.includes("@")) {
     alert("Please enter a valid email address");
-    signupEmail.focus();
-    registerUser._busy = false;
-    return;
+    signupEmail?.focus();
+    return release();
   }
 
-  if (!signupPassword.value || signupPassword.value.length < 8) {
+  if (!passVal || passVal.length < 8) {
     alert("Password must be at least 8 characters long");
-    signupPassword.focus();
-    registerUser._busy = false;
-    return;
+    signupPassword?.focus();
+    return release();
   }
 
-  // 🔒 prevent double submit
+  if (!APP_CONFIG?.WEB_APP_URL) {
+    alert("App not configured properly");
+    return release();
+  }
+
   if (registerBtn) registerBtn.disabled = true;
 
-  if (!APP_CONFIG || !APP_CONFIG.WEB_APP_URL) {
-    alert("App not configured properly");
-    registerUser._busy = false;
-    if (registerBtn) registerBtn.disabled = false;
-    return;
-  }
-
-  // ⏳ loader
   if (msg) {
     msg.innerText = "Registering... please wait";
     msg.style.display = "block";
@@ -111,127 +105,97 @@ function registerUser(e) {
   fetch(APP_CONFIG.WEB_APP_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json"
     },
     body: new URLSearchParams({
       action: "register",
-      roll: signupRoll.value.trim(),
-      batch: signupBatch.value.trim(),
-      name: signupName.value.trim(),
-      password: signupPassword.value,
-      email: signupEmail.value.trim()
+      roll: rollVal,
+      batch: batchVal,
+      name: nameVal,
+      password: passVal,
+      email: emailVal
     })
   })
-  .then(res => res.text())
-  .then(text => {
-  console.log("REGISTER RAW RESPONSE:", text);
-
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-     console.error("REGISTER NON JSON:", text);
-     return { status: "error" };
-    }
-  return data;
-  })
+  .then(res => res.json())
   .then(data => {
-    
-    if (data.status === "sheet_not_found") {
-      alert("⚠️ System maintenance. Please try again later.");
-      return;
+
+    if (!data || !data.status) {
+      throw new Error("Invalid response");
     }
 
-    if (data.status === "registered") {
+    switch (data.status) {
 
-  const wrapper = document.querySelector(".auth-wrapper");
-  if (wrapper) wrapper.classList.remove("toggled");
+      case "registered":
+        document.querySelector(".auth-wrapper")
+          ?.classList.remove("toggled");
 
-  const lr = document.getElementById("loginRoll");
-  const lb = document.getElementById("loginBatch");
-  const lp = document.getElementById("loginPassword");
+        const lr = document.getElementById("loginRoll");
+        const lb = document.getElementById("loginBatch");
+        const lp = document.getElementById("loginPassword");
 
-  if (lr && lb && lp) {
-    lr.value = signupRoll.value.trim();
-    lb.value = signupBatch.value.trim();
-    lp.focus();
-  }
+        if (lr && lb && lp) {
+          lr.value = rollVal;
+          lb.value = batchVal;
+          lp.focus();
+        }
 
-  if (msg) {
-    msg.innerText = "✅ Registered successfully. Please login.";
-    msg.style.display = "block";
-    msg.style.color = "#2ecc71";
-  }
+        if (msg) {
+          msg.innerText = "✅ Registered successfully. Please login.";
+          msg.style.display = "block";
+          msg.style.color = "#2ecc71";
+        }
+        break;
 
-  return; // stop further execution safely
-}
+      case "duplicate_roll_batch":
+        if (msg) {
+          msg.innerText =
+            "⚠️ You are already registered.\nPlease login.";
+          msg.style.display = "block";
+          msg.style.color = "#ffaa00";
+        }
+        document.querySelector(".auth-wrapper")
+          ?.classList.remove("toggled");
+        break;
 
-    if (data.status === "duplicate_roll_batch") {
-  if (msg) {
-    msg.innerText =
-      "⚠️ You are already registered with this Roll & Batch.\nPlease login.";
-    msg.style.display = "block";
-    msg.style.color = "#ffaa00";
-  }
+      case "duplicate_email":
+        if (msg) {
+          msg.innerText =
+            "📧 Email already registered.\nUse another email.";
+          msg.style.display = "block";
+          msg.style.color = "#ff9800";
+        }
+        signupEmail?.focus();
+        break;
 
-  document.querySelector(".auth-wrapper")?.classList.remove("toggled");
-  return; // stop further execution safely
-}
+      case "invalid_registration":
+        alert(
+          "Password must contain:\n" +
+          "• At least 8 characters\n" +
+          "• 1 uppercase letter\n" +
+          "• 1 number"
+        );
+        break;
 
-if (data.status === "duplicate_email") {
-  if (msg) {
-    msg.innerText =
-      "📧 This email is already registered.\nPlease login or use another email.";
-    msg.style.display = "block";
-    msg.style.color = "#ff9800";
-  }
+      case "sheet_not_found":
+        alert("⚠️ System maintenance. Try later.");
+        break;
 
-  signupEmail.focus();
-  return; // stop further execution safely
-}
-    if (data.status === "invalid_registration") {
-      alert(
-        "Password must contain:\n" +
-        "• At least 8 characters\n" +
-        "• 1 uppercase letter\n" +
-        "• 1 number"
-      );
-      return;
+      default:
+        alert("❌ Something went wrong");
     }
-
-    if (data.status === "invalid_method" ||
-        data.status === "invalid_request") {
-      alert("❌ Invalid request. Please refresh page.");
-      return;
-    }
-
-    if (data.status === "error") {
-      alert(data.message || "❌ Server error");
-      return;
-    }
-    // 👇 fallback: dev-only
-    console.warn("Unhandled register status:", data);
 
   })
   .catch(err => {
-      // 🔕 Logical end / handled cases → ignore
-      if (String(err) === "HANDLED") return;
-
-      // 🔕 Abort / duplicate clicks → ignore
-      if (err && err.name === "AbortError") return;
-
-    console.warn("Register flow safely ended:", err);
-      if (msg) {
-        msg.innerText =
-          "⚠️ Something went wrong. Please refresh and try again.";
-        msg.style.display = "block";
-        msg.style.color = "#ff6b6b";
-      }
-    })
-  .finally(() => {
-    if (registerBtn) registerBtn.disabled = false;
-    registerUser._busy = false;   // 🔓 RELEASE GUARD
-  });
+    console.warn("Register Error:", err);
+    if (msg) {
+      msg.innerText =
+        "⚠️ Server error. Please try again.";
+      msg.style.display = "block";
+      msg.style.color = "#ff6b6b";
+    }
+  })
+  .finally(release);
 }
 
 /*************************************************
@@ -297,6 +261,7 @@ function loginUser(e) {
 
   e.preventDefault();
 
+  /* ========= DOM CACHE ========= */
   const btn = document.getElementById("loginBtn");
   const msg = document.getElementById("loginErrorMsg");
   const passMsg = document.getElementById("loginPasswordMsg");
@@ -316,14 +281,17 @@ function loginUser(e) {
     loginUser._busy = false;
   };
 
+  /* ========= VALIDATION ========= */
   if (!rollVal || !batchVal || !passVal) {
     release();
     return false;
   }
 
-  btn.disabled = true;
-  btn.textContent = "Logging in...";
-  btn.style.opacity = "0.7";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Logging in...";
+    btn.style.opacity = "0.7";
+  }
 
   if (msg) {
     msg.textContent = "Logging you in...";
@@ -334,13 +302,18 @@ function loginUser(e) {
   if (passMsg) passMsg.style.display = "none";
   if (forgotLink) forgotLink.style.display = "none";
 
+  /* ========= DEVICE INFO ========= */
   const device  = getDeviceType();
   const browser = getBrowser();
   const os      = getOS();
 
+  /* ========= FETCH ========= */
   fetch(APP_CONFIG.WEB_APP_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json"
+    },
     body: new URLSearchParams({
       action: "login",
       roll: rollVal,
@@ -351,10 +324,14 @@ function loginUser(e) {
       os
     })
   })
-  .then(r => r.json())
+  .then(res => res.json())
   .then(data => {
 
-    const status = data.status || "";
+    if (!data || !data.status) {
+      throw new Error("Invalid response");
+    }
+
+    const status = data.status;
 
     /* ================= SUCCESS ================= */
     if (status === "success") {
@@ -369,11 +346,12 @@ function loginUser(e) {
         localStorage.removeItem("EMAIL");
       }
 
-      window.location.replace(
+      /* ⚡ FAST REDIRECT */
+      window.location.href =
         data.role === "admin"
           ? "../admin_page/admin_dashboard.html"
-          : "../student_page/student_dashboard.html"
-      );
+          : "../student_page/student_dashboard.html";
+
       return;
     }
 
@@ -381,67 +359,71 @@ function loginUser(e) {
 
     if (!msg) return;
 
-    msg.style.color = "#ff6b6b";
     msg.style.display = "block";
+    msg.style.color = "#ff6b6b";
 
-    if (status === "roll_not_found") {
-      msg.textContent = "❌ Login failed. Please check your credentials.";
-    }
+    switch (status) {
 
-    else if (status === "invalid_batch") {
-      if (passMsg) {
-        passMsg.textContent = "Invalid Batch selected.";
+      case "roll_not_found":
+        msg.textContent =
+          "❌ Login failed. Please check your credentials.";
+        break;
+
+      case "invalid_batch":
+        if (passMsg) {
+          passMsg.textContent = "Invalid Batch selected.";
+          passMsg.style.display = "block";
+        }
+        return;
+
+      case "wrong_password":
+        msg.style.display = "none";
+
+        if (!passMsg) return;
+
+        if (data.locked === true) {
+          passMsg.textContent =
+            "❌ Account locked. Please reset your password.";
+        }
+        else if (data.lastAttempt === true) {
+          passMsg.textContent =
+            "⚠️ Last attempt! One more wrong password may lock your account.";
+        }
+        else {
+          passMsg.textContent = "❌ Incorrect password.";
+        }
+
+        passMsg.style.color = "#ff3b3b";
         passMsg.style.display = "block";
-      }
-      return;
-    }
 
-    else if (status === "wrong_password") {
+        if (forgotLink) forgotLink.style.display = "inline-block";
+        loginPassword?.classList.add("input-error");
+        return;
 
-      msg.style.display = "none";
+      case "account_locked":
+        msg.textContent =
+          "🔒 Account locked. Reset password to continue.";
+        if (forgotLink) forgotLink.style.display = "block";
+        break;
 
-      if (!passMsg) return;
+      case "account_blocked":
+        msg.textContent = "⛔ Account blocked by admin.";
+        break;
 
-      if (data.locked === true) {
-        passMsg.textContent = "❌ Account locked. Please reset your password.";
-      }
-      else if (data.lastAttempt === true) {
-        passMsg.textContent =
-          "⚠️ Last attempt! One more wrong password may lock your account.";
-      }
-      else {
-        passMsg.textContent = "❌ Incorrect password.";
-      }
+      case "email_missing":
+        msg.textContent = "📧 Email not registered.";
+        break;
 
-      passMsg.style.color = "#ff3b3b";
-      passMsg.style.display = "block";
-
-      if (forgotLink) forgotLink.style.display = "inline-block";
-      loginPassword?.classList.add("input-error");
-      return;
-    }
-
-    else if (status === "account_locked") {
-      msg.textContent = "🔒 Account locked. Reset password to continue.";
-      if (forgotLink) forgotLink.style.display = "block";
-    }
-
-    else if (status === "account_blocked") {
-      msg.textContent = "⛔ Account blocked by admin.";
-    }
-
-    else if (status === "email_missing") {
-      msg.textContent = "📧 Email not registered.";
-    }
-
-    else {
-      msg.textContent = "❌ Login failed. Please check your details.";
+      default:
+        msg.textContent =
+          "❌ Login failed. Please check your details.";
     }
 
   })
   .catch(() => {
     if (msg) {
-      msg.textContent = "⚠️ Server error. Please try again.";
+      msg.textContent =
+        "⚠️ Server error. Please try again.";
       msg.style.display = "block";
       msg.style.color = "#ffaa00";
     }
