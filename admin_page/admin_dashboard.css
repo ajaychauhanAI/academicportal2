@@ -12,7 +12,10 @@ body{
   overflow-y:auto;
 }
 
-.app{ display:flex; min-height:100vh }
+.app{
+  display:flex;
+  min-height:100dvh;   /* 🔥 MOBILE SAFE */
+}
 
 /* =========================
    SIDEBAR
@@ -902,11 +905,18 @@ body{
     --admin-shift: 200px;
   }
 
-  /* 🔹 Enable scroll inside main */
+  .app{
+    min-height:100dvh;
+  }
+
+  /* 🔥 FIX 2: Main scroll safe */
   .main{
+    flex:1;
+    min-height:100dvh;
     padding:20px;
     margin-top:20px;
-    overflow-y:auto;   /* 🔥 SCROLL FIX */
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch; /* smooth scroll (iOS safe) */
   }
 
   /* 🔹 Show Hamburger */
