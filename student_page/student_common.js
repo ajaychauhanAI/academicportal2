@@ -12,6 +12,12 @@ window.APP_CONFIG = window.APP_CONFIG || {
 };
 
 /* =========================
+   GLOBLE VARIABLES
+========================= */
+let lastContentVersion = null;
+let notifications = [];
+let unreadCount = 0;
+/* =========================
    SESSION HELPERS (SINGLE SOURCE)
 ========================= */
 function getSessionToken() {
@@ -42,7 +48,7 @@ function studentFetch(payload) {
   const body = new URLSearchParams();
 
   Object.entries(payload).forEach(([k, v]) => {
-    body.append(k, v);
+    body.append(k, typeof v === "object" ? JSON.stringify(v) : v);
   });
 
   return fetch(APP_CONFIG.WEB_APP_URL, {
@@ -93,6 +99,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       showEmptyDashboard();
       return;
     }
+     
+    lastContentVersion = data.contentVersion || "0";
 
     /* =========================
        🧠 SAFE DATA STORE
@@ -122,6 +130,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderSubjectProgress();
       updateNewsBadge();
     });
+    
+    if(typeof checkContentUpdate === "function"){
+      setInterval(checkContentUpdate,10000);
+    }
 
   } catch (err) {
 
@@ -800,7 +812,7 @@ function renderNews() {
       if (!c || !NEWS_TYPES.has(String(c.type).toUpperCase()))
         return false;
 
-      if (!c.uploadedAtTs) return false;
+      if (!c.uploadedAtTs) return true;
 
       const age = now - c.uploadedAtTs;
 
@@ -1684,4 +1696,189 @@ document.addEventListener("keydown", function (e) {
 function closeSummaryPopup() {
   const modal = document.getElementById("summaryModal");
   if (modal) modal.style.display = "none";
+}
+
+function showNewContentPopup(item){
+
+  const popup = document.createElement("div");
+  popup.className = "live-popup";
+
+  const title = item?.title || item?.message || "New content available";
+  const type  = (item?.type || "").toUpperCase();
+
+  popup.innerHTML = `
+    <div class="popup-box">
+
+      <div class="popup-icon">📢</div>
+
+      <div class="popup-text">
+        <div class="popup-title">New content uploaded</div>
+        <div class="popup-sub">${title}</div>
+      </div>
+
+    </div>
+  `;
+
+  /* 🔥 CLICK ACTION */
+  popup.onclick = () => {
+
+    popup.remove();
+
+    if(type === "ASSIGNMENT") showFiltered("ASSIGNMENT");
+    else if(type === "NOTES") showFiltered("NOTES");
+    else if(type === "PYQ") showFiltered("PYQ");
+    else if(type === "MESSAGE") showFiltered("MESSAGE");
+    else showDashboard();
+
+  };
+
+  document.body.appendChild(popup);
+
+  setTimeout(()=>{
+    popup.remove();
+  },6000);
+}
+
+async function checkContentUpdate(){
+
+  try{
+
+    const token = getSessionToken();
+    if(!token) return;
+
+    const res = await studentFetch({
+      action: "student_dashboard",
+      sessionToken: token
+    });
+
+    if(!res || res.status !== "ok") return;
+
+    const newVersion = res.contentVersion || "0";
+
+    /* =========================
+       NEW CONTENT DETECT
+    ========================= */
+    if(lastContentVersion && newVersion !== lastContentVersion){
+
+      lastContentVersion = newVersion;
+
+      const latest = res.content?.[0] || {};
+
+      /* 🔔 SHOW POPUP */
+      showNewContentPopup(latest);
+
+      /* =========================
+         🔴 STORE NOTIFICATION
+      ========================= */
+      if(typeof notifications !== "undefined"){
+
+        notifications.unshift({
+          title: latest.title || latest.message || "New content available",
+          type: latest.type || "",
+          ts: Date.now()
+        });
+
+        /* LIMIT HISTORY */
+        if(notifications.length > 50){
+          notifications.length = 50;
+        }
+
+        unreadCount++;
+
+        if(typeof renderNotifications === "function"){
+          renderNotifications();
+        }
+      }
+
+      /* =========================
+         🔄 UPDATE LOCAL DATA
+      ========================= */
+      allContent = Array.isArray(res.content)
+        ? res.content
+        : [];
+
+      dashboardSummary = res.summary || {};
+
+      /* =========================
+         ⚡ UPDATE UI
+      ========================= */
+      if(typeof renderNews === "function"){
+        renderNews();
+      }
+
+      if(typeof renderUpcomingDeadlines === "function"){
+        renderUpcomingDeadlines();
+      }
+
+    }
+
+  }catch(e){
+    console.warn("Update check failed");
+  }
+
+}
+
+function renderNotifications(){
+
+  const box = document.getElementById("notifDropdown");
+  const badge = document.getElementById("notifCount");
+
+  if(!box || !badge) return;
+
+  badge.innerText = unreadCount;
+
+  if(!notifications.length){
+    box.innerHTML = `
+      <div class="notif-item">
+        No notifications
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = notifications
+    .slice(0,20)
+    .map(n => `
+      <div class="notif-item" onclick="openNotification('${n.type}')">
+
+        <div class="notif-title">
+          ${escapeHTML(n.title)}
+        </div>
+
+        <div class="notif-time">
+          ${new Date(n.ts).toLocaleString()}
+        </div>
+
+      </div>
+    `)
+    .join("");
+
+}
+
+function toggleNotifications(){
+
+  const box = document.getElementById("notifDropdown");
+  if(!box) return;
+
+  const visible = box.style.display === "block";
+
+  box.style.display = visible ? "none" : "block";
+
+  if(!visible){
+    unreadCount = 0;
+    renderNotifications();
+  }
+
+}
+
+function openNotification(type){
+
+  const t = String(type).toUpperCase();
+
+  if(t === "ASSIGNMENT") showFiltered("ASSIGNMENT");
+  else if(t === "NOTES") showFiltered("NOTES");
+  else if(t === "PYQ") showFiltered("PYQ");
+  else if(t === "MESSAGE") showFiltered("MESSAGE");
+  else showDashboard();
+
 }

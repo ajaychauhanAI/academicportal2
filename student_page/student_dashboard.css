@@ -1748,6 +1748,15 @@ body.light-mode .main{
     font-size:12px;
   }
 
+  .live-popup{
+    left:12px;
+    right:12px;
+    bottom:18px;
+  }
+
+  .popup-box{
+    max-width:100%;
+  }
 }
 /* ============================= */
 /* 📲 TABLET (481px – 1024px) */
@@ -1892,4 +1901,127 @@ body.light-mode .main{
     right: 0;
   }
 
+}
+
+/* =========================
+   LIVE CONTENT POPUP
+========================= */
+.live-popup{
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  z-index:99999;
+  cursor:pointer;
+}
+
+.popup-box{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+
+  background:#ffffff;
+  border-left:4px solid #2563eb;
+
+  padding:14px 16px;
+  border-radius:12px;
+
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+
+  max-width:320px;
+
+  animation:popupSlide .35s ease;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+
+.popup-box:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(0,0,0,.22);
+}
+
+.popup-icon{
+  font-size:20px;
+}
+
+.popup-title{
+  font-weight:700;
+  font-size:14px;
+  color:#0f172a;
+}
+
+.popup-sub{
+  font-size:13px;
+  color:#64748b;
+}
+
+@keyframes popupSlide{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.notification-bell{
+  position:relative;
+  font-size:18px;
+  color:#fff;
+  cursor:pointer;
+  margin-right:15px;
+}
+
+.notif-badge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+
+  background:#ef4444;
+  color:#fff;
+
+  font-size:11px;
+  font-weight:700;
+
+  padding:2px 6px;
+  border-radius:999px;
+}
+
+.notif-dropdown{
+  position:absolute;
+  top:55px;
+  right:20px;
+
+  width:300px;
+  max-height:380px;
+
+  background:#fff;
+  border-radius:14px;
+
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
+
+  overflow-y:auto;
+
+  display:none;
+  z-index:9999;
+}
+
+.notif-item{
+  padding:12px 16px;
+  border-bottom:1px solid #f1f5f9;
+  cursor:pointer;
+}
+
+.notif-item:hover{
+  background:#f8fafc;
+}
+
+.notif-title{
+  font-weight:600;
+  font-size:14px;
+}
+
+.notif-time{
+  font-size:12px;
+  color:#64748b;
 }
