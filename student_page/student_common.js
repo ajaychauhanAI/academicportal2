@@ -12,12 +12,6 @@ window.APP_CONFIG = window.APP_CONFIG || {
 };
 
 /* =========================
-   GLOBLE VARIABLES
-========================= */
-let lastContentVersion = null;
-let notifications = [];
-let unreadCount = 0;
-/* =========================
    SESSION HELPERS (SINGLE SOURCE)
 ========================= */
 function getSessionToken() {
@@ -83,37 +77,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* =========================
        🚀 INSTANT UI RENDER
     ========================= */
+
     initSidebar();
     renderUserInfo();
     startClock();
     renderGreeting();
     resetStudentSummary();
-    showDashboard();   // show UI immediately
+    showDashboard();   // UI instantly show
+
 
     /* =========================
-       📡 LOAD DATA (ASYNC)
+       📡 LOAD DASHBOARD DATA
     ========================= */
+
     const data = await loadDashboardData();
 
     if (!data || data.status !== "ok") {
       showEmptyDashboard();
       return;
     }
-     
+
     lastContentVersion = data.contentVersion || "0";
+
 
     /* =========================
        🧠 SAFE DATA STORE
     ========================= */
+
     allContent = Array.isArray(data.content)
       ? data.content
       : [];
 
     dashboardSummary = data.summary || {};
 
+
     /* =========================
-       📊 UPDATE SUMMARY (SAFE)
+       📊 SUMMARY CARDS
     ========================= */
+
     setText("totalNotes", dashboardSummary.notes);
     setText("totalAssignments", dashboardSummary.assignments);
     setText("pendingAssignments", dashboardSummary.pending);
@@ -121,18 +122,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     setText("totalPyq", dashboardSummary.pyq);
     setText("totalMessages", dashboardSummary.messages);
 
+
+    /* =========================
+       🏆 ACTIVITY SCORE DATA
+    ========================= */
+
+    setText("prodNotes", dashboardSummary.views);
+    setText("prodAssignments", dashboardSummary.assignmentsOpened);
+    setText("prodDownloads", dashboardSummary.downloads);
+
+    setText("engNotes", dashboardSummary.views);
+    setText("engAssignments", dashboardSummary.assignmentsOpened);
+    setText("engDownloads", dashboardSummary.downloads);
+
     /* =========================
        ⚡ NON-BLOCKING RENDER
     ========================= */
+
     requestAnimationFrame(() => {
+
       renderNews();
       renderUpcomingDeadlines();
       renderSubjectProgress();
+      renderAcademicResources();
+      renderSmartWidgets();
+
+      updateTodayOverview();
+      updateActivityScore();
       updateNewsBadge();
+
     });
-    
-    if(typeof checkContentUpdate === "function"){
-      setInterval(checkContentUpdate,10000);
+
+
+    /* =========================
+       🔄 AUTO CONTENT UPDATE
+    ========================= */
+
+    if (typeof checkContentUpdate === "function") {
+      setInterval(checkContentUpdate, 10000);
     }
 
   } catch (err) {
@@ -305,16 +332,19 @@ function resetView() {
   hide("#subjectProgress");
   hide("#deadlineBox");
   hide(".quick-actions");   // ✅ ADD THIS
+  
+  hide(".smart-widgets");   // ✅ ADD THIS
 }
 
 function showDashboard() {
   resetView();
   show(".cards", "grid");
   show(".quick-actions", "block");  // ✅ ADD THIS
+  show(".smart-widgets","grid");
   show("#newsSection", "block");
   show("#subjectProgress", "block");
   show("#deadlineBox", "block");
-  
+  renderAcademicResources();
   setPageTitle("Student Dashboard Overview", "📊");
 }
 
@@ -389,13 +419,13 @@ function renderContent(list = []) {
                   <a href="${sanitizeURL(i.fileUrl)}"
                      target="_blank"
                      class="rf-view"
-                     onclick="trackView('${i.id}')">
+                     onclick="trackView('${i.id}','${i.type}')">
                      View
                   </a>
 
                   <a href="#"
                      class="rf-download"
-                     onclick="return trackDownload(event,'${sanitizeURL(i.fileUrl)}','${i.id}')">
+                     onclick="return trackDownload(event,'${sanitizeURL(i.fileUrl)}','${i.id}','${i.type}')">
                      Download
                   </a>
                 `
@@ -445,7 +475,7 @@ function renderContent(list = []) {
 
                 <a href="#"
                    class="download"
-                   onclick="return trackDownload(event,'${sanitizeURL(i.fileUrl)}','${i.id}')">
+                   onclick="return trackDownload(event,'${sanitizeURL(i.fileUrl)}','${i.id}','${i.type}')">
                    Download
                 </a>
               `
@@ -783,105 +813,109 @@ function renderGreeting() {
   `;
 }
 
-function renderNews() {
+function renderNews(){
 
-  const section = document.getElementById("newsSection");
   const newsBox = document.getElementById("newsContainer");
   const docsBox = document.getElementById("noticeDocsContainer");
 
-  if (!section || !newsBox || !docsBox) return;
+  if(!newsBox || !docsBox) return;
 
-  if (!Array.isArray(allContent)) {
-    newsBox.innerHTML = `<div class="news-item">No announcements</div>`;
-    docsBox.innerHTML = `<div class="news-item">No notice documents</div>`;
-    section.style.display = "block";
-    return;
-  }
-
-  const NEWS_TYPES = new Set(["MESSAGE", "LATEST_NEWS"]);
+  const NEWS_TYPES = new Set(["MESSAGE","LATEST_NEWS"]);
 
   const now = Date.now();
-  const ONE_DAY   = 1 * 24 * 60 * 60 * 1000;
-  const THREE_DAY = 3 * 24 * 60 * 60 * 1000;
+  const ONE_DAY = 86400000;
+  const THREE_DAY = 3 * ONE_DAY;
 
-  /* ===============================
-     📦 Filter only 3-day visible news
-  =============================== */
   const filtered = allContent
-    .filter(c => {
-      if (!c || !NEWS_TYPES.has(String(c.type).toUpperCase()))
+    .filter(c=>{
+      if(!c || !NEWS_TYPES.has(String(c.type).toUpperCase()))
         return false;
 
-      if (!c.uploadedAtTs) return true;
+      if(!c.uploadedAtTs) return true;
 
-      const age = now - c.uploadedAtTs;
-
-      // Hide if older than 3 days
-      return age <= THREE_DAY;
+      return (now - c.uploadedAtTs) <= THREE_DAY;
     })
-    .sort((a, b) => (b.uploadedAtTs || 0) - (a.uploadedAtTs || 0));
+    .sort((a,b)=>(b.uploadedAtTs||0)-(a.uploadedAtTs||0));
 
-  const textNotices = [];
-  const docNotices  = [];
+  const text = [];
+  const docs = [];
 
-  for (const c of filtered) {
-
-    const hasFile =
-      typeof c.fileUrl === "string" &&
-      c.fileUrl.trim().length > 0;
-
-    if (hasFile) {
-      docNotices.push(c);
-    } else {
-      textNotices.push(c);
+  filtered.forEach(c=>{
+    if(c.fileUrl && c.fileUrl.trim()!==""){
+      docs.push(c);
+    }else{
+      text.push(c);
     }
+  });
+
+  /* ================= TEXT NEWS ================= */
+
+  if(!text.length){
+
+    newsBox.innerHTML = `
+      <div class="empty-news">
+        <span>📭</span>
+        No announcements yet
+      </div>
+    `;
+
+  }else{
+
+    newsBox.innerHTML = text.map(n=>{
+
+      const age = now - (n.uploadedAtTs||0);
+      const isNew = age <= ONE_DAY;
+
+      return `
+        <div class="news-item">
+          <div>
+            ${escapeHTML(n.message || n.title || "Notice")}
+            ${isNew ? `<span class="news-badge">NEW</span>`:""}
+          </div>
+        </div>
+      `;
+
+    }).join("");
+
   }
 
-  /* ===============================
-     📰 Render Text Notices
-  =============================== */
-  newsBox.innerHTML = textNotices.length
-    ? textNotices.map(n => {
+  /* ================= DOCUMENTS ================= */
 
-        const age = now - n.uploadedAtTs;
-        const isNew = age <= ONE_DAY;
+  if(!docs.length){
 
-        return `
-          <div class="news-item">
-            <div>
-              ${escapeHTML(n.message || n.title || "No message")}
-              ${isNew ? `<span class="news-badge">NEW</span>` : ""}
-            </div>
+    docsBox.innerHTML = `
+      <div class="empty-news">
+        <span>📄</span>
+        No notice documents
+      </div>
+    `;
+
+  }else{
+
+    docsBox.innerHTML = docs.map(d=>{
+
+      const age = now - (d.uploadedAtTs||0);
+      const isNew = age <= ONE_DAY;
+
+      return `
+        <div class="news-item">
+
+          <div>
+            ${escapeHTML(d.message || d.title || "Notice")}
+            ${isNew ? `<span class="news-badge">NEW</span>`:""}
           </div>
-        `;
-      }).join("")
-    : `<div class="news-item">No announcements</div>`;
 
-  /* ===============================
-     📄 Render Document Notices
-  =============================== */
-  docsBox.innerHTML = docNotices.length
-    ? docNotices.map(d => {
+          <a href="#"
+             onclick="openNoticeDocument('${d.id}','${sanitizeURL(d.fileUrl)}')">
+             View
+          </a>
 
-        const age = now - d.uploadedAtTs;
-        const isNew = age <= ONE_DAY;
+        </div>
+      `;
 
-        return `
-          <div class="news-item">
-            <div>
-              ${escapeHTML(d.message || d.title || "Untitled")}
-              ${isNew ? `<span class="news-badge">NEW</span>` : ""}
-            </div>
-            <a href="#"
-               onclick="openNoticeDocument('${d.id}','${sanitizeURL(d.fileUrl)}')">
-               📄 View Document
-            </a>
-          </div>
-        `;
-      }).join("")
-    : `<div class="news-item">No notice documents</div>`;
+    }).join("");
 
-  section.style.display = "block";
+  }
 }
 
 function openNoticeDocument(uploadId, url) {
@@ -950,13 +984,65 @@ function sanitizeURL(url) {
   }
 }
 
-function trackView(uploadId){
+function trackView(uploadId, type){
+
+  /* ======================
+     BACKEND TRACK
+  ====================== */
+
   studentFetch({
     action: "track",
     uploadId,
     actionType: "VIEWED",
     sessionToken: getSessionToken()
   });
+
+
+  /* ======================
+     UI INSTANT UPDATE
+  ====================== */
+
+  try{
+
+    const t = String(type || "").toUpperCase();
+
+    /* ---------- NOTES ---------- */
+
+    if(t === "NOTES"){
+
+      const notesEl = document.getElementById("prodNotes");
+      const engNotes = document.getElementById("engNotes");
+
+      if(notesEl) notesEl.innerText = Number(notesEl.innerText) + 1;
+      if(engNotes) engNotes.innerText = Number(engNotes.innerText) + 1;
+    }
+
+    /* ---------- ASSIGNMENTS ---------- */
+
+    if(t === "ASSIGNMENT"){
+
+      const assignEl = document.getElementById("scoreAssignments");
+
+      if(assignEl){
+        const current = Number(assignEl.innerText) || 0;
+        assignEl.innerText = current + 1;
+      }
+
+    }
+
+  }catch(e){
+    console.warn("View counter update failed",e);
+  }
+
+
+  /* ======================
+     RECALCULATE SCORE
+  ====================== */
+
+  if(typeof updateActivityScore === "function"){
+    setTimeout(updateActivityScore,200);
+  }
+
 }
 
 function trackDownload(e, url, uploadId) {
@@ -964,6 +1050,10 @@ function trackDownload(e, url, uploadId) {
   if (e && e.preventDefault) e.preventDefault();
 
   let finalUrl = url || "";
+
+  /* ======================
+     GOOGLE DRIVE FIX
+  ====================== */
 
   if (finalUrl.includes("drive.google.com")) {
 
@@ -978,19 +1068,47 @@ function trackDownload(e, url, uploadId) {
     }
   }
 
-  // 🔥 DIRECT REDIRECT (most reliable)
+  /* ======================
+     INSTANT UI UPDATE
+  ====================== */
+
+  const downloadEl = document.getElementById("prodDownloads");
+  const engDownload = document.getElementById("engDownloads");
+
+  if(downloadEl) downloadEl.innerText = Number(downloadEl.innerText) + 1;
+  if(engDownload) engDownload.innerText = Number(engDownload.innerText) + 1;
+
+  /* ======================
+     UPDATE ACTIVITY SCORE
+  ====================== */
+
+  if(typeof updateActivityScore === "function"){
+    setTimeout(updateActivityScore,200);
+  }
+
+  /* ======================
+     DOWNLOAD REDIRECT
+  ====================== */
+
   window.location.href = finalUrl;
 
-  // Background tracking
+  /* ======================
+     BACKEND TRACK
+  ====================== */
+
   try {
+
     setTimeout(() => {
+
       studentFetch({
         action: "track",
         uploadId,
         actionType: "DOWNLOADED",
         sessionToken: getSessionToken()
       });
-    }, 0);
+
+    },0);
+
   } catch (_) {}
 
   return false;
@@ -1160,20 +1278,56 @@ function startDeadlineCountdown() {
   deadlineInterval = setInterval(update, 1000);
 }
 
-/* =========================
-   NEWS & SUBJECT
-========================= */
+/* ===============================
+   UPDATE LATEST NOTICE BADGE
+================================ */
+
 function updateNewsBadge(){
 
-  const el = document.getElementById("newsBadge");
-  if (!el || !Array.isArray(allContent)) return;
+  const badge = document.getElementById("newsBadge");
+  if(!badge) return;
 
-  const count = allContent.filter(x => {
-    const t = String(x?.type || "").toUpperCase();
-    return t === "MESSAGE" || t === "LATEST_NEWS";
-  }).length;
+  if(!Array.isArray(allContent)){
+    badge.style.display="none";
+    return;
+  }
 
-  el.innerText = count ? " " + count : "";
+  const NEWS_TYPES = new Set(["MESSAGE","LATEST_NEWS"]);
+
+  const now = Date.now();
+  const THREE_DAY = 3 * 24 * 60 * 60 * 1000;
+
+  let count = 0;
+
+  for(const c of allContent){
+
+    if(!c) continue;
+
+    const type = String(c.type || "").toUpperCase();
+
+    if(!NEWS_TYPES.has(type)) continue;
+
+    if(!c.uploadedAtTs){
+      count++;
+      continue;
+    }
+
+    const age = now - Number(c.uploadedAtTs);
+
+    if(age <= THREE_DAY){
+      count++;
+    }
+
+  }
+
+  if(count > 0){
+    badge.innerText = count;
+    badge.style.display = "inline-block";
+  }else{
+    badge.innerText = "";
+    badge.style.display = "none";
+  }
+
 }
 
 function renderSubjectProgress() {
@@ -1336,11 +1490,22 @@ function setPageTitle(title, icon = "") {
    HELPER
 ========================= */
 function safeType(v) {
-  return String(v || "")
+
+  if (v === null || v === undefined) return "";
+
+  return String(v)
     .trim()
     .toUpperCase()
-    .replace(/[\s\-]+/g, "_")   // space & hyphen → underscore
-    .replace(/__+/g, "_");      // multiple underscores → single
+
+    
+    .replace(/[\s\-]+/g, "_")   // spaces & hyphen → underscore
+ 
+    .replace(/[^\w]/g, "_")     // remove special characters
+
+    .replace(/__+/g, "_")       // multiple underscores → single
+
+    .replace(/^_+|_+$/g, "");   // remove leading / trailing underscore
+
 }
 
 function norm(v){
@@ -1698,7 +1863,30 @@ function closeSummaryPopup() {
   if (modal) modal.style.display = "none";
 }
 
+/* =========================================
+   ENTERPRISE NOTIFICATION SYSTEM
+========================================= */
+
+const MAX_NOTIFICATIONS = 50;
+
+let notifications = JSON.parse(localStorage.getItem("STUDENT_NOTIFS") || "[]");
+let unreadCount = notifications.filter(n => !n.read).length;
+
+/* =========================================
+   SAVE STORAGE
+========================================= */
+
+function saveNotifications(){
+  localStorage.setItem("STUDENT_NOTIFS", JSON.stringify(notifications));
+}
+
+/* =========================================
+   LIVE POPUP
+========================================= */
+
 function showNewContentPopup(item){
+
+  if(!item) return;
 
   const popup = document.createElement("div");
   popup.className = "live-popup";
@@ -1713,22 +1901,16 @@ function showNewContentPopup(item){
 
       <div class="popup-text">
         <div class="popup-title">New content uploaded</div>
-        <div class="popup-sub">${title}</div>
+        <div class="popup-sub">${escapeHTML(title)}</div>
       </div>
 
     </div>
   `;
 
-  /* 🔥 CLICK ACTION */
   popup.onclick = () => {
 
     popup.remove();
-
-    if(type === "ASSIGNMENT") showFiltered("ASSIGNMENT");
-    else if(type === "NOTES") showFiltered("NOTES");
-    else if(type === "PYQ") showFiltered("PYQ");
-    else if(type === "MESSAGE") showFiltered("MESSAGE");
-    else showDashboard();
+    openNotification(type);
 
   };
 
@@ -1737,9 +1919,19 @@ function showNewContentPopup(item){
   setTimeout(()=>{
     popup.remove();
   },6000);
+
 }
 
+/* =========================================
+   LIVE CONTENT UPDATE CHECK (STREAMING)
+========================================= */
+
+let updateRunning = false;
+
 async function checkContentUpdate(){
+
+  if(updateRunning) return;
+  updateRunning = true;
 
   try{
 
@@ -1747,138 +1939,854 @@ async function checkContentUpdate(){
     if(!token) return;
 
     const res = await studentFetch({
-      action: "student_dashboard",
-      sessionToken: token
+      action:"student_dashboard",
+      sessionToken:token
     });
 
     if(!res || res.status !== "ok") return;
 
     const newVersion = res.contentVersion || "0";
 
-    /* =========================
-       NEW CONTENT DETECT
-    ========================= */
+    /* ===============================
+       CHECK VERSION CHANGE
+    =============================== */
+
     if(lastContentVersion && newVersion !== lastContentVersion){
 
       lastContentVersion = newVersion;
 
       const latest = res.content?.[0] || {};
 
-      /* 🔔 SHOW POPUP */
-      showNewContentPopup(latest);
+      /* ===============================
+         POPUP + NOTIFICATION
+      =============================== */
 
-      /* =========================
-         🔴 STORE NOTIFICATION
-      ========================= */
-      if(typeof notifications !== "undefined"){
+      if(typeof showNewContentPopup === "function"){
+        showNewContentPopup(latest);
+      }
 
-        notifications.unshift({
+      if(typeof addNotification === "function"){
+        addNotification({
           title: latest.title || latest.message || "New content available",
           type: latest.type || "",
           ts: Date.now()
         });
-
-        /* LIMIT HISTORY */
-        if(notifications.length > 50){
-          notifications.length = 50;
-        }
-
-        unreadCount++;
-
-        if(typeof renderNotifications === "function"){
-          renderNotifications();
-        }
       }
 
-      /* =========================
-         🔄 UPDATE LOCAL DATA
-      ========================= */
+      /* ===============================
+         UPDATE STATE
+      =============================== */
+
       allContent = Array.isArray(res.content)
         ? res.content
         : [];
 
       dashboardSummary = res.summary || {};
 
-      /* =========================
-         ⚡ UPDATE UI
-      ========================= */
-      if(typeof renderNews === "function"){
-        renderNews();
-      }
+      /* ===============================
+         UPDATE SUMMARY CARDS
+      =============================== */
 
-      if(typeof renderUpcomingDeadlines === "function"){
-        renderUpcomingDeadlines();
-      }
+      setText("totalNotes", dashboardSummary.notes);
+      setText("totalAssignments", dashboardSummary.assignments);
+      setText("pendingAssignments", dashboardSummary.pending);
+      setText("expiredAssignments", dashboardSummary.expired);
+      setText("totalPyq", dashboardSummary.pyq);
+      setText("totalMessages", dashboardSummary.messages);
+
+      /* ===============================
+         LIVE DASHBOARD RENDER
+      =============================== */
+
+      requestAnimationFrame(()=>{
+
+        if(typeof renderNews === "function")
+          renderNews();
+
+        if(typeof renderUpcomingDeadlines === "function")
+          renderUpcomingDeadlines();
+
+        if(typeof renderSubjectProgress === "function")
+          renderSubjectProgress();
+
+        if(typeof renderSmartWidgets === "function")
+          renderSmartWidgets();
+
+        if(typeof updateNewsBadge === "function")
+          updateNewsBadge();
+
+      });
 
     }
 
   }catch(e){
-    console.warn("Update check failed");
+
+    console.warn("Content update check failed", e);
+
+  }finally{
+
+    updateRunning = false;
+
   }
 
 }
 
+/* =========================================
+   ADD NOTIFICATION
+========================================= */
+
+function addNotification(data){
+
+  if(!data) return;
+
+  const exists = notifications.some(n =>
+    n.title === data.title &&
+    n.type === data.type
+  );
+
+  if(exists) return;
+
+  notifications.unshift({
+    title: data.title,
+    type: data.type,
+    ts: data.ts || Date.now(),
+    read:false
+  });
+
+  if(notifications.length > MAX_NOTIFICATIONS){
+    notifications.length = MAX_NOTIFICATIONS;
+  }
+
+  unreadCount++;
+
+  saveNotifications();
+  renderNotifications();
+
+}
+
+/* =========================================
+   RENDER NOTIFICATIONS (PREMIUM VERSION)
+========================================= */
+
 function renderNotifications(){
 
-  const box = document.getElementById("notifDropdown");
+  const box   = document.getElementById("notifDropdown");
   const badge = document.getElementById("notifCount");
 
   if(!box || !badge) return;
 
-  badge.innerText = unreadCount;
+  /* ===============================
+     AUTO CALCULATE UNREAD
+  =============================== */
 
-  if(!notifications.length){
+  unreadCount = notifications.filter(n => !n.read).length;
+
+  badge.innerText = unreadCount > 0 ? unreadCount : "";
+  badge.style.display = unreadCount > 0 ? "flex" : "none";
+
+  /* ===============================
+     EMPTY STATE
+  =============================== */
+
+  if(!Array.isArray(notifications) || notifications.length === 0){
+
     box.innerHTML = `
-      <div class="notif-item">
-        No notifications
+      <div class="notif-header">
+        <span>Notifications</span>
+      </div>
+
+      <div class="notif-empty">
+        <div class="notif-empty-icon">🔔</div>
+        <div class="notif-empty-text">
+          No notifications yet
+        </div>
       </div>
     `;
+
     return;
   }
 
-  box.innerHTML = notifications
-    .slice(0,20)
-    .map(n => `
-      <div class="notif-item" onclick="openNotification('${n.type}')">
+  /* ===============================
+     BUILD NOTIFICATION LIST
+  =============================== */
 
-        <div class="notif-title">
-          ${escapeHTML(n.title)}
+  const html = [];
+
+  for(let i = 0; i < Math.min(notifications.length,20); i++){
+
+    const n = notifications[i];
+
+    if(!n) continue;
+
+    const title = escapeHTML(n.title || "Notification");
+    const time  = formatNotifTime(n.ts);
+    const unreadClass = n.read ? "" : "unread";
+
+    html.push(`
+      <div class="notif-item ${unreadClass}"
+           data-index="${i}"
+           onclick="openNotification('${n.type}',${i})">
+
+        <div class="notif-row">
+
+          <div class="notif-title">
+            ${title}
+          </div>
+
+          ${!n.read ? `<span class="notif-dot"></span>` : ""}
+
         </div>
 
         <div class="notif-time">
-          ${new Date(n.ts).toLocaleString()}
+          ${time}
         </div>
 
       </div>
-    `)
-    .join("");
+    `);
+  }
+
+  /* ===============================
+     FINAL DOM RENDER
+  =============================== */
+
+  box.innerHTML = `
+    <div class="notif-header">
+
+      <span>Notifications</span>
+
+      <div class="notif-header-actions">
+
+        ${
+          unreadCount > 0
+          ? `<button class="notif-mark"
+               onclick="markAllNotificationsRead(event)">
+               Mark all
+             </button>`
+          : ""
+        }
+
+        <button class="notif-clear"
+                onclick="clearNotifications(event)">
+          Clear
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="notif-body">
+      ${html.join("")}
+    </div>
+  `;
 
 }
+
+function markAllNotificationsRead(e){
+
+  e.stopPropagation();
+
+  notifications.forEach(n => n.read = true);
+
+  unreadCount = 0;
+
+  renderNotifications();
+
+}
+/* =========================================
+   FORMAT TIME
+========================================= */
+function formatNotifTime(ts){
+
+  const d = new Date(ts);
+  const now = new Date();
+
+  const diff = now - d;
+
+  const oneDay = 86400000;
+
+  if(diff < oneDay){
+
+    return d.toLocaleTimeString([],{
+      hour:"2-digit",
+      minute:"2-digit"
+    });
+
+  }
+
+  if(diff < oneDay * 2){
+    return "Yesterday";
+  }
+
+  return d.toLocaleDateString();
+}
+
+/* =========================================
+   CLEAR NOTIFICATIONS
+========================================= */
+function clearNotifications(e){
+
+  e.stopPropagation();
+
+  notifications = [];
+  unreadCount = 0;
+
+  localStorage.removeItem("STUDENT_NOTIFS");
+
+  renderNotifications();
+
+}
+
+/* =========================================
+   TOGGLE DROPDOWN
+========================================= */
 
 function toggleNotifications(){
 
   const box = document.getElementById("notifDropdown");
   if(!box) return;
 
-  const visible = box.style.display === "block";
-
-  box.style.display = visible ? "none" : "block";
-
-  if(!visible){
-    unreadCount = 0;
-    renderNotifications();
-  }
+  box.style.display =
+    box.style.display === "block"
+      ? "none"
+      : "block";
 
 }
 
-function openNotification(type){
+/* =========================================
+   OPEN NOTIFICATION
+========================================= */
 
-  const t = String(type).toUpperCase();
+function openNotification(type,index=null){
+
+  if(index !== null){
+
+    if(notifications[index] && !notifications[index].read){
+
+      notifications[index].read = true;
+      unreadCount = Math.max(0, unreadCount - 1);
+
+      saveNotifications();
+      renderNotifications();
+
+    }
+
+  }
+
+  const t = String(type || "").toUpperCase();
 
   if(t === "ASSIGNMENT") showFiltered("ASSIGNMENT");
   else if(t === "NOTES") showFiltered("NOTES");
   else if(t === "PYQ") showFiltered("PYQ");
   else if(t === "MESSAGE") showFiltered("MESSAGE");
   else showDashboard();
+
+}
+
+/* =========================================
+   CLOSE DROPDOWN ON OUTSIDE CLICK
+========================================= */
+
+document.addEventListener("click",(e)=>{
+
+  const bell = document.querySelector(".notification-bell");
+  const box  = document.getElementById("notifDropdown");
+
+  if(!bell || !box) return;
+
+  if(!bell.contains(e.target) && !box.contains(e.target)){
+    box.style.display="none";
+  }
+
+});
+
+/* =========================================
+   INIT ON LOAD
+========================================= */
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+  renderNotifications();
+
+});
+
+/* =========================================
+   SMART DASHBOARD WIDGETS (FINAL VERSION)
+========================================= */
+
+function renderSmartWidgets(){
+
+  if(!Array.isArray(allContent) || !allContent.length){
+
+    setText("todayNotes",0);
+    setText("todayAssignments",0);
+    setText("todayNotices",0);
+
+    setText("viewNotes",0);
+    setText("viewAssignments",0);
+    setText("viewPYQ",0);
+
+    setText("scoreNotes",0);
+    setText("scoreAssignments",0);
+    setText("scoreDownloads",0);
+
+    updateActivityScore(0);
+
+    renderLearningHeatmap([]);
+
+    return;
+  }
+
+  const now = Date.now();
+  const ONE_DAY = 86400000;
+
+  let todayNotes = 0;
+  let todayAssignments = 0;
+  let todayNotices = 0;
+
+  let viewNotes = 0;
+  let viewAssignments = 0;
+  let viewPYQ = 0;
+
+  let downloads = 0;
+
+  const activityLog = [];
+
+  /* =====================================
+     SINGLE LOOP (VERY FAST)
+  ===================================== */
+
+  for(const c of allContent){
+
+    if(!c) continue;
+
+    const type = String(c.type || "").toUpperCase();
+
+    const ts = Number(c.uploadedAtTs) || 0;
+    const age = now - ts;
+
+    if(ts) activityLog.push(ts);
+
+    /* ===== TODAY CONTENT ===== */
+
+    if(age <= ONE_DAY){
+
+      if(type === "NOTES") todayNotes++;
+
+      else if(type === "ASSIGNMENT") todayAssignments++;
+
+      else if(type === "MESSAGE" || type === "LATEST_NEWS") todayNotices++;
+
+    }
+
+    /* ===== STUDY ACTIVITY ===== */
+
+    if(type === "NOTES") viewNotes++;
+
+    else if(type === "ASSIGNMENT") viewAssignments++;
+
+    else if(type === "PYQ") viewPYQ++;
+
+    /* ===== DOWNLOADS ===== */
+
+    if(c.downloads){
+      downloads += Number(c.downloads) || 0;
+    }
+
+  }
+
+  /* =====================================
+     UPDATE BASIC WIDGETS
+  ===================================== */
+
+  setText("todayNotes", todayNotes);
+  setText("todayAssignments", todayAssignments);
+  setText("todayNotices", todayNotices);
+
+  setText("viewNotes", viewNotes);
+  setText("viewAssignments", viewAssignments);
+  setText("viewPYQ", viewPYQ);
+
+  setText("scoreNotes", viewNotes);
+  setText("scoreAssignments", viewAssignments);
+  setText("scoreDownloads", downloads);
+
+  /* =====================================
+     ACTIVITY SCORE
+  ===================================== */
+
+  const score =
+    (viewNotes * 2) +
+    (viewAssignments * 3) +
+    (viewPYQ * 2) +
+    (downloads * 1);
+
+  const percent = Math.min(
+    Math.round((score / 100) * 100),
+    100
+  );
+
+  updateActivityScore();
+  updateTodayBars();
+
+  /* =====================================
+     SMART STUDY REMINDER
+  ===================================== */
+
+  const reminder = document.getElementById("studyReminder");
+
+  if(reminder){
+
+    if(todayAssignments > 0){
+
+      reminder.innerText =
+        `You have ${todayAssignments} assignment${
+          todayAssignments > 1 ? "s" : ""
+        } today. Complete them on time.`;
+
+    }
+    else if(viewNotes === 0){
+
+      reminder.innerText =
+        "Start studying today. No notes viewed yet.";
+
+    }
+    else if(viewPYQ === 0){
+
+      reminder.innerText =
+        "Practice PYQ today to improve exam preparation.";
+
+    }
+    else{
+
+      reminder.innerText =
+        "Great progress today. Keep learning consistently.";
+
+    }
+
+  }
+
+  /* =====================================
+     LEARNING HEATMAP
+  ===================================== */
+
+  renderLearningHeatmap(activityLog);
+
+}
+
+
+/* =====================================
+   UPDATE ACTIVITY SCORE BAR
+===================================== */
+function updateActivityScore(){
+
+  try{
+
+    /* =========================
+       GET COUNTERS
+    ========================= */
+
+    const notes = Number(document.getElementById("scoreNotes")?.innerText) || 0;
+    const assignments = Number(document.getElementById("scoreAssignments")?.innerText) || 0;
+    const downloads = Number(document.getElementById("scoreDownloads")?.innerText) || 0;
+
+    /* =========================
+       TOTAL SCORE
+    ========================= */
+
+    const total = notes + assignments + downloads;
+
+    /* =========================
+       PROGRESS %
+    ========================= */
+
+    const maxScore = 50;
+    const percent = Math.min(Math.round((total / maxScore) * 100),100);
+
+    /* =========================
+       UPDATE UI
+    ========================= */
+
+    const fill = document.getElementById("scoreFill");
+    const label = document.getElementById("scorePercent");
+
+    if(fill) fill.style.width = percent + "%";
+    if(label) label.innerText = percent + "%";
+
+    /* =========================
+       LEVEL SYSTEM
+    ========================= */
+
+    const levelEl = document.getElementById("scoreLevel");
+
+    let level = "Beginner";
+
+    if(percent >= 80) level = "🔥 Excellent";
+    else if(percent >= 60) level = "🚀 Active";
+    else if(percent >= 30) level = "📈 Improving";
+
+    if(levelEl) levelEl.innerText = level;
+
+  }catch(err){
+
+    console.warn("Activity score update failed",err);
+
+  }
+
+}
+
+/* =====================================
+   LEARNING HEATMAP (14 DAYS)
+===================================== */
+
+function renderLearningHeatmap(activityLog){
+
+  const grid = document.getElementById("learningHeatmap");
+
+  if(!grid) return;
+
+  grid.innerHTML = "";
+
+  const activity = {};
+
+  for(const ts of activityLog){
+
+    const key = new Date(ts).toISOString().slice(0,10);
+
+    if(!activity[key]) activity[key] = 0;
+
+    activity[key]++;
+
+  }
+
+  for(let i=13;i>=0;i--){
+
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+
+    const key = d.toISOString().slice(0,10);
+
+    const count = activity[key] || 0;
+
+    let level = 0;
+
+    if(count >= 5) level = 4;
+    else if(count >= 3) level = 3;
+    else if(count >= 2) level = 2;
+    else if(count >= 1) level = 1;
+
+    const cell = document.createElement("div");
+
+    cell.className = "heatmap-cell level-" + level;
+
+    cell.title = d.toDateString() + " • " + count + " activities";
+
+    grid.appendChild(cell);
+
+  }
+
+}
+
+
+/* =====================================
+   SAFE TEXT UPDATE
+===================================== */
+
+function safeText(id,value){
+
+  const el = document.getElementById(id);
+
+  if(el){
+    el.innerText = value;
+  }
+
+}
+
+function updateTodayBars(){
+
+  const MAX_LIMIT = 10;
+
+  const notesEl = document.getElementById("todayNotes");
+  const assignEl = document.getElementById("todayAssignments");
+  const noticeEl = document.getElementById("todayNotices");
+
+  const notesBar = document.getElementById("todayNotesBar");
+  const assignBar = document.getElementById("todayAssignmentsBar");
+  const noticeBar = document.getElementById("todayNoticesBar");
+
+  if(!notesEl || !assignEl || !noticeEl) return;
+
+  const notes = Number(notesEl.innerText) || 0;
+  const assignments = Number(assignEl.innerText) || 0;
+  const notices = Number(noticeEl.innerText) || 0;
+
+  const calc = v => Math.min(100, (v / MAX_LIMIT) * 100);
+
+  if(notesBar) notesBar.style.width = calc(notes) + "%";
+  if(assignBar) assignBar.style.width = calc(assignments) + "%";
+  if(noticeBar) noticeBar.style.width = calc(notices) + "%";
+
+}
+
+function isAdmin(){
+  const role = (localStorage.getItem("ROLE") || "").toUpperCase();
+  return role === "ADMIN";
+}
+function updateTodayOverview(){
+
+  const role = (localStorage.getItem("ROLE") || "").toUpperCase();
+  const batch = localStorage.getItem("BATCH");
+
+  let data = [];
+
+  if(role === "ADMIN"){
+    data = allContent; // admin sees everything
+  }else{
+    data = allContent.filter(c => {
+      if(!c.batch) return true;
+      return c.batch === batch;
+    });
+  }
+
+  const notes = data.filter(c=>safeType(c.type)==="NOTES").length;
+  const assignments = data.filter(c=>safeType(c.type)==="ASSIGNMENT").length;
+  const notices = data.filter(c=>safeType(c.type)==="MESSAGE").length;
+
+  setText("todayNotes",notes);
+  setText("todayAssignments",assignments);
+  setText("todayNotices",notices);
+
+  updateTodayBars();
+}
+
+function renderAcademicResources(){
+
+  const grid = document.getElementById("academicResourceGrid");
+  if(!grid) return;
+
+  /* =========================
+     VALIDATE SOURCE DATA
+  ========================= */
+
+  if(!Array.isArray(allContent)){
+    grid.innerHTML = "";
+    return;
+  }
+
+  /* =========================
+     FILTER RESOURCE TYPES
+  ========================= */
+
+  const RESOURCE_TYPES = new Set([
+    "ACADEMIC_CALENDAR",
+    "SYLLABUS",
+    "HOLIDAY_LIST"
+  ]);
+
+  const resources = allContent
+    .filter(item => RESOURCE_TYPES.has(safeType(item.type)))
+    .sort((a,b)=> (b.uploadedAtTs || 0) - (a.uploadedAtTs || 0));
+
+  /* =========================
+     EMPTY STATE
+  ========================= */
+
+  if(resources.length === 0){
+
+    grid.innerHTML = `
+      <div class="content-card empty">
+        <h3>📭 No academic resources</h3>
+        <p>New files will appear here.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  /* =========================
+     ICON MAP
+  ========================= */
+
+  const ICON_MAP = {
+    ACADEMIC_CALENDAR: "📅",
+    SYLLABUS: "📚",
+    HOLIDAY_LIST: "🏖"
+  };
+
+  /* =========================
+     BUILD HTML
+  ========================= */
+
+  const html = resources.map(item => {
+
+    const type = safeType(item.type);
+
+    const icon = ICON_MAP[type] || "📄";
+
+    const title = escapeHTML(
+      item.title || "Untitled Resource"
+    );
+
+    const datetime = formatDateTime(
+      item.date || item.uploadDate,
+      item.time || item.uploadTime,
+      item.uploadedAtTs
+    );
+
+    const fileUrl = sanitizeURL(item.fileUrl);
+
+    const hasFile = fileUrl && fileUrl !== "#";
+
+    return `
+      <div class="resource-file-card">
+
+        <div class="rf-header">
+
+          <div class="rf-icon">${icon}</div>
+
+          <div class="rf-info">
+            <h3>${title}</h3>
+            <div class="rf-meta">${datetime}</div>
+          </div>
+
+        </div>
+
+        <div class="rf-actions">
+
+          ${
+            hasFile
+              ? `
+                <a href="${fileUrl}"
+                   target="_blank"
+                   rel="noopener"
+                   class="rf-view"
+                   onclick="trackView('${item.id}')">
+                   View
+                </a>
+
+                <a href="#"
+                   class="rf-download"
+                   onclick="return trackDownload(event,'${fileUrl}','${item.id}')">
+                   Download
+                </a>
+              `
+              : `
+                <span class="no-file">
+                  ❌ File unavailable
+                </span>
+              `
+          }
+
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+
+  /* =========================
+     SINGLE DOM WRITE
+  ========================= */
+
+  grid.innerHTML = html;
 
 }

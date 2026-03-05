@@ -90,9 +90,9 @@
       <div class="notification-bell" onclick="toggleNotifications()">
         <i class="fa-solid fa-bell"></i>
         <span id="notifCount" class="notif-badge">0</span>
-      </div>
 
-      <div id="notifDropdown" class="notif-dropdown"></div>
+        <div id="notifDropdown" class="notif-dropdown"></div>
+      </div>
 
       <div class="user-chip" onclick="toggleProfileDropdown()" style="cursor:pointer;">
         <div class="avatar" id="avatar">S</div>
@@ -104,7 +104,6 @@
       <div id="profileDropdown" class="profile-dropdown"></div>
 
     </header>
-
 
     <!-- ================= PAGE HEADER ================= -->
     <section class="over">
@@ -179,40 +178,142 @@
     </section>
 
 
-    <!-- ================= QUICK ACTIONS ================= -->
-    <section class="quick-actions" style="display:none;">
+<!-- ================= ACADEMIC RESOURCES ================= -->
+<div id="academicResourceGrid" class="grid">
+  <div class="content-card empty">
+    <h3>📦 Loading resources...</h3>
+  </div>
+</div>
 
-      <div class="qa-header">
-        <h3>📚 Academic Resources</h3>
-      </div>
+<!-- ================= SMART DASHBOARD WIDGETS ================= -->
 
-      <div class="qa-grid">
+<section class="smart-widgets">
 
-        <button type="button"
-                class="qa-card"
-                onclick="showFiltered('ACADEMIC_CALENDAR')">
-          <i class="fa-solid fa-calendar-days"></i>
-          <span>Academic Calendar</span>
-        </button>
+  <!-- Smart Summary -->
+  <div class="widget-card">
+    <h3>🌤️ Today</h3>
+    <div class="widget-row">
+      <span>Notes Uploaded</span>
+      <strong id="todayNotes">0</strong>
+    </div>
+    <div class="widget-row">
+      <span>Assignments</span>
+      <strong id="todayAssignments">0</strong>
+    </div>
+    <div class="widget-row">
+      <span>Notices</span>
+      <strong id="todayNotices">0</strong>
+    </div>
+  </div>
 
-        <button type="button"
-                class="qa-card"
-                onclick="showFiltered('SYLLABUS')">
-          <i class="fa-solid fa-book-open-reader"></i>
-          <span>Syllabus</span>
-        </button>
+  <!-- Learning Heatmap -->
+<div class="widget-card heatmap-widget">
 
-        <button type="button"
-                class="qa-card"
-                onclick="showFiltered('HOLIDAY_LIST')">
-          <i class="fa-solid fa-umbrella-beach"></i>
-          <span>Holiday List</span>
-        </button>
+  <h3>📊 Learning Heatmap</h3>
 
-      </div>
+  <p class="heatmap-desc">
+    Your study activity over the last days
+  </p>
 
-    </section>
+  <div class="heatmap-container">
 
+    <!-- Day Labels -->
+    <div class="heatmap-days">
+      <span>Mon</span>
+      <span>Tue</span>
+      <span>Wed</span>
+      <span>Thu</span>
+      <span>Fri</span>
+      <span>Sat</span>
+      <span>Sun</span>
+    </div>
+
+    <!-- Heatmap Grid -->
+    <div class="heatmap-grid" id="learningHeatmap"></div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="heatmap-legend">
+    <span>Low Activity</span>
+    <div class="legend-box level-1"></div>
+    <div class="legend-box level-2"></div>
+    <div class="legend-box level-3"></div>
+    <div class="legend-box level-4"></div>
+    <span>High Activity</span>
+  </div>
+
+</div>
+
+  <!-- Reminder -->
+  <div class="widget-card reminder">
+    <h3>⏰ Study Reminder</h3>
+    <p id="studyReminder">
+      You have pending assignments. Complete them today.
+    </p>
+  </div>
+
+  <!-- Activity Score -->
+<div class="widget-card activity-score">
+
+  <h3>🏆 Activity Score</h3>
+
+  <div class="widget-row">
+    <span>Notes Viewed</span>
+    <strong id="scoreNotes">0</strong>
+  </div>
+
+  <div class="widget-row">
+    <span>Assignments Opened</span>
+    <strong id="scoreAssignments">0</strong>
+  </div>
+
+  <div class="widget-row">
+    <span>Resources Downloaded</span>
+    <strong id="scoreDownloads">0</strong>
+  </div>
+
+  <div class="score-progress">
+    <div class="score-bar">
+      <div id="scoreFill"></div>
+    </div>
+    <div id="scorePercent">0%</div>
+  </div>
+
+</div>
+
+  <!-- Quick Links -->
+<div class="widget-card quick-links-widget">
+
+  <h3>📌 Quick Links</h3>
+
+  <div class="quick-links-grid">
+
+    <a href="https://bbdu.ac.in/" target="_blank" rel="noopener" class="quick-link">
+      <i class="fa-solid fa-building-columns"></i>
+      <span>BBDU UNIVERSITY</span>
+    </a>
+
+    <a href="https://mybbd.in/login" target="_blank" rel="noopener" class="quick-link">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>BBD | MyCampus</span>
+    </a>
+
+    <a href="https://examcell.bbdu.ac.in/bbduexamcell/" target="_blank" rel="noopener" class="quick-link">
+      <i class="fa-solid fa-file-pen"></i>
+      <span>Exam Form Submission</span>
+    </a>
+
+    <a href="https://examcell.bbdu.ac.in/bbdu-result/" target="_blank" rel="noopener" class="quick-link">
+      <i class="fa-solid fa-square-poll-vertical"></i>
+      <span>Result</span>
+    </a>
+
+  </div>
+
+</div>
+
+</section>
 
     <!-- ================= LOWER DASHBOARD GRID ================= -->
     <div class="dashboard-lower-grid">
@@ -238,10 +339,8 @@
 
       <!-- RIGHT: SUBJECT + DEADLINES -->
       <div class="right-dashboard-panel">
+        <div id="deadlineBox" class="news-panel" style="margin-top:20px;"></div>
         <div id="subjectProgress"></div>
-        <div id="deadlineBox"
-             class="news-panel"
-             style="margin-top:20px;"></div>
       </div>
 
     </div>
@@ -285,7 +384,7 @@
   #neo-toggle {
     position: fixed;
     bottom: 30px;
-    right: 30px;
+    right: 40px;
     width: 50px;
     height: 50px;
     background: linear-gradient(145deg, #1e293b, #0f172a);
@@ -310,7 +409,7 @@
   #neo-box {
     position: fixed;
     bottom: 105px;
-    right: 30px;
+    right: 40px;
     width: 350px;
     height: 550px;
     max-height: 82vh;
@@ -454,9 +553,19 @@
   /* --- Responsive --- */
   @media (max-width: 600px) {
     #neo-box {
-      width: 75%; height: 65vh; bottom: 65px; right: 6%; left: 12%; border-radius: 28px;
+      width: 80%; 
+      height: 75vh; 
+      bottom: 65px; 
+      right: 12%; 
+      left: 08.5%; 
+      border-radius: 28px;
     }
-    #neo-toggle { width: 45px; height: 45px; bottom: 20px; right: 20px; }
+    #neo-toggle { 
+      width: 45px; 
+      height: 45px;
+      bottom: 20px;
+      right: 40px; 
+    }
   }
 </style>
 
