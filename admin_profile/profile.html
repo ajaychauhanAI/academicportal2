@@ -12,28 +12,147 @@
   --border:rgba(148,163,184,.25);
   --muted:#9ca3af;
   --accent:#38bdf8;
+  --text:#ffffff;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+/* ===== LIGHT MODE ===== */
+body.light-mode{
+  --bg:#f8fafc;
+  --panel:#ffffff;
+  --border:rgba(15,23,42,.08);
+  --muted:#64748b;
+  --accent:#2563eb;
+  --text:#0f172a;
+}
 
+/* Light specific surfaces */
+body.light-mode .info-card,
+body.light-mode .badge,
+body.light-mode .hero-card,
+body.light-mode .skill-chip,
+body.light-mode .achievement-item,
+body.light-mode .mini-highlights span{
+  background:#f1f5f9;
+  border:1px solid rgba(15,23,42,.08);
+  color:#0f172a;
+}
+
+/* Reset */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+/* ===== BODY ===== */
 body{
-  background:var(--bg);
-  color:#fff;
-  line-height:1.65;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+}
+
+/* Dark gradient only in dark mode */
+body:not(.light-mode){
+  background: radial-gradient(circle at top,
+              #0f172a 0%,
+              #020617 55%,
+              #000000 100%);
+}
+
+/* ===== CARDS ===== */
+.card,
+.project-card,
+.info-card,
+.hero-focus,
+.achievement-item{
+  background: var(--panel);
+  border:1px solid var(--border);
+  backdrop-filter: blur(12px);
+  box-shadow:0 20px 50px rgba(0,0,0,.7);
+}
+
+/* ===== MINI BADGES ===== */
+.badge,
+.skill-grid span,
+.mini-highlights span{
+  background: var(--panel);
+  border:1px solid var(--border);
+}
+
+/* ===== FORM INPUTS ===== */
+.contact-form input,
+.contact-form textarea{
+  background: var(--panel);
+  border:1px solid var(--border);
+  color: var(--text);
+}
+
+/* ===== TEXT MUTED ===== */
+.section-subtitle,
+.section-desc,
+.contact-sub{
+  color: var(--muted);
+}
+
+/* ===== RESUME DARK FIX ===== */
+body:not(.light-mode) .resume-paper{
+  background:#0f172a;
+  border:1px solid var(--border);
+}
+
+/* ===== SMOOTH TRANSITION ===== */
+body,
+.card,
+.project-card,
+.info-card,
+.contact-card,
+.resume-paper{
+  transition: background .35s ease,
+              color .35s ease,
+              border-color .35s ease;
 }
 
 /* ===== HEADER ===== */
+/* =========================================
+   💎 PREMIUM HEADER (FINAL POLISHED)
+========================================= */
+
 header{
-  position:sticky;top:0;z-index:10;
-  backdrop-filter:blur(12px);
-  background:rgba(5,8,22,.85);
-  border-bottom:1px solid rgba(255,255,255,.06);
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(18px);
+  background:linear-gradient(
+      to bottom,
+      rgba(15,23,42,.85),
+      rgba(15,23,42,.65)
+  );
+  border-bottom:1px solid rgba(148,163,184,.15);
+  box-shadow:0 8px 25px rgba(0,0,0,.45);
+  transition: all .3s ease;
 }
+
+body.light-mode header{
+  background:rgba(255,255,255,.75);
+  border-bottom:1px solid rgba(15,23,42,.08);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
 .nav{
   max-width:1100px;
   margin:auto;
-  padding:1rem 1.2rem;
+  padding:1rem 1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
+
+.logo span{
+  font-size:1rem;
+  letter-spacing:.08em;
+}
+
 .logo{font-weight:700;letter-spacing:.08em}
 
 /* ===== MAIN ===== */
@@ -75,7 +194,8 @@ section{padding:3.2rem 0 1.8rem}
 
 .hero-sub{
   max-width:40rem;
-  color:#e5e7eb;
+  color: var(--text);
+  opacity:.85;
   margin-bottom:.9rem;
 }
 
@@ -262,31 +382,87 @@ section{padding:3.2rem 0 1.8rem}
   justify-content:center;
 }
 
+/* =========================================
+   💎 CONTACT CARD – CLEAN PREMIUM VERSION
+========================================= */
+
 .contact-card{
   width:100%;
   max-width:900px;
   padding:3rem 2.5rem;
-  border-radius:1.9rem;
+  border-radius:1.8rem;
   text-align:center;
 
   background:
-    radial-gradient(circle at top,
-      rgba(56,189,248,.22),
-      rgba(15,23,42,.95) 60%);
-  border:1px solid rgba(148,163,184,.25);
-  box-shadow:0 40px 90px rgba(0,0,0,.85);
+    linear-gradient(145deg,
+      rgba(15,23,42,.95),
+      rgba(30,41,59,.85)
+    );
+
+  border:1px solid rgba(148,163,184,.2);
+  box-shadow:
+    0 35px 80px rgba(0,0,0,.75);
 }
 
+/* Light Mode */
+body.light-mode .contact-card{
+  background:#ffffff;
+  box-shadow:0 25px 60px rgba(0,0,0,.1);
+  border:1px solid rgba(15,23,42,.08);
+}
+
+/* Title */
 .contact-card h2{
   font-size:1.9rem;
   margin-bottom:.6rem;
+  color:var(--text);
 }
 
+/* Subtitle */
 .contact-sub{
-  color:#9ca3af;
+  color:var(--muted);
   max-width:520px;
-  margin:0 auto 2.2rem;
+  margin:0 auto 2rem;
   font-size:.95rem;
+}
+
+/* Inputs */
+.contact-form input,
+.contact-form textarea{
+  background:rgba(2,6,23,.85);
+  border:1px solid rgba(148,163,184,.25);
+  color:#e5e7eb;
+  border-radius:.8rem;
+  padding:.85rem 1rem;
+  transition:.25s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(56,189,248,.2);
+}
+
+/* Light Mode Inputs */
+body.light-mode .contact-form input,
+body.light-mode .contact-form textarea{
+  background:#f8fafc;
+  color:#0f172a;
+}
+
+/* Button */
+.contact-form button{
+  margin-top:1rem;
+  padding:.85rem;
+  border-radius:1rem;
+  font-weight:600;
+  background:linear-gradient(135deg,#38bdf8,#22c55e);
+  transition:.3s ease;
+}
+
+.contact-form button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 18px 40px rgba(56,189,248,.4);
 }
 
 /* ICONS */
@@ -369,22 +545,6 @@ section{padding:3.2rem 0 1.8rem}
   border-color: rgba(148,163,184,.35);
 }
 
-
-/* MOBILE */
-@media(max-width:600px){
-  .contact-card{
-    padding:2.2rem 1.6rem;
-  }
-  .contact-card h2{
-    font-size:1.6rem;
-  }
-    .contact-icons a{
-    width:52px;
-    height:52px;
-  }
-}
-
-
 /* DETAILS */
 .contact-details{
   max-width:420px;
@@ -416,13 +576,8 @@ section{padding:3.2rem 0 1.8rem}
 footer{
   padding:2rem;
   text-align:center;
-  font-size:.75rem;
-  color:#6b7280;
-}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:850px){
-  .hero{grid-template-columns:1fr}
+  font-size:.80rem;
+  color:#cacbcc;
 }
 
 /* ===== FIX CHROME AUTOFILL WHITE BACKGROUND ===== */
@@ -489,14 +644,6 @@ textarea:-webkit-autofill:focus {
   transition:.3s ease;
 }
 
-/* MOBILE */
-@media(max-width:850px){
-  .profile-image{
-    width:140px;
-    height:140px;
-  }
-}
-
 .hero-grid{
   display: grid;
   grid-template-columns: 3fr 2fr;
@@ -530,38 +677,11 @@ textarea:-webkit-autofill:focus {
   grid-row: 2;
 }
 
-
-/* MOBILE */
-@media(max-width:850px){
-  .hero-grid{
-    grid-template-columns:1fr;
-    row-gap:1.5rem;
-  }
-
-  .hero-left{ order:1; }
-  .hero-right{ order:2; }
-  .hero-summary{ order:3; }
-  .hero-focus{ order:4; }
-
-  .hero-right{
-    justify-content:center;
-  }
-  .hero-focus{
-    margin-top:.5rem;
-  }
-}
-
 .hero-image{
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 6rem; /* tweak: 0.3rem – 1rem */
-}
-
-@media(max-width:850px){
-  .hero-image{
-    margin: 0 auto 1.5rem;
-  }
 }
 
 .profile-section{
@@ -676,18 +796,6 @@ textarea:-webkit-autofill:focus {
   font-size:.82rem;
 }
 
-@media(max-width:600px){
-  .profile-section{
-    margin-top:3rem;
-  }
-
-  .project-grid,
-  .tools-grid{
-    grid-template-columns:1fr;
-  }
-
-}
-
 /* ===== PROFILE SECTIONS ===== */
 .profile-section{
   margin-top:3.5rem;
@@ -714,8 +822,8 @@ textarea:-webkit-autofill:focus {
 .info-card{
   padding:1.2rem;
   border-radius:1.1rem;
-  background:rgba(15,23,42,.85);
-  border:1px solid rgba(148,163,184,.25);
+  background: var(--panel);
+  border:1px solid var(--border);
 }
 
 .info-card h3{
@@ -724,18 +832,31 @@ textarea:-webkit-autofill:focus {
 }
 
 /* SKILLS */
+/* ===== SKILLS CHIPS (FINAL CLEAN VERSION) ===== */
+
 .skill-grid{
   display:flex;
   flex-wrap:wrap;
-  gap:.6rem;
+  gap:.7rem;
 }
 
 .skill-grid span{
   font-size:.75rem;
-  padding:.35rem .8rem;
+  padding:.45rem 1rem;
   border-radius:999px;
-  background:rgba(15,23,42,.8);
-  border:1px solid rgba(148,163,184,.25);
+  background: var(--panel);
+  border:1px solid var(--border);
+  color: var(--text);
+  white-space:nowrap;
+  transition: all .25s ease;
+}
+
+/* Hover */
+.skill-grid span:hover{
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56,189,248,.25);
 }
 
 /* HIGHLIGHTS */
@@ -758,83 +879,433 @@ textarea:-webkit-autofill:focus {
   font-size:.9rem;
 }
 
-/* MOBILE */
-@media(max-width:768px){
-  .two-col{
-    grid-template-columns:1fr;
-  }
-}
 .card h4{
   font-size:1.1rem;
   margin-bottom:.5rem;
 }
 
-/* ===== PROFESSIONAL DOCUMENT STYLE RESUME ===== */
+/* =========================================================
+   📄 PROFESSIONAL RESUME VIEWER (FINAL PRODUCTION VERSION)
+========================================================= */
 
+/* SECTION */
 .resume-section{
-  margin:6rem 0 4rem;
+  margin:5rem 0 3rem;
   text-align:center;
 }
 
-.resume-header {
-  margin-bottom: 13px;
+/* HEADER */
+.resume-header{
+  margin-bottom:1.5rem;
 }
+
 .resume-header h2{
-  font-size:2.2rem;
+  font-size:2rem;
   font-weight:600;
   letter-spacing:.02em;
 }
 
 .resume-header p{
-  font-size:1rem;
+  font-size:.95rem;
   color:#94a3b8;
-  max-width:600px;
+  max-width:620px;
   margin:0 auto;
 }
 
+/* VIEWER WRAPPER */
 .resume-viewer{
   display:flex;
   justify-content:center;
   align-items:center;
+  padding:0;
 }
 
+/* PAPER STYLE */
 .resume-paper{
-  width:820px;
-  max-width:100%;
-  background:#ffffff;
-  border-radius:8px;
+  width:100%;
+  max-width:860px;
+  background:#111827;   /* dark surface */
+  border-radius:14px;
   overflow:hidden;
-  box-shadow:
-    0 40px 80px rgba(0,0,0,.8),
-    0 0 0 1px rgba(255,255,255,.05);
+  border:1px solid rgba(148,163,184,.2);
+  box-shadow:0 40px 90px rgba(0,0,0,.85);
+  transition:.3s ease;
 }
 
+/* PDF FRAME */
 .resume-frame{
   width:100%;
-  height:1140px;
+  height:90vh;
   border:none;
-  margin-top: 0.4rem;
 }
 
+/* DOWNLOAD BUTTON */
 .resume-action{
-  margin-top:3rem;
+  margin-top:2.5rem;
 }
 
 .resume-action a{
-  display: inline-block;
-  padding: .45rem 1.0rem;
-  border-radius: .8rem;
-  text-decoration: none;
-  font-weight: 600;
-  background: linear-gradient(135deg,#38bdf8,#22c55e);
-  color: #000;
-  transition: .3s ease;
+  display:inline-block;
+  padding:.6rem 1.4rem;
+  border-radius:.9rem;
+  text-decoration:none;
+  font-weight:600;
+  background:linear-gradient(135deg,#38bdf8,#22c55e);
+  color:#000;
+  transition:.3s ease;
 }
 
 .resume-action a:hover{
   transform:translateY(-4px);
-  box-shadow:0 20px 40px rgba(56,189,248,.4);
+  box-shadow:0 25px 50px rgba(56,189,248,.45);
 }
+
+/* =========================================================
+   📱 PREMIUM RESPONSIVE SYSTEM (PRODUCTION OPTIMIZED)
+   Clean Breakpoints • Fluid Layout • No Layout Shift
+========================================================= */
+
+/* ---------- TABLET & BELOW (≤ 992px) ---------- */
+@media (max-width: 992px){
+
+  .hero-grid{
+    column-gap:2rem;
+    row-gap:2.5rem;
+  }
+
+  .resume-paper{
+    max-width:720px;
+  }
+
+  .resume-frame{
+    min-height:750px;
+    height:85vh;
+  }
+
+}
+
+
+/* ---------- SMALL TABLET / LARGE MOBILE (≤ 768px) ---------- */
+@media (max-width: 768px){
+
+  section{
+    padding:2.6rem 0 1.4rem;
+  }
+
+  .hero{
+    grid-template-columns:1fr;
+    gap:2rem;
+  }
+
+  .hero-grid{
+    grid-template-columns:1fr;
+    row-gap:2rem;
+  }
+
+  .hero-left,
+  .hero-right,
+  .hero-summary,
+  .hero-focus{
+    grid-column:auto;
+    grid-row:auto;
+  }
+
+  .hero-image{
+    margin-top:0;
+  }
+
+  .profile-image{
+    width:140px;
+    height:140px;
+  }
+
+  .two-col{
+    grid-template-columns:1fr;
+  }
+
+  .projects-grid,
+  .project-grid,
+  .tools-grid{
+    grid-template-columns:1fr;
+  }
+
+  .resume-section{
+    margin:2rem 0;
+  }
+
+  .resume-viewer{
+    padding:0;
+  }
+
+  .resume-paper{
+    border:none;
+    border-radius:0;
+    box-shadow:none;
+    max-width:100%;
+  }
+
+  .resume-frame{
+    height:calc(100vh - 70px); /* header height adjust */
+    min-height:600px;
+  }
+
+  .resume-action{
+    margin-top:1.8rem;
+  }
+
+  .contact-card{
+    padding:2.2rem 1.6rem;
+  }
+
+  .contact-card h2{
+    font-size:1.6rem;
+  }
+
+  .contact-icons a{
+    width:52px;
+    height:52px;
+  }
+
+}
+
+/* =====================================================
+   📱 CONTACT CARD – PREMIUM MOBILE REDESIGN
+===================================================== */
+
+@media (max-width: 768px){
+
+  .contact-wrap{
+    padding:3rem 1rem 2.5rem;
+  }
+
+  .contact-card{
+    padding:2.4rem 1.6rem;
+    border-radius:1.6rem;
+
+    background:
+      radial-gradient(circle at top,
+        rgba(56,189,248,.18),
+        rgba(15,23,42,.98) 65%);
+
+    box-shadow:0 25px 60px rgba(0,0,0,.8);
+  }
+
+  .contact-card h2{
+    font-size:1.55rem;
+    line-height:1.3;
+    margin-bottom:.6rem;
+  }
+
+  .contact-sub{
+    font-size:.88rem;
+    line-height:1.6;
+    margin-bottom:2rem;
+  }
+
+  /* ICON ROW */
+  .contact-icons{
+    gap:1rem;
+    margin-bottom:2rem;
+    flex-wrap:wrap;
+  }
+
+  .contact-icons a{
+    width:50px;
+    height:50px;
+    font-size:1.15rem;
+  }
+
+  /* Hide tooltip on mobile (cleaner UX) */
+  .contact-icons a::after{
+    display:none;
+  }
+
+  /* FORM */
+  .contact-form{
+    gap:.8rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea{
+    font-size:.9rem;
+    padding:.8rem .9rem;
+    border-radius:.8rem;
+  }
+
+  .contact-form textarea{
+    min-height:110px;
+  }
+
+  .contact-form button{
+    margin-top:.8rem;
+    padding:.85rem;
+    border-radius:.9rem;
+    font-size:.9rem;
+  }
+
+  main{
+    padding:2rem 1rem 2.5rem;
+  }
+
+  .hero h1{
+    font-size:2rem;
+  }
+
+  .hero-sub{
+    font-size:.95rem;
+  }
+
+  .profile-section{
+    margin-top:3rem;
+  }
+
+  .card,
+  .project-card,
+  .info-card{
+    padding:1rem;
+  }
+
+  .skill-grid span,
+  .mini-highlights span,
+  .badge{
+    font-size:.7rem;
+    padding:.3rem .7rem;
+  }
+
+  .contact-sub{
+    font-size:.85rem;
+  }
+
+  .resume-paper{
+    border-radius:0;   /* clean edge-to-edge look */
+  }
+
+  .resume-frame{
+    height:94vh;       /* almost full screen */
+    min-height:auto;
+  }
+
+  .resume-action a{
+    width:50%;
+    text-align:center;
+  }
+
+}
+
+/* ---------- EXTRA SMALL DEVICES (≤ 420px) ---------- */
+@media (max-width: 420px){
+
+  .hero h1{
+    font-size:1.75rem;
+  }
+
+  .availability-tag{
+    font-size:.65rem;
+    padding:.25rem .6rem;
+  }
+
+  .contact-icons{
+    gap:.8rem;
+  }
+
+  .contact-icons a{
+    width:46px;
+    height:46px;
+  }
+
+  .resume-frame{
+    height:96vh;
+  }
+
+  .contact-card{
+    padding:2rem 1.2rem;
+    border-radius:1.4rem;
+  }
+
+  .contact-card h2{
+    font-size:1.35rem;
+  }
+
+  .contact-sub{
+    font-size:.82rem;
+  }
+
+}
+
+/* =========================================
+   💎 PREMIUM THEME TOGGLE (CLEAN FINAL)
+========================================= */
+
+/* Toggle Button */
+.theme-toggle{
+  position:relative;
+  width:60px;
+  height:32px;
+  border:none;
+  background:none;
+  cursor:pointer;
+  padding:0;
+}
+
+/* Track */
+.toggle-track{
+  width:58px;
+  height:30px;
+  background:rgba(255,255,255,.15);
+  border-radius:999px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  padding:4px;
+  transition:.3s ease;
+}
+
+/* Thumb */
+.toggle-thumb{
+  width:22px;
+  height:22px;
+  background:linear-gradient(135deg,#38bdf8,#22c55e);
+  border-radius:50%;
+  transition:.35s cubic-bezier(.4,0,.2,1);
+  box-shadow:
+    0 0 10px rgba(56,189,248,.5),
+    0 4px 14px rgba(0,0,0,.4);
+}
+
+/* Light Mode Active */
+body.light-mode .toggle-track{
+  background:rgba(15,23,42,.15);
+}
+
+body.light-mode .toggle-thumb{
+  transform:translateX(28px);
+  background:linear-gradient(135deg,#f59e0b,#facc15);
+  box-shadow:
+    0 0 12px rgba(250,204,21,.5),
+    0 4px 14px rgba(0,0,0,.25);
+}
+
+/* ===== LEARNING SECTION (THEME SAFE) ===== */
+
+.learn ul{
+  list-style: disc;
+  padding-left:1.2rem;
+  margin-top:1rem;
+  color: var(--muted);
+  font-size:.95rem;
+  line-height:1.9;
+}
+
+.learn li{
+  margin-bottom:.4rem;
+  transition: color .25s ease;
+}
+
+/* Dark mode refinement */
+body:not(.light-mode) .learn ul{
+  color:#ffffff;
+}
+
 </style>
 </head>
 <body>
@@ -845,6 +1316,12 @@ textarea:-webkit-autofill:focus {
       <img src="assets/aj_logo.png" alt="Logo" class="logo-img">
       <span>𝘼𝙅𝘼𝙔 🦋</span>
     </div>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span class="toggle-track">
+        <span class="toggle-thumb"></span>
+      </span>
+    </button>
   </div>
 </header>
 
@@ -938,7 +1415,7 @@ textarea:-webkit-autofill:focus {
       <span class="badge">Security</span>
       <span class="badge">Data Integrity</span>
       <span class="badge">Access Control</span>
-      <span class="badge">Role Based</Base></span>
+      <span class="badge">Role Based</span>
     </div>
   </div>
 </section>
@@ -1063,7 +1540,7 @@ textarea:-webkit-autofill:focus {
 <section>
   <h2 class="section-title">Learning & Certifications</h2>
   <div class="learn">
-  <ul style="color:#e5e7eb;font-size:.9rem;line-height:1.8">
+    <ul>
     <li>Linux System Administration (Ongoing)</li>
     <li>Data Analytics Fundamentals</li>
     <li>Network & Information Security Basics</li>
@@ -1103,22 +1580,22 @@ textarea:-webkit-autofill:focus {
 
 <section class="resume-section">
   <div class="resume-header">
-    <h2>Professional Resume</h2>
-    <p>Impact-driven academic and technical portfolio highlighting structured problem solving and data orientation.</p>
+    <h2>Resume</h2>
+    <p>A data-centric academic and technical portfolio demonstrating analytical clarity, intelligent system design, and secure backend-oriented execution.</p>
   </div>
 
   <div class="resume-viewer">
     <div class="resume-paper">
       <iframe 
-        src="assets/Ajay_Chauhan_Resume.pdf#toolbar=0&zoom=100"
-        class="resume-frame">
+        class="resume-frame"
+        src="https://mozilla.github.io/pdf.js/web/viewer.html?file=https://ajaychauhanai.github.io/ajay-chauhan/assets/Ajay_Chauhan_Resume.pdf#zoom=page-width">
       </iframe>
     </div>
   </div>
 
   <div class="resume-action">
     <a href="assets/Ajay_Chauhan_Resume.pdf" download>
-      Download Full Resume
+      Download Resume
     </a>
   </div>
 </section>
@@ -1140,81 +1617,81 @@ textarea:-webkit-autofill:focus {
         </p>
 
     <!-- ICON ROW -->
-   <div class="contact-icons">
+    <div class="contact-icons">
 
-  <!-- GitHub -->
-  <a href="https://github.com/ajaychauhanAI"
-     target="_blank" rel="noopener"
-     title="GitHub" aria-label="GitHub">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M12 .5C5.7.5.5 5.8.5 12.2c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.1c-3.2.7-3.9-1.6-3.9-1.6-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.9 2.7 1.4.1-.7.4-1.1.7-1.4-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C17 4.7 18 5 18 5c.6 1.7.2 3 .1 3.3.8.9 1.2 2 1.2 3.3 0 4.6-2.8 5.6-5.4 5.9.4.3.8 1 .8 2v3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.8 18.3.5 12 .5z"/>
-    </svg>
-  </a>
+      <!-- GitHub -->
+      <a href="https://github.com/ajaychauhanAI"
+        target="_blank" rel="noopener"
+        title="GitHub" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M12 .5C5.7.5.5 5.8.5 12.2c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.1c-3.2.7-3.9-1.6-3.9-1.6-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.8 1.9 2.7 1.4.1-.7.4-1.1.7-1.4-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.3 1.2a11.3 11.3 0 0 1 6 0C17 4.7 18 5 18 5c.6 1.7.2 3 .1 3.3.8.9 1.2 2 1.2 3.3 0 4.6-2.8 5.6-5.4 5.9.4.3.8 1 .8 2v3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.8 18.3.5 12 .5z"/>
+        </svg>
+      </a>
 
-  <!-- LinkedIn -->
-  <a href="https://www.linkedin.com/in/ajay-chauhan-9053893a3?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
-     target="_blank" rel="noopener"
-     title="LinkedIn" aria-label="LinkedIn">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M4.98 3.5C4.98 4.9 3.9 6 2.5 6S0 4.9 0 3.5 1.08 1 2.48 1s2.5 1.1 2.5 2.5zM.5 23.5h4V7.5h-4v16zM8.5 7.5h3.8v2.2h.1c.5-1 1.8-2.3 3.8-2.3 4 0 4.8 2.6 4.8 6v9.9h-4v-8.8c0-2.1 0-4.8-3-4.8s-3.4 2.3-3.4 4.6v9H8.5v-16z"/>
-    </svg>
-  </a>
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/in/ajay-chauhan-9053893a3?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+        target="_blank" rel="noopener"
+        title="LinkedIn" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M4.98 3.5C4.98 4.9 3.9 6 2.5 6S0 4.9 0 3.5 1.08 1 2.48 1s2.5 1.1 2.5 2.5zM.5 23.5h4V7.5h-4v16zM8.5 7.5h3.8v2.2h.1c.5-1 1.8-2.3 3.8-2.3 4 0 4.8 2.6 4.8 6v9.9h-4v-8.8c0-2.1 0-4.8-3-4.8s-3.4 2.3-3.4 4.6v9H8.5v-16z"/>
+        </svg>
+      </a>
 
-  <!-- Email -->
-  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ajaycha1232a@gmail.com"
-   target="_blank"
-   rel="noopener"
-   title="Email" aria-label="Email">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
-    </svg>
-  </a>
+      <!-- Email -->
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=ajaycha1232a@gmail.com"
+        target="_blank"
+        rel="noopener"
+        title="Email" aria-label="Email">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+      </a>
 
-  <!-- WhatsApp -->
-  <a href="https://wa.me/916386773934?text=Hello%20Ajay"
-     target="_blank" rel="noopener"
-     title="WhatsApp" aria-label="WhatsApp">
-  <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor">
-    <path d="M16.01 2.01C8.83 2.01 3 7.84 3 15.02c0 2.64.69 5.12 1.9 7.28L3 30l7.92-2.06a12.9 12.9 0 0 0 5.09 1.02h.01c7.18 0 13.01-5.83 13.01-13.01 0-7.18-5.83-12.94-13.02-12.94zm0 23.57c-1.63 0-3.23-.43-4.63-1.25l-.33-.2-4.7 1.23 1.26-4.57-.21-.34a9.57 9.57 0 0 1-1.48-5.13c0-5.33 4.34-9.67 9.69-9.67 5.34 0 9.68 4.34 9.68 9.67 0 5.34-4.34 9.67-9.68 9.67zm5.32-7.24c-.29-.15-1.71-.84-1.98-.94-.27-.1-.47-.15-.66.15-.2.29-.76.94-.93 1.14-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.49-.66-.5h-.57c-.2 0-.52.07-.79.37-.27.29-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.11 3.23 5.11 4.53.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.08 1.71-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.27-.2-.56-.35z"/>
-  </svg>
-</a>
+      <!-- WhatsApp -->
+      <a href="https://wa.me/916386773934?text=Hello%20Ajay"
+        target="_blank" rel="noopener"
+        title="WhatsApp" aria-label="WhatsApp">
+        <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor">
+          <path d="M16.01 2.01C8.83 2.01 3 7.84 3 15.02c0 2.64.69 5.12 1.9 7.28L3 30l7.92-2.06a12.9 12.9 0 0 0 5.09 1.02h.01c7.18 0 13.01-5.83 13.01-13.01 0-7.18-5.83-12.94-13.02-12.94zm0 23.57c-1.63 0-3.23-.43-4.63-1.25l-.33-.2-4.7 1.23 1.26-4.57-.21-.34a9.57 9.57 0 0 1-1.48-5.13c0-5.33 4.34-9.67 9.69-9.67 5.34 0 9.68 4.34 9.68 9.67 0 5.34-4.34 9.67-9.68 9.67zm5.32-7.24c-.29-.15-1.71-.84-1.98-.94-.27-.1-.47-.15-.66.15-.2.29-.76.94-.93 1.14-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.49-.66-.5h-.57c-.2 0-.52.07-.79.37-.27.29-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.11 3.23 5.11 4.53.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.08 1.71-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.27-.2-.56-.35z"/>
+        </svg>
+      </a>
 
-  <!-- Instagram -->
-  <a href="https://www.instagram.com/ajay_chauhan_._._/"
-     target="_blank" rel="noopener"
-     title="Instagram" aria-label="Instagram">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm10 2c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 7.3A2.8 2.8 0 1 1 14.8 12 2.8 2.8 0 0 1 12 14.8zM17.8 6.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
-    </svg>
-  </a>
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/ajay_chauhan_._._/"
+        target="_blank" rel="noopener"
+        title="Instagram" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm10 2c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 7.3A2.8 2.8 0 1 1 14.8 12 2.8 2.8 0 0 1 12 14.8zM17.8 6.2a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+        </svg>
+      </a>
 
-  <!-- Facebook -->
-  <a href="https://www.facebook.com/profile.php?id=100030164265023"
-     target="_blank" rel="noopener"
-     title="Facebook" aria-label="Facebook">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-2.9h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6v2h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12z"/>
-    </svg>
-  </a>
+      <!-- Facebook -->
+      <a href="https://www.facebook.com/profile.php?id=100030164265023"
+        target="_blank" rel="noopener"
+        title="Facebook" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-2.9h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.3.2 2.3.2v2.5h-1.3c-1.3 0-1.7.8-1.7 1.6v2h2.9l-.5 2.9h-2.4v7A10 10 0 0 0 22 12z"/>
+        </svg>
+      </a>
 
-  <!-- Telegram -->
-  <a href="https://t.me/AJAY"
-     target="_blank" rel="noopener"
-     title="Telegram" aria-label="Telegram">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M9.9 16.2 9.7 19c.4 0 .6-.2.8-.4l1.9-1.8 4 2.9c.7.4 1.2.2 1.4-.7l2.5-11.8c.3-1-.3-1.4-1-1.1L3.1 10c-1 .4-1 .9-.2 1.1l4.3 1.3 9.9-6.3c.5-.3.9-.1.6.2"/>
-    </svg>
-  </a>
+      <!-- Telegram -->
+      <a href="https://t.me/AJAY"
+        target="_blank" rel="noopener"
+        title="Telegram" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M9.9 16.2 9.7 19c.4 0 .6-.2.8-.4l1.9-1.8 4 2.9c.7.4 1.2.2 1.4-.7l2.5-11.8c.3-1-.3-1.4-1-1.1L3.1 10c-1 .4-1 .9-.2 1.1l4.3 1.3 9.9-6.3c.5-.3.9-.1.6.2"/>
+        </svg>
+      </a>
 
-</div>
+    </div>
 
     <!-- CONTACT DETAILS -->
-  <form class="contact-form" id="contactForm">
-  <input type="text" name="name" placeholder="Your Name" required>
-  <input type="email" name="email" placeholder="Your Email" required>
-  <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
-  <button type="submit">Send Message</button>
-</form>
+    <form class="contact-form" id="contactForm">
+      <input type="text" name="name" placeholder="Your Name" required>
+      <input type="email" name="email" placeholder="Your Email" required>
+      <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
 
   </div>
 </section>
@@ -1258,7 +1735,60 @@ document.getElementById("contactForm").addEventListener("submit", function(e){
     console.error(error);
   });
 });
+
 </script>
 
+<script>
+const toggleBtn = document.getElementById("themeToggle");
+const body = document.body;
+
+/* Load saved theme */
+if(localStorage.getItem("theme") === "light"){
+  body.classList.add("light-mode");
+}
+
+/* System preference */
+if(!localStorage.getItem("theme")){
+  if(window.matchMedia("(prefers-color-scheme: light)").matches){
+    body.classList.add("light-mode");
+  }
+}
+
+toggleBtn.addEventListener("click", () => {
+  body.classList.toggle("light-mode");
+
+  if(body.classList.contains("light-mode")){
+    localStorage.setItem("theme","light");
+  } else {
+    localStorage.setItem("theme","dark");
+  }
+});
+</script>
+
+<script>
+function adjustResumeHeight() {
+
+  const iframe = document.querySelector(".resume-frame");
+  const header = document.querySelector("header");
+
+  if (!iframe || !header) return;
+
+  if (window.innerWidth <= 768) {
+
+    const headerHeight = header.offsetHeight;
+    const availableHeight = window.innerHeight - headerHeight;
+
+    iframe.style.height = availableHeight + "px";
+
+  } else {
+
+    iframe.style.height = "90vh"; // desktop default
+
+  }
+}
+
+window.addEventListener("load", adjustResumeHeight);
+window.addEventListener("resize", adjustResumeHeight);
+</script>
 </body>
 </html>
