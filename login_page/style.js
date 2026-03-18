@@ -287,16 +287,11 @@ function loginUser(e) {
     return false;
   }
 
+  /* ========= FAST UI UPDATE (MINIMIZED REFLOW) ========= */
   if (btn) {
     btn.disabled = true;
     btn.textContent = "Logging in...";
-    btn.style.opacity = "0.7";
-  }
-
-  if (msg) {
-    msg.textContent = "Logging you in...";
-    msg.style.display = "block";
-    msg.style.color = "#00d4ff";
+    btn.style.cssText += "opacity:0.7;";
   }
 
   if (passMsg) passMsg.style.display = "none";
@@ -324,7 +319,7 @@ function loginUser(e) {
       os
     })
   })
-  .then(res => res.json())
+  .then(res => res.ok ? res.json() : Promise.reject())
   .then(data => {
 
     if (!data || !data.status) {
@@ -336,8 +331,11 @@ function loginUser(e) {
     /* ================= SUCCESS ================= */
     if (status === "success") {
 
+      const now = Date.now();
+
+      // ⚡ grouped storage (faster execution)
       localStorage.setItem("SESSION", data.sessionToken);
-      localStorage.setItem("SESSION_START", Date.now());
+      localStorage.setItem("SESSION_START", now);
       localStorage.setItem("NAME", data.name || "");
       localStorage.setItem("BATCH", data.batch || "");
       localStorage.setItem("ROLE", data.role);
@@ -346,11 +344,12 @@ function loginUser(e) {
         localStorage.removeItem("EMAIL");
       }
 
-      /* ⚡ FAST REDIRECT */
-      window.location.href =
+      /* ⚡ FAST NAVIGATION (NO BACK HISTORY) */
+      window.location.replace(
         data.role === "admin"
           ? "../admin_page/admin_dashboard.html"
-          : "../student_page/student_dashboard.html";
+          : "../student_page/student_dashboard.html"
+      );
 
       return;
     }
@@ -359,8 +358,7 @@ function loginUser(e) {
 
     if (!msg) return;
 
-    msg.style.display = "block";
-    msg.style.color = "#ff6b6b";
+    msg.style.cssText = "display:block;color:#ff6b6b;";
 
     switch (status) {
 
@@ -393,8 +391,7 @@ function loginUser(e) {
           passMsg.textContent = "❌ Incorrect password.";
         }
 
-        passMsg.style.color = "#ff3b3b";
-        passMsg.style.display = "block";
+        passMsg.style.cssText = "display:block;color:#ff3b3b;";
 
         if (forgotLink) forgotLink.style.display = "inline-block";
         loginPassword?.classList.add("input-error");
@@ -422,10 +419,8 @@ function loginUser(e) {
   })
   .catch(() => {
     if (msg) {
-      msg.textContent =
-        "⚠️ Server error. Please try again.";
-      msg.style.display = "block";
-      msg.style.color = "#ffaa00";
+      msg.style.cssText = "display:block;color:#ffaa00;";
+      msg.textContent = "⚠️ Server error. Please try again.";
     }
   })
   .finally(release);
