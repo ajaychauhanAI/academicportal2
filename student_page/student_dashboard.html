@@ -189,21 +189,37 @@
 
 <section class="smart-widgets">
 
-  <!-- Smart Summary -->
+  <!-- 1️⃣ RECENT ACTION -->
   <div class="widget-card">
-    <h3>🌤️ Today</h3>
-    <div class="widget-row">
-      <span>Notes Uploaded</span>
-      <strong id="todayNotes">0</strong>
+    <h3>⚡ Recent Actions</h3>
+    <div id="recentActions"></div>
+  </div>
+
+  <!-- 2️⃣ LATEST UPDATES -->
+  <div class="widget-card reminder">
+    <h3>📦 Latest Updates</h3>
+    <div id="latestUploads"></div>
+  </div>
+
+  <!-- 3️⃣ SMART FOCUS -->
+  <div class="widget-card activity-score">
+
+    <h3>🎯 Smart Focus</h3>
+
+    <div class="focus-box">
+
+      <div class="focus-status">
+        <span id="focusBadge" class="focus-badge">Active</span>
+      </div>
+
+      <p id="studyReminder">Analyzing your activity...</p>
+
+      <div class="focus-progress">
+        <div id="focusBar"></div>
+      </div>
+
     </div>
-    <div class="widget-row">
-      <span>Assignments</span>
-      <strong id="todayAssignments">0</strong>
-    </div>
-    <div class="widget-row">
-      <span>Notices</span>
-      <strong id="todayNotices">0</strong>
-    </div>
+
   </div>
 
   <!-- Learning Heatmap -->
@@ -241,43 +257,6 @@
     <div class="legend-box level-3"></div>
     <div class="legend-box level-4"></div>
     <span>High Activity</span>
-  </div>
-
-</div>
-
-  <!-- Reminder -->
-  <div class="widget-card reminder">
-    <h3>⏰ Study Reminder</h3>
-    <p id="studyReminder">
-      You have pending assignments. Complete them today.
-    </p>
-  </div>
-
-  <!-- Activity Score -->
-<div class="widget-card activity-score">
-
-  <h3>🏆 Activity Score</h3>
-
-  <div class="widget-row">
-    <span>Notes Viewed</span>
-    <strong id="scoreNotes">0</strong>
-  </div>
-
-  <div class="widget-row">
-    <span>Assignments Opened</span>
-    <strong id="scoreAssignments">0</strong>
-  </div>
-
-  <div class="widget-row">
-    <span>Resources Downloaded</span>
-    <strong id="scoreDownloads">0</strong>
-  </div>
-
-  <div class="score-progress">
-    <div class="score-bar">
-      <div id="scoreFill"></div>
-    </div>
-    <div id="scorePercent">0%</div>
   </div>
 
 </div>
@@ -364,6 +343,22 @@
   </main>
 
 </div>
+
+<div id="heatmapModal" class="heatmap-modal">
+
+  <div class="heatmap-modal-box">
+
+    <div class="heatmap-modal-header">
+      <h3 id="heatmapDate">📅 Date</h3>
+      <button onclick="closeHeatmapModal()">✖</button>
+    </div>
+
+    <div id="heatmapList" class="heatmap-modal-body"></div>
+
+  </div>
+
+</div>
+
 <script src="../login_page/style.js"></script>
 <script src="student_common.js"></script>
 <!-- ===========================

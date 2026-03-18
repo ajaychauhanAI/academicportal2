@@ -1904,7 +1904,7 @@ body.light-mode .main{
 
 .widget-card{
   background:#ffffff;
-  padding:18px;
+  padding:12px 14px;
   border-radius:14px;
   box-shadow:0 8px 24px rgba(0,0,0,.06);
   min-height:160px;
@@ -1922,14 +1922,72 @@ body.light-mode .main{
   font-weight:700;
   color:#0f172a;
 }
-/* ================= TABLET ================= */
 
-@media (max-width:1200px){
+.widget-row span{
+  max-width:70%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
 
-  .smart-widgets{
-    grid-template-columns:repeat(3,1fr);
-  }
+.widget-row{
+  transition:.2s;
+}
 
+.widget-row:hover{
+  transform:translateX(4px);
+}
+
+/* =============================
+   🔥 EMPTY DASHBOARD
+============================= */
+
+.empty-dashboard{
+  text-align:center;
+  padding:40px 20px;
+}
+
+.empty-icon{
+  font-size:40px;
+  margin-bottom:10px;
+}
+
+.empty-title{
+  font-size:18px;
+  font-weight:600;
+}
+
+.empty-subtitle{
+  color:#64748b;
+  margin-top:6px;
+}
+
+.empty-refresh-btn{
+  margin-top:14px;
+  padding:6px 14px;
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.empty-refresh-btn:hover{
+  background:#1d4ed8;
+}
+
+/* =============================
+   🔥 TOAST ANIMATION
+============================= */
+
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(-10px)}
+  to{opacity:1;transform:none}
+}
+
+@keyframes toastOut{
+  from{opacity:1}
+  to{opacity:0;transform:translateY(-10px)}
 }
 /* ================= WIDGET ROW ================= */
 
@@ -1982,6 +2040,67 @@ body.light-mode .main{
   text-decoration:underline;
 }
 
+/* =============================
+   🔥 ACTIVITY FEED PRO UI
+============================= */
+
+.activity-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 4px;
+  border-radius:10px;
+  transition:.2s;
+}
+
+.activity-item:hover{
+  background:#f1f5f9;
+  transform:translateX(4px);
+}
+
+.activity-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:75%;
+}
+
+.activity-icon{
+  font-size:18px;
+}
+
+.activity-info{
+  overflow:hidden;
+}
+
+.activity-title{
+  font-weight:600;
+  font-size:9.6px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.activity-meta{
+  font-size:11px;
+  color:#64748b;
+}
+
+.activity-time{
+  font-size:11px;
+  font-weight:600;
+  color:#2563eb;
+}
+
+.empty-activity{
+  text-align:center;
+  color:#64748b;
+  padding:10px;
+}
+
+#recentActions{
+  padding:0;   /* 🔥 remove extra inner spacing */
+}
 /* ================= ACTIVITY SCORE ================= */
 
 .activity-score .score-progress{
@@ -2008,6 +2127,80 @@ body.light-mode .main{
   font-size:13px;
   font-weight:600;
   color:#2563eb;
+}
+
+/* =============================
+   🔥 PRO LATEST UPDATES UI
+============================= */
+
+.update-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 6px;
+  border-radius:10px;
+  transition:.2s;
+}
+
+.update-item:hover{
+  background:rgba(255,255,255,.25);
+  transform:translateX(3px);
+}
+
+.update-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:70%;
+}
+
+.update-info{
+  display:flex;
+  flex-direction:column;
+}
+
+.update-title{
+  font-size:13px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.update-meta{
+  font-size:11px;
+  color:#64748b;
+}
+
+.update-view-btn{
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  padding:4px 10px;
+  border-radius:8px;
+  font-size:12px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.update-view-btn:hover{
+  background:#1d4ed8;
+}
+
+/* 🔥 NEW BADGE */
+.badge-new{
+  background:#22c55e;
+  color:#fff;
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:6px;
+  margin-left:6px;
+}
+
+/* 🔥 NEW ITEM GLOW */
+.update-item.new{
+  animation:fadeIn .4s ease;
+  border-left:3px solid #22c55e;
 }
 
 /* =================================================
@@ -2217,6 +2410,122 @@ body.sidebar-open #neo-toggle{
   display:none;
 }
 
+.recent-item{
+padding:10px 12px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
+}
+
+.weekly-access-count{
+margin-top:10px;
+font-size:13px;
+color:#64748b;
+}
+
+@keyframes livePulse{
+  0%{box-shadow:0 0 0 0 rgba(14,165,233,.6)}
+  100%{box-shadow:0 0 0 10px transparent}
+}
+
+.update-item.new{
+  animation:livePulse .8s ease;
+}
+
+/* BACKDROP */
+.heatmap-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+/* BOX */
+.heatmap-modal-box{
+  width:320px;
+  max-height:400px;
+  background:#0f172a;
+  color:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  animation:popupIn 0.25s ease;
+}
+
+/* HEADER */
+.heatmap-modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.heatmap-modal-header button{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* BODY */
+.heatmap-modal-body{
+  padding:12px 16px;
+  overflow-y:auto;
+  max-height:300px;
+}
+
+.heatmap-item{
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:6px;
+  background:rgba(255,255,255,0.05);
+}
+
+/* ANIMATION */
+@keyframes popupIn{
+  from{transform:scale(0.9); opacity:0;}
+  to{transform:scale(1); opacity:1;}
+}
+
+/* =========================
+   🔥 SMART FOCUS PRO UI
+========================= */
+
+.focus-box{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.focus-badge{
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#22c55e;
+  color:#022c22;
+  font-weight:600;
+  display:inline-block;
+}
+
+.focus-progress{
+  width:100%;
+  height:6px;
+  background:rgba(255,255,255,0.1);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+#focusBar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#22c55e,#4ade80);
+  transition:width .4s ease;
+}
+
 /* ======================================================
    BCADS DASHBOARD RESPONSIVE SYSTEM
    Premium Production Layout
@@ -2231,17 +2540,17 @@ body.sidebar-open #neo-toggle{
 
 /* ===== LAYOUT ===== */
 
-.layout{
-  flex-direction:column;
-}
+  .layout{
+    flex-direction:column;
+  }
 
 
-/* ===== SIDEBAR ===== */
+  /* ===== SIDEBAR ===== */
 
-.sidebar{
-  position:fixed;
-  top:0;
-  left:10px;
+  .sidebar{
+    position:fixed;
+    top:0;
+    left:10px;
   right:180px;
 
   width:auto;
@@ -2493,25 +2802,25 @@ body.sidebar-open #neo-toggle{
 
 @media (min-width:601px) and (max-width:900px){
 
-.cards{
-  grid-template-columns:repeat(2,1fr);
-}
+  .cards{
+    grid-template-columns:repeat(2,1fr);
+  }
 
-.grid{
-  grid-template-columns:repeat(2,1fr);
-}
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
 
-.smart-widgets{
-  grid-template-columns:repeat(2,1fr);
-}
+  .smart-widgets{
+    grid-template-columns:repeat(2,1fr);
+  }
 
-.dashboard-lower-grid{
-  grid-template-columns:1fr;
-}
+  .dashboard-lower-grid{
+    grid-template-columns:1fr;
+  }
 
-.notif-dropdown{
-  width:90%;
-}
+  .notif-dropdown{
+    width:90%;
+  }
 
 }
 
@@ -2523,21 +2832,21 @@ body.sidebar-open #neo-toggle{
 
 @media (min-width:901px) and (max-width:1200px){
 
-.cards{
-  grid-template-columns:repeat(3,1fr);
-}
+  .cards{
+    grid-template-columns:repeat(3,1fr);
+  }
 
-.grid{
-  grid-template-columns:repeat(3,1fr);
-}
+  .grid{
+    grid-template-columns:repeat(3,1fr);
+  }
 
-.smart-widgets{
-  grid-template-columns:repeat(3,1fr);
-}
+  .smart-widgets{
+    grid-template-columns:repeat(3,1fr);
+  }
 
-.dashboard-lower-grid{
-  grid-template-columns:2fr 1fr;
-}
+  .dashboard-lower-grid{
+    grid-template-columns:2fr 1fr;
+  }
 
 }
 
@@ -2549,37 +2858,28 @@ body.sidebar-open #neo-toggle{
 
 @media (min-width:1200px){
 
-.cards{
-  grid-template-columns:repeat(5,1fr);
-}
+  .smart-widgets{
+    grid-template-columns:repeat(3,1fr);
+  }
 
-.smart-widgets{
-  grid-template-columns:repeat(5,1fr);
-}
+  .cards{
+    grid-template-columns:repeat(5,1fr);
+  }
+ 
+  .smart-widgets{
+    grid-template-columns:repeat(5,1fr);
+  }
 
-.grid{
-  grid-template-columns:repeat(3,1fr);
-}
+  .grid{
+    grid-template-columns:repeat(3,1fr);
+  }
 
-.dashboard-lower-grid{
-  grid-template-columns:2fr 1fr;
-}
+  .dashboard-lower-grid{
+    grid-template-columns:2fr 1fr;
+  }
 
-.profile-dropdown{
-  width:280px;
-}
+  .profile-dropdown{
+    width:280px;
+  }
 
 }
-
-.recent-item{
-padding:10px 12px;
-border-bottom:1px solid #e5e7eb;
-font-size:14px;
-}
-
-.weekly-access-count{
-margin-top:10px;
-font-size:13px;
-color:#64748b;
-}
-

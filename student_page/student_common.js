@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     /* =========================
-       🚀 INSTANT UI RENDER
+       🚀 INSTANT UI BOOT
     ========================= */
 
     initSidebar();
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     startClock();
     renderGreeting();
     resetStudentSummary();
-    showDashboard();   // UI instantly show
+    showDashboard();   // ⚡ instant UI
 
 
     /* =========================
@@ -97,12 +97,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    lastContentVersion = data.contentVersion || "0";
-
-
     /* =========================
-       🧠 SAFE DATA STORE
+       🧠 STATE INIT
     ========================= */
+
+    lastContentVersion = data.contentVersion || "0";
 
     allContent = Array.isArray(data.content)
       ? data.content
@@ -124,7 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     /* =========================
-       🏆 ACTIVITY SCORE DATA
+       🏆 ACTIVITY SCORE INIT
     ========================= */
 
     setText("prodNotes", dashboardSummary.views);
@@ -135,8 +134,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     setText("engAssignments", dashboardSummary.assignmentsOpened);
     setText("engDownloads", dashboardSummary.downloads);
 
+
     /* =========================
-       ⚡ NON-BLOCKING RENDER
+       ⚡ NON-BLOCKING UI RENDER
     ========================= */
 
     requestAnimationFrame(() => {
@@ -147,20 +147,75 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderAcademicResources();
       renderSmartWidgets();
 
-      updateTodayOverview();
-      updateActivityScore();
+      renderRecentActions();
+      renderLatestUploads();
+
       updateNewsBadge();
 
     });
 
 
     /* =========================
-       🔄 AUTO CONTENT UPDATE
+       🔥 PRO MAX LIVE ENGINE
     ========================= */
 
-    if (typeof checkContentUpdate === "function") {
-      setInterval(checkContentUpdate, 10000);
-    }
+    let lastSyncTime = 0;
+
+    setInterval(async () => {
+
+      if (Date.now() - lastSyncTime < 3000) return;
+
+      try {
+
+        const res = await studentFetch({
+          action: "check_update",
+          version: lastContentVersion,
+          sessionToken: getSessionToken()
+        });
+
+        if (res?.updated) {
+
+          lastSyncTime = Date.now();
+
+          /* ======================
+             🔄 UPDATE STATE
+          ====================== */
+
+          allContent = res.content || [];
+          lastContentVersion = res.contentVersion;
+
+          /* ======================
+             ⚡ SMOOTH UI UPDATE
+          ====================== */
+
+          requestAnimationFrame(() => {
+
+            renderLatestUploads();
+            renderRecentActions();
+            renderNews();
+            renderAcademicResources();
+            renderUpcomingDeadlines();
+            updateActivityScore();
+            updateNewsBadge();
+
+          });
+
+          /* ======================
+             🔔 USER FEEDBACK
+          ====================== */
+
+          if (typeof showLiveToast === "function") {
+            showLiveToast("New update received 🚀");
+          }
+
+        }
+
+      } catch (err) {
+        console.warn("Live sync error");
+      }
+
+    }, 3000); // ⚡ ultra smooth real-time
+
 
   } catch (err) {
 
@@ -171,21 +226,109 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
-function showEmptyDashboard() {
-  resetView();
-  show("#contentGrid", "grid");
+function showEmptyDashboard(){
 
-  const grid = document.getElementById("contentGrid");
-  if (grid) {
+  try{
+
+    resetView();
+    show("#contentGrid","grid");
+
+    const grid = document.getElementById("contentGrid");
+    if(!grid) return;
+
     grid.innerHTML = `
-      <div class="content-card" style="text-align:center">
-        <h3>📭 No content available</h3>
-        <p style="color:#64748b">
-          Please refresh or try again later.
+      <div class="content-card empty-dashboard">
+
+        <div class="empty-icon">📭</div>
+
+        <h3 class="empty-title">
+          No content available
+        </h3>
+
+        <p class="empty-subtitle">
+          Please refresh or check back later.
         </p>
+
+        <button class="empty-refresh-btn"
+          onclick="location.reload()">
+          🔄 Refresh
+        </button>
+
       </div>
     `;
+
+  }catch(err){
+    console.warn("Empty dashboard render failed", err);
   }
+
+}
+
+function showLiveToast(message = "Update", type = "info"){
+
+  try{
+
+    /* ======================
+       CONTAINER (SINGLE)
+    ====================== */
+    let container = document.getElementById("toastContainer");
+
+    if(!container){
+      container = document.createElement("div");
+      container.id = "toastContainer";
+
+      container.style.cssText = `
+        position:fixed;
+        top:20px;
+        right:20px;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        z-index:9999;
+      `;
+
+      document.body.appendChild(container);
+    }
+
+    /* ======================
+       CREATE TOAST
+    ====================== */
+    const toast = document.createElement("div");
+
+    /* ---------- COLORS ---------- */
+    let bg = "#0ea5e9"; // info
+
+    if(type==="success") bg = "#22c55e";
+    else if(type==="error") bg = "#ef4444";
+    else if(type==="warning") bg = "#f59e0b";
+
+    toast.innerText = message;
+
+    toast.style.cssText = `
+      background:${bg};
+      color:white;
+      padding:10px 14px;
+      border-radius:8px;
+      font-size:13px;
+      min-width:180px;
+      box-shadow:0 10px 25px rgba(0,0,0,.2);
+      animation:toastIn .3s ease;
+      opacity:0.95;
+    `;
+
+    container.appendChild(toast);
+
+    /* ======================
+       AUTO REMOVE
+    ====================== */
+    setTimeout(()=>{
+      toast.style.animation = "toastOut .3s ease";
+      setTimeout(()=>toast.remove(),300);
+    },2000);
+
+  }catch(err){
+    console.warn("Toast failed", err);
+  }
+
 }
 
 function initSidebar() {
@@ -332,7 +475,7 @@ function resetView() {
   hide("#subjectProgress");
   hide("#deadlineBox");
   hide(".quick-actions");   // ✅ ADD THIS
-  
+  hide("#academicResourceGrid");   // ✅ ADD THIS
   hide(".smart-widgets");   // ✅ ADD THIS
 }
 
@@ -343,7 +486,8 @@ function showDashboard() {
   show(".smart-widgets","grid");
   show("#newsSection", "block");
   show("#subjectProgress", "block");
-  show("#deadlineBox", "block");
+  show("#deadlineBox", "flex");
+  show("#academicResourceGrid", "grid");   // ✅ ADD THIS
   renderAcademicResources();
   setPageTitle("Student Dashboard Overview", "📊");
 }
@@ -469,7 +613,7 @@ function renderContent(list = []) {
                 <a href="${sanitizeURL(i.fileUrl)}"
                    target="_blank"
                    class="view"
-                   onclick="trackView('${i.id}')">
+                   onclick="trackView('${i.id}','${i.type}')">
                    View
                 </a>
 
@@ -636,7 +780,10 @@ function handleDashboardSearch(query) {
   ====================== */
   const EXCLUDED_TYPES = new Set([
     "MESSAGE",
-    "LATEST_NEWS"
+    "LATEST_NEWS",
+    "ACADEMIC_CALENDAR",
+    "SYLLABUS",
+    "HOLIDAY_LIST"
   ]);
 
   /* ======================
@@ -987,129 +1134,265 @@ function sanitizeURL(url) {
 function trackView(uploadId, type){
 
   /* ======================
-     BACKEND TRACK
+     SAFE ITEM FETCH
   ====================== */
+  let item = null;
 
-  studentFetch({
-    action: "track",
-    uploadId,
-    actionType: "VIEWED",
-    sessionToken: getSessionToken()
-  });
+  try{
+    item = Array.isArray(allContent)
+      ? allContent.find(c => c.id === uploadId)
+      : null;
+  }catch(e){
+    console.warn("Item find failed", e);
+  }
 
+  /* ======================
+     ACTIVITY TRACK (LOCAL)
+  ====================== */
+  try{
+    if(typeof logActivity === "function" && item){
+      logActivity("VIEW", item);
+    }
+  }catch(e){
+    console.warn("Activity log failed", e);
+  }
+
+  /* ======================
+     BACKEND TRACK (ASYNC)
+  ====================== */
+  try{
+    studentFetch({
+      action: "track",
+      uploadId,
+      actionType: "VIEWED",
+      sessionToken: getSessionToken()
+    }).catch(()=>{});
+  }catch(e){
+    console.warn("Backend track failed", e);
+  }
 
   /* ======================
      UI INSTANT UPDATE
   ====================== */
-
   try{
 
     const t = String(type || "").toUpperCase();
 
     /* ---------- NOTES ---------- */
-
     if(t === "NOTES"){
 
       const notesEl = document.getElementById("prodNotes");
       const engNotes = document.getElementById("engNotes");
 
-      if(notesEl) notesEl.innerText = Number(notesEl.innerText) + 1;
-      if(engNotes) engNotes.innerText = Number(engNotes.innerText) + 1;
+      if(notesEl){
+        notesEl.innerText = (Number(notesEl.innerText) || 0) + 1;
+      }
+
+      if(engNotes){
+        engNotes.innerText = (Number(engNotes.innerText) || 0) + 1;
+      }
     }
 
     /* ---------- ASSIGNMENTS ---------- */
-
-    if(t === "ASSIGNMENT"){
+    else if(t === "ASSIGNMENT"){
 
       const assignEl = document.getElementById("scoreAssignments");
 
       if(assignEl){
-        const current = Number(assignEl.innerText) || 0;
-        assignEl.innerText = current + 1;
+        assignEl.innerText = (Number(assignEl.innerText) || 0) + 1;
       }
+    }
 
+    /* ---------- PYQ ---------- */
+    else if(t === "PYQ"){
+
+      const pyqEl = document.getElementById("scoreNotes");
+
+      if(pyqEl){
+        pyqEl.innerText = (Number(pyqEl.innerText) || 0) + 1;
+      }
     }
 
   }catch(e){
-    console.warn("View counter update failed",e);
+    console.warn("View counter update failed", e);
   }
 
+  /* ======================
+     🔥 REAL-TIME UI SYNC
+  ====================== */
+  try{
+
+    setTimeout(() => {
+
+      if(typeof renderRecentActions === "function"){
+        renderRecentActions();
+      }
+
+      if(typeof renderLatestUploads === "function"){
+        renderLatestUploads();
+      }
+
+    }, 120);
+
+  }catch(e){
+    console.warn("Live UI sync failed", e);
+  }
 
   /* ======================
-     RECALCULATE SCORE
+     📊 UPDATE SCORE
   ====================== */
-
   if(typeof updateActivityScore === "function"){
-    setTimeout(updateActivityScore,200);
+    setTimeout(() => renderSmartWidgets(), 150);
   }
 
 }
 
-function trackDownload(e, url, uploadId) {
+function trackDownload(e, url, uploadId){
 
-  if (e && e.preventDefault) e.preventDefault();
+  /* ======================
+     PREVENT DEFAULT
+  ====================== */
+  if(e && e.preventDefault) e.preventDefault();
 
   let finalUrl = url || "";
 
   /* ======================
+     SAFE ITEM FETCH
+  ====================== */
+  let item = null;
+
+  try{
+    item = Array.isArray(allContent)
+      ? allContent.find(c => c.id === uploadId)
+      : null;
+  }catch(err){
+    console.warn("Item fetch failed", err);
+  }
+
+  /* ======================
+     🔥 DUPLICATE PREVENTION
+  ====================== */
+  try{
+    const key = "download_" + uploadId;
+
+    if(sessionStorage.getItem(key)){
+      // already downloaded in this session → skip duplicate count
+    }else{
+      sessionStorage.setItem(key, "1");
+
+      /* ======================
+         ACTIVITY TRACK (LOCAL)
+      ====================== */
+      if(typeof logActivity === "function" && item){
+        logActivity("DOWNLOAD", item);
+      }
+
+      /* ======================
+         UI INSTANT UPDATE (ALL)
+      ====================== */
+      const prodEl = document.getElementById("prodDownloads");
+      const engEl  = document.getElementById("engDownloads");
+      const scoreEl = document.getElementById("scoreDownloads"); // 🔥 IMPORTANT FIX
+
+      if(prodEl){
+        prodEl.innerText = (Number(prodEl.innerText) || 0) + 1;
+      }
+
+      if(engEl){
+        engEl.innerText = (Number(engEl.innerText) || 0) + 1;
+      }
+
+      if(scoreEl){
+        scoreEl.innerText = (Number(scoreEl.innerText) || 0) + 1;
+      }
+    }
+
+  }catch(err){
+    console.warn("Duplicate or UI update failed", err);
+  }
+
+  /* ======================
      GOOGLE DRIVE FIX
   ====================== */
+  try{
 
-  if (finalUrl.includes("drive.google.com")) {
+    if(finalUrl.includes("drive.google.com")){
 
-    const match1 = finalUrl.match(/\/d\/([^\/]+)/);
-    if (match1 && match1[1]) {
-      finalUrl = `https://drive.google.com/uc?export=download&id=${match1[1]}`;
+      const match1 = finalUrl.match(/\/d\/([^\/]+)/);
+      if(match1 && match1[1]){
+        finalUrl = `https://drive.google.com/uc?export=download&id=${match1[1]}`;
+      }
+
+      const match2 = finalUrl.match(/[?&]id=([^&]+)/);
+      if(match2 && match2[1]){
+        finalUrl = `https://drive.google.com/uc?export=download&id=${match2[1]}`;
+      }
     }
 
-    const match2 = finalUrl.match(/[?&]id=([^&]+)/);
-    if (match2 && match2[1]) {
-      finalUrl = `https://drive.google.com/uc?export=download&id=${match2[1]}`;
-    }
+  }catch(err){
+    console.warn("Drive URL parse failed", err);
   }
 
   /* ======================
-     INSTANT UI UPDATE
+     🔥 REAL-TIME UI SYNC
   ====================== */
-
-  const downloadEl = document.getElementById("prodDownloads");
-  const engDownload = document.getElementById("engDownloads");
-
-  if(downloadEl) downloadEl.innerText = Number(downloadEl.innerText) + 1;
-  if(engDownload) engDownload.innerText = Number(engDownload.innerText) + 1;
-
-  /* ======================
-     UPDATE ACTIVITY SCORE
-  ====================== */
-
-  if(typeof updateActivityScore === "function"){
-    setTimeout(updateActivityScore,200);
-  }
-
-  /* ======================
-     DOWNLOAD REDIRECT
-  ====================== */
-
-  window.location.href = finalUrl;
-
-  /* ======================
-     BACKEND TRACK
-  ====================== */
-
-  try {
+  try{
 
     setTimeout(() => {
 
+      if(typeof renderRecentActions === "function"){
+        renderRecentActions();
+      }
+
+      if(typeof renderLatestUploads === "function"){
+        renderLatestUploads();
+      }
+
+    }, 120);
+
+  }catch(err){
+    console.warn("Live UI sync failed", err);
+  }
+
+  /* ======================
+     🔥 UPDATE ACTIVITY SCORE
+  ====================== */
+  if(typeof updateActivityScore === "function"){
+    setTimeout(() => renderSmartWidgets(), 150);
+  }
+
+  /* ======================
+     BACKEND TRACK (ASYNC)
+  ====================== */
+  try{
+
+    setTimeout(() => {
       studentFetch({
         action: "track",
         uploadId,
         actionType: "DOWNLOADED",
         sessionToken: getSessionToken()
-      });
+      }).catch(()=>{});
+    }, 0);
 
-    },0);
+  }catch(err){
+    console.warn("Backend track failed", err);
+  }
 
-  } catch (_) {}
+  /* ======================
+     SAFE DOWNLOAD OPEN
+  ====================== */
+  try{
+
+    const newTab = window.open(finalUrl, "_blank");
+
+    if(!newTab){
+      window.location.href = finalUrl;
+    }
+
+  }catch(err){
+    console.warn("Redirect failed", err);
+  }
 
   return false;
 }
@@ -1873,11 +2156,76 @@ let notifications = JSON.parse(localStorage.getItem("STUDENT_NOTIFS") || "[]");
 let unreadCount = notifications.filter(n => !n.read).length;
 
 /* =========================================
-   SAVE STORAGE
+   💾 SAVE NOTIFICATIONS (FINAL PRO)
 ========================================= */
 
 function saveNotifications(){
-  localStorage.setItem("STUDENT_NOTIFS", JSON.stringify(notifications));
+
+  try{
+
+    /* ===============================
+       🧠 VALIDATE DATA
+    =============================== */
+    if(!Array.isArray(notifications)){
+      console.warn("Invalid notifications data");
+      return;
+    }
+
+    /* ===============================
+       ⚡ LIMIT DATA (PERFORMANCE)
+    =============================== */
+    const MAX_LIMIT = 100;
+
+    if(notifications.length > MAX_LIMIT){
+      notifications = notifications
+        .sort((a,b) => (b.ts || 0) - (a.ts || 0))
+        .slice(0, MAX_LIMIT);
+    }
+
+    /* ===============================
+       🧹 SANITIZE OBJECTS
+    =============================== */
+    const cleanData = notifications.map(n => ({
+      id    : n.id || "",
+      title : String(n.title || "").slice(0, 200),
+      type  : n.type || "GENERAL",
+      ts    : Number(n.ts) || Date.now(),
+      read  : Boolean(n.read)
+    }));
+
+    /* ===============================
+       💾 PRIMARY SAVE
+    =============================== */
+    const dataString = JSON.stringify(cleanData);
+
+    localStorage.setItem("STUDENT_NOTIFICATIONS", dataString);
+
+    /* ===============================
+       🧷 BACKUP SAVE (FAIL SAFE)
+    =============================== */
+    localStorage.setItem("STUDENT_NOTIFICATIONS_BACKUP", dataString);
+
+  }catch(err){
+
+    console.error("❌ Notification save failed:", err);
+
+    /* ===============================
+       🚑 FALLBACK (TRY MIN SAVE)
+    =============================== */
+    try{
+
+      const minimal = (notifications || []).slice(0,20);
+
+      localStorage.setItem(
+        "STUDENT_NOTIFICATIONS",
+        JSON.stringify(minimal)
+      );
+
+    }catch(e){
+      console.warn("⚠️ Critical storage failure");
+    }
+
+  }
 }
 
 /* =========================================
@@ -2065,7 +2413,7 @@ function addNotification(data){
 }
 
 /* =========================================
-   RENDER NOTIFICATIONS (PREMIUM VERSION)
+   🔔 FINAL ADVANCED NOTIFICATION RENDER
 ========================================= */
 
 function renderNotifications(){
@@ -2075,123 +2423,163 @@ function renderNotifications(){
 
   if(!box || !badge) return;
 
-  /* ===============================
-     AUTO CALCULATE UNREAD
-  =============================== */
+  try{
 
-  unreadCount = notifications.filter(n => !n.read).length;
+    /* ===============================
+       🧠 SAFE DATA CHECK
+    =============================== */
+    if(!Array.isArray(notifications)){
+      notifications = [];
+    }
 
-  badge.innerText = unreadCount > 0 ? unreadCount : "";
-  badge.style.display = unreadCount > 0 ? "flex" : "none";
+    /* ===============================
+       🔢 UNREAD COUNT (FAST)
+    =============================== */
+    unreadCount = 0;
 
-  /* ===============================
-     EMPTY STATE
-  =============================== */
+    for(let i = 0; i < notifications.length; i++){
+      if(!notifications[i]?.read){
+        unreadCount++;
+      }
+    }
 
-  if(!Array.isArray(notifications) || notifications.length === 0){
+    /* ===============================
+       🎯 BADGE UPDATE
+    =============================== */
+    if(unreadCount > 0){
+      badge.innerText = unreadCount > 99 ? "99+" : unreadCount;
+      badge.style.display = "flex";
+    }else{
+      badge.innerText = "";
+      badge.style.display = "none";
+    }
 
+    /* ===============================
+       📭 EMPTY STATE (PREMIUM)
+    =============================== */
+    if(notifications.length === 0){
+
+      box.innerHTML = `
+        <div class="notif-header">
+          <span>Notifications</span>
+        </div>
+
+        <div class="notif-empty">
+          <div class="notif-empty-icon">🔔</div>
+          <div class="notif-empty-text">
+            You're all caught up 🎉
+          </div>
+        </div>
+      `;
+
+      return;
+    }
+
+    /* ===============================
+       ⚡ SORT (LATEST FIRST)
+    =============================== */
+    notifications.sort((a,b) => (b.ts || 0) - (a.ts || 0));
+
+    /* ===============================
+       🧩 BUILD LIST (OPTIMIZED)
+    =============================== */
+    let html = "";
+    const limit = Math.min(notifications.length, 20);
+
+    for(let i = 0; i < limit; i++){
+
+      const n = notifications[i];
+      if(!n) continue;
+
+      const title = escapeHTML(n.title || "Notification");
+      const time  = formatNotifTime(n.ts);
+      const unreadClass = n.read ? "" : "unread";
+
+      html += `
+        <div class="notif-item ${unreadClass}"
+             data-index="${i}"
+             onclick="openNotification('${n.type}', ${i})">
+
+          <div class="notif-row">
+
+            <div class="notif-title">
+              ${title}
+            </div>
+
+            ${!n.read ? `<span class="notif-dot"></span>` : ""}
+
+          </div>
+
+          <div class="notif-time">
+            ${time}
+          </div>
+
+        </div>
+      `;
+    }
+
+    /* ===============================
+       🧠 HEADER ACTIONS (SMART)
+    =============================== */
+    const showMarkAll = unreadCount > 0;
+
+    /* ===============================
+       🧾 FINAL DOM WRITE (SINGLE)
+    =============================== */
     box.innerHTML = `
       <div class="notif-header">
+
         <span>Notifications</span>
+
+        <div class="notif-header-actions">
+
+          ${
+            showMarkAll
+            ? `<button class="notif-mark"
+                 onclick="markAllNotificationsRead(event)">
+                 Mark all
+               </button>`
+            : ""
+          }
+
+          <button class="notif-clear"
+                  onclick="clearNotifications(event)">
+            Clear
+          </button>
+
+        </div>
+
       </div>
 
-      <div class="notif-empty">
-        <div class="notif-empty-icon">🔔</div>
-        <div class="notif-empty-text">
-          No notifications yet
-        </div>
+      <div class="notif-body">
+        ${html}
       </div>
     `;
 
-    return;
-  }
+  }catch(err){
 
-  /* ===============================
-     BUILD NOTIFICATION LIST
-  =============================== */
+    console.error("❌ Notification render failed:", err);
 
-  const html = [];
-
-  for(let i = 0; i < Math.min(notifications.length,20); i++){
-
-    const n = notifications[i];
-
-    if(!n) continue;
-
-    const title = escapeHTML(n.title || "Notification");
-    const time  = formatNotifTime(n.ts);
-    const unreadClass = n.read ? "" : "unread";
-
-    html.push(`
-      <div class="notif-item ${unreadClass}"
-           data-index="${i}"
-           onclick="openNotification('${n.type}',${i})">
-
-        <div class="notif-row">
-
-          <div class="notif-title">
-            ${title}
-          </div>
-
-          ${!n.read ? `<span class="notif-dot"></span>` : ""}
-
-        </div>
-
-        <div class="notif-time">
-          ${time}
-        </div>
-
+    box.innerHTML = `
+      <div class="notif-empty">
+        ⚠️ Failed to load notifications
       </div>
-    `);
+    `;
   }
-
-  /* ===============================
-     FINAL DOM RENDER
-  =============================== */
-
-  box.innerHTML = `
-    <div class="notif-header">
-
-      <span>Notifications</span>
-
-      <div class="notif-header-actions">
-
-        ${
-          unreadCount > 0
-          ? `<button class="notif-mark"
-               onclick="markAllNotificationsRead(event)">
-               Mark all
-             </button>`
-          : ""
-        }
-
-        <button class="notif-clear"
-                onclick="clearNotifications(event)">
-          Clear
-        </button>
-
-      </div>
-
-    </div>
-
-    <div class="notif-body">
-      ${html.join("")}
-    </div>
-  `;
-
 }
 
 function markAllNotificationsRead(e){
 
-  e.stopPropagation();
+  if(e) e.stopPropagation();
 
-  notifications.forEach(n => n.read = true);
+  for(let i = 0; i < notifications.length; i++){
+    notifications[i].read = true;
+  }
 
-  unreadCount = 0;
-
+  saveNotifications();
   renderNotifications();
-
 }
+
 /* =========================================
    FORMAT TIME
 ========================================= */
@@ -2221,83 +2609,229 @@ function formatNotifTime(ts){
 }
 
 /* =========================================
-   CLEAR NOTIFICATIONS
+   🧹 CLEAR NOTIFICATIONS (PRO VERSION)
 ========================================= */
+
 function clearNotifications(e){
 
-  e.stopPropagation();
+  try{
 
-  notifications = [];
-  unreadCount = 0;
+    /* ===============================
+       🛑 PREVENT EVENT BUBBLE
+    =============================== */
+    if(e && typeof e.stopPropagation === "function"){
+      e.stopPropagation();
+    }
 
-  localStorage.removeItem("STUDENT_NOTIFS");
+    const box   = document.getElementById("notifDropdown");
+    const badge = document.getElementById("notifCount");
 
-  renderNotifications();
+    /* ===============================
+       ⚡ UI FEEDBACK (SMOOTH CLEAR)
+    =============================== */
+    if(box){
 
-}
+      box.style.opacity = "0";
+      box.style.transform = "scale(0.98)";
 
-/* =========================================
-   TOGGLE DROPDOWN
-========================================= */
+      setTimeout(()=>{
 
-function toggleNotifications(){
+        /* ===============================
+           🧠 RESET STATE
+        =============================== */
+        notifications = [];
+        unreadCount   = 0;
 
-  const box = document.getElementById("notifDropdown");
-  if(!box) return;
+        /* ===============================
+           💾 STORAGE CLEAN (SAFE)
+        =============================== */
+        try{
+          localStorage.removeItem("STUDENT_NOTIFICATIONS");
+        }catch(err){
+          console.warn("Storage clear failed");
+        }
 
-  box.style.display =
-    box.style.display === "block"
-      ? "none"
-      : "block";
+        /* ===============================
+           🔢 BADGE RESET
+        =============================== */
+        if(badge){
+          badge.innerText = "";
+          badge.style.display = "none";
+        }
 
-}
+        /* ===============================
+           🔁 RE-RENDER UI
+        =============================== */
+        renderNotifications();
 
-/* =========================================
-   OPEN NOTIFICATION
-========================================= */
+        /* ===============================
+           🔔 USER FEEDBACK (OPTIONAL)
+        =============================== */
+        if(typeof showLiveToast === "function"){
+          showLiveToast("Notifications cleared", "success");
+        }
 
-function openNotification(type,index=null){
+        /* ===============================
+           🔄 RESTORE ANIMATION STATE
+        =============================== */
+        box.style.opacity = "1";
+        box.style.transform = "scale(1)";
 
-  if(index !== null){
-
-    if(notifications[index] && !notifications[index].read){
-
-      notifications[index].read = true;
-      unreadCount = Math.max(0, unreadCount - 1);
-
-      saveNotifications();
-      renderNotifications();
+      },180);
 
     }
 
+  }catch(err){
+
+    console.error("❌ Clear notifications failed:", err);
+
   }
-
-  const t = String(type || "").toUpperCase();
-
-  if(t === "ASSIGNMENT") showFiltered("ASSIGNMENT");
-  else if(t === "NOTES") showFiltered("NOTES");
-  else if(t === "PYQ") showFiltered("PYQ");
-  else if(t === "MESSAGE") showFiltered("MESSAGE");
-  else showDashboard();
-
 }
 
 /* =========================================
-   CLOSE DROPDOWN ON OUTSIDE CLICK
+   🔔 ADVANCED TOGGLE DROPDOWN
 ========================================= */
 
-document.addEventListener("click",(e)=>{
+let notifOpen = false;
+
+function toggleNotifications(){
+
+  const box  = document.getElementById("notifDropdown");
+  const bell = document.querySelector(".notification-bell");
+
+  if(!box || !bell) return;
+
+  notifOpen = !notifOpen;
+
+  if(notifOpen){
+
+    box.style.display = "flex";
+
+    requestAnimationFrame(()=>{
+      box.style.opacity = "1";
+      box.style.transform = "translateY(0)";
+    });
+
+    // Remove pulse when opened
+    bell.classList.remove("new");
+
+  } else {
+
+    box.style.opacity = "0";
+    box.style.transform = "translateY(-8px)";
+
+    setTimeout(()=>{
+      box.style.display = "none";
+    },200);
+  }
+}
+
+/* =========================================
+   CLOSE ON OUTSIDE CLICK
+========================================= */
+
+document.addEventListener("click", function(e){
 
   const bell = document.querySelector(".notification-bell");
   const box  = document.getElementById("notifDropdown");
 
   if(!bell || !box) return;
 
-  if(!bell.contains(e.target) && !box.contains(e.target)){
-    box.style.display="none";
+  if(!bell.contains(e.target)){
+
+    notifOpen = false;
+
+    box.style.opacity = "0";
+    box.style.transform = "translateY(-8px)";
+
+    setTimeout(()=>{
+      box.style.display = "none";
+    },200);
+
   }
 
 });
+
+/* =========================================
+   🚀 OPEN NOTIFICATION (ADVANCED)
+========================================= */
+
+function openNotification(type, index = null){
+
+  try{
+
+    /* =========================
+       🧠 MARK AS READ
+    ========================= */
+    if(index !== null && notifications[index]){
+
+      if(!notifications[index].read){
+
+        notifications[index].read = true;
+
+        unreadCount = Math.max(0, unreadCount - 1);
+
+        updateNotificationBadge();
+        saveNotifications();
+
+      }
+
+    }
+
+    /* =========================
+       🔄 ROUTING SYSTEM
+    ========================= */
+    const routes = {
+      ASSIGNMENT : () => showFiltered("ASSIGNMENT"),
+      NOTES      : () => showFiltered("NOTES"),
+      PYQ        : () => showFiltered("PYQ"),
+      MESSAGE    : () => showFiltered("MESSAGE"),
+      DEFAULT    : () => showDashboard()
+    };
+
+    const action = routes[String(type || "").toUpperCase()] || routes.DEFAULT;
+
+    action();
+
+    /* =========================
+       🔽 CLOSE DROPDOWN
+    ========================= */
+    closeNotifications();
+
+  }catch(err){
+
+    console.warn("Notification open failed", err);
+    showDashboard();
+
+  }
+}
+
+function closeNotifications(){
+
+  const box = document.getElementById("notifDropdown");
+
+  if(!box) return;
+
+  notifOpen = false;
+
+  box.style.opacity = "0";
+  box.style.transform = "translateY(-8px)";
+
+  setTimeout(()=>{
+    box.style.display = "none";
+  },200);
+}
+
+function updateNotificationBadge(){
+
+  const badge = document.getElementById("notifCount");
+
+  if(!badge) return;
+
+  badge.innerText = unreadCount;
+
+  badge.style.display = unreadCount > 0 ? "block" : "none";
+}
 
 /* =========================================
    INIT ON LOAD
@@ -2315,23 +2849,24 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 function renderSmartWidgets(){
 
+  /* =========================
+     EMPTY STATE
+  ========================= */
   if(!Array.isArray(allContent) || !allContent.length){
 
-    setText("todayNotes",0);
-    setText("todayAssignments",0);
-    setText("todayNotices",0);
+    setText("todayNotes", 0);
+    setText("todayAssignments", 0);
+    setText("todayNotices", 0);
 
-    setText("viewNotes",0);
-    setText("viewAssignments",0);
-    setText("viewPYQ",0);
-
-    setText("scoreNotes",0);
-    setText("scoreAssignments",0);
-    setText("scoreDownloads",0);
+    setText("scoreNotes", 0);
+    setText("scoreAssignments", 0);
+    setText("scoreDownloads", 0);
 
     updateActivityScore(0);
-
     renderLearningHeatmap([]);
+
+    const reminder = document.getElementById("studyReminder");
+    if(reminder) reminder.innerText = "No activity yet.";
 
     return;
   }
@@ -2339,234 +2874,446 @@ function renderSmartWidgets(){
   const now = Date.now();
   const ONE_DAY = 86400000;
 
+  /* =========================
+     COUNTERS
+  ========================= */
   let todayNotes = 0;
   let todayAssignments = 0;
   let todayNotices = 0;
 
-  let viewNotes = 0;
-  let viewAssignments = 0;
-  let viewPYQ = 0;
-
+  let views = 0;
+  let assignments = 0;
   let downloads = 0;
 
-  const activityLog = [];
+  /* =========================
+     🔥 REAL USER ACTIVITY
+  ========================= */
+  let activityLog = [];
 
-  /* =====================================
-     SINGLE LOOP (VERY FAST)
-  ===================================== */
+  try{
+    const log = JSON.parse(localStorage.getItem("student_activity_log") || "[]");
 
+    activityLog = log;
+
+    for(const a of log){
+
+      if(!a || !a.type) continue;
+
+      const type = String(a.type).toUpperCase();
+      const action = String(a.action).toUpperCase();
+  
+      if(action === "VIEW"){
+        views++;
+
+        if(type === "ASSIGNMENT"){
+          assignments++;
+        }
+      }
+
+      if(action === "DOWNLOAD"){
+        downloads++;
+      }
+    }
+
+  }catch(e){
+    console.warn("Activity log parse failed");
+    activityLog = [];
+  }
+
+  /* =========================
+     TODAY CONTENT (UNCHANGED)
+  ========================= */
   for(const c of allContent){
 
     if(!c) continue;
 
     const type = String(c.type || "").toUpperCase();
-
     const ts = Number(c.uploadedAtTs) || 0;
-    const age = now - ts;
 
-    if(ts) activityLog.push(ts);
+    const isToday = ts && (now - ts <= ONE_DAY);
 
-    /* ===== TODAY CONTENT ===== */
-
-    if(age <= ONE_DAY){
-
+    if(isToday){
       if(type === "NOTES") todayNotes++;
-
       else if(type === "ASSIGNMENT") todayAssignments++;
-
       else if(type === "MESSAGE" || type === "LATEST_NEWS") todayNotices++;
-
     }
-
-    /* ===== STUDY ACTIVITY ===== */
-
-    if(type === "NOTES") viewNotes++;
-
-    else if(type === "ASSIGNMENT") viewAssignments++;
-
-    else if(type === "PYQ") viewPYQ++;
-
-    /* ===== DOWNLOADS ===== */
-
-    if(c.downloads){
-      downloads += Number(c.downloads) || 0;
-    }
-
   }
 
-  /* =====================================
-     UPDATE BASIC WIDGETS
-  ===================================== */
-
+  /* =========================
+     UI UPDATE
+  ========================= */
   setText("todayNotes", todayNotes);
   setText("todayAssignments", todayAssignments);
   setText("todayNotices", todayNotices);
 
-  setText("viewNotes", viewNotes);
-  setText("viewAssignments", viewAssignments);
-  setText("viewPYQ", viewPYQ);
-
-  setText("scoreNotes", viewNotes);
-  setText("scoreAssignments", viewAssignments);
+  setText("scoreNotes", views);
+  setText("scoreAssignments", assignments);
   setText("scoreDownloads", downloads);
 
-  /* =====================================
-     ACTIVITY SCORE
-  ===================================== */
-
+  /* =========================
+     SCORE CALCULATION (FIXED)
+  ========================= */
   const score =
-    (viewNotes * 2) +
-    (viewAssignments * 3) +
-    (viewPYQ * 2) +
-    (downloads * 1);
+    (views * 2) +
+    (assignments * 3) +
+    (downloads * 2);
 
-  const percent = Math.min(
-    Math.round((score / 100) * 100),
-    100
-  );
+  const percent = Math.min(Math.round(score * 5), 100);
 
-  updateActivityScore();
-  updateTodayBars();
+  updateActivityScore(percent);
 
-  /* =====================================
-     SMART STUDY REMINDER
-  ===================================== */
-
+  /* =========================
+     SMART REMINDER (IMPROVED)
+  ========================= */
   const reminder = document.getElementById("studyReminder");
 
   if(reminder){
 
+    let msg = "";
+
+    const totalActivity = views + assignments + downloads;
+
     if(todayAssignments > 0){
-
-      reminder.innerText =
-        `You have ${todayAssignments} assignment${
-          todayAssignments > 1 ? "s" : ""
-        } today. Complete them on time.`;
-
+      msg = `⚠️ ${todayAssignments} assignment pending today`;
     }
-    else if(viewNotes === 0){
-
-      reminder.innerText =
-        "Start studying today. No notes viewed yet.";
-
+    else if(totalActivity === 0){
+      msg = "🚀 Start studying now";
     }
-    else if(viewPYQ === 0){
-
-      reminder.innerText =
-        "Practice PYQ today to improve exam preparation.";
-
+    else if(totalActivity < 3){
+      msg = "⚡ Try to stay consistent";
+    }
+    else if(downloads > views){
+      msg = "📥 You download more than study";
+    }
+    else if(score > 50){
+      msg = "🔥 Excellent consistency";
     }
     else{
-
-      reminder.innerText =
-        "Great progress today. Keep learning consistently.";
-
+      msg = "📈 You're on track";
     }
 
+    reminder.innerText = msg;
   }
 
-  /* =====================================
-     LEARNING HEATMAP
-  ===================================== */
-
-  renderLearningHeatmap(activityLog);
-
+  /* =========================
+     🔥 HEATMAP (FIXED)
+  ========================= */
+  renderLearningHeatmap(activityLog.map(a => a.time));
 }
-
 
 /* =====================================
    UPDATE ACTIVITY SCORE BAR
 ===================================== */
-function updateActivityScore(){
+function updateActivityScore(customPercent = null){
 
   try{
 
     /* =========================
-       GET COUNTERS
+       GET ELEMENTS (SAFE)
     ========================= */
-
-    const notes = Number(document.getElementById("scoreNotes")?.innerText) || 0;
-    const assignments = Number(document.getElementById("scoreAssignments")?.innerText) || 0;
-    const downloads = Number(document.getElementById("scoreDownloads")?.innerText) || 0;
-
-    /* =========================
-       TOTAL SCORE
-    ========================= */
-
-    const total = notes + assignments + downloads;
-
-    /* =========================
-       PROGRESS %
-    ========================= */
-
-    const maxScore = 50;
-    const percent = Math.min(Math.round((total / maxScore) * 100),100);
-
-    /* =========================
-       UPDATE UI
-    ========================= */
+    const notesEl = document.getElementById("scoreNotes");
+    const assignEl = document.getElementById("scoreAssignments");
+    const downloadEl = document.getElementById("scoreDownloads");
 
     const fill = document.getElementById("scoreFill");
     const label = document.getElementById("scorePercent");
-
-    if(fill) fill.style.width = percent + "%";
-    if(label) label.innerText = percent + "%";
-
-    /* =========================
-       LEVEL SYSTEM
-    ========================= */
-
     const levelEl = document.getElementById("scoreLevel");
 
-    let level = "Beginner";
+    /* 🔥 SMART FOCUS ELEMENTS */
+    const focusBar = document.getElementById("focusBar");
+    const focusBadge = document.getElementById("focusBadge");
 
-    if(percent >= 80) level = "🔥 Excellent";
-    else if(percent >= 60) level = "🚀 Active";
-    else if(percent >= 30) level = "📈 Improving";
+    /* =========================
+       GET VALUES (SAFE PARSE)
+    ========================= */
+    const notes = parseInt(notesEl?.innerText) || 0;
+    const assignments = parseInt(assignEl?.innerText) || 0;
+    const downloads = parseInt(downloadEl?.innerText) || 0;
 
-    if(levelEl) levelEl.innerText = level;
+    /* =========================
+       SCORE CALCULATION (IMPROVED)
+    ========================= */
+    const score =
+      (notes * 2) +
+      (assignments * 3) +
+      (downloads * 2);
+
+    let percent;
+
+    if(typeof customPercent === "number"){
+      percent = Math.min(Math.max(customPercent, 0), 100);
+    }else{
+      percent = Math.min(Math.round(score * 5), 100);
+    }
+
+    /* =========================
+       UPDATE MAIN PROGRESS
+    ========================= */
+    if(fill){
+      fill.style.width = percent + "%";
+
+      // 🎨 Gradient colors (pro UI)
+      if(percent >= 80){
+        fill.style.background = "linear-gradient(90deg,#22c55e,#4ade80)";
+      }
+      else if(percent >= 50){
+        fill.style.background = "linear-gradient(90deg,#38bdf8,#60a5fa)";
+      }
+      else{
+        fill.style.background = "linear-gradient(90deg,#f59e0b,#fbbf24)";
+      }
+    }
+
+    if(label){
+      label.innerText = percent + "%";
+    }
+
+    /* =========================
+       LEVEL SYSTEM (ENHANCED)
+    ========================= */
+    let level = "😴 Inactive";
+
+    if(percent >= 85) level = "🔥 Excellent";
+    else if(percent >= 65) level = "🚀 Highly Active";
+    else if(percent >= 40) level = "📈 Improving";
+    else if(percent >= 20) level = "⚡ Getting Started";
+
+    if(levelEl){
+      levelEl.innerText = level;
+    }
+
+    /* =========================
+       🔥 SMART FOCUS INTEGRATION
+    ========================= */
+    if(focusBar){
+
+      focusBar.style.width = percent + "%";
+
+      if(percent >= 75){
+        focusBar.style.background = "linear-gradient(90deg,#22c55e,#4ade80)";
+        if(focusBadge) focusBadge.innerText = "🔥 High Focus";
+      }
+      else if(percent >= 40){
+        focusBar.style.background = "linear-gradient(90deg,#f59e0b,#fbbf24)";
+        if(focusBadge) focusBadge.innerText = "⚡ Moderate";
+      }
+      else{
+        focusBar.style.background = "linear-gradient(90deg,#ef4444,#f87171)";
+        if(focusBadge) focusBadge.innerText = "⚠️ Low Focus";
+      }
+
+    }
 
   }catch(err){
 
-    console.warn("Activity score update failed",err);
+    console.warn("Activity score update failed:", err);
 
   }
+}
 
+function renderRecentActions(){
+
+  const box = document.getElementById("recentActions");
+  if(!box) return;
+
+  const log = JSON.parse(localStorage.getItem("student_activity_log") || "[]");
+
+  if(!log.length){
+    box.innerHTML = `
+      <div class="empty-activity">
+        📭 No recent activity
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = log.slice(0,5).map(item => {
+
+    let icon = "📄";
+    let color = "#64748b";
+
+    if(item.type==="NOTES"){ icon="📘"; color="#2563eb"; }
+    if(item.type==="ASSIGNMENT"){ icon="📝"; color="#16a34a"; }
+    if(item.type==="PYQ"){ icon="📂"; color="#9333ea"; }
+    if(item.type==="LATEST_NEWS"){ icon="📰"; color="#f59e0b"; }
+
+    const actionText =
+      item.action === "DOWNLOAD"
+        ? "Downloaded"
+        : "Viewed";
+
+    return `
+      <div class="activity-item">
+
+        <div class="activity-left">
+          <div class="activity-icon" style="color:${color}">
+            ${icon}
+          </div>
+
+          <div class="activity-info">
+            <div class="activity-title">
+              ${item.title}
+            </div>
+
+            <div class="activity-meta">
+              ${actionText}
+            </div>
+          </div>
+        </div>
+
+        <div class="activity-time">
+          ${formatTimeAgo(item.time)}
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+}
+
+function renderLatestUploads(){
+
+  const box = document.getElementById("latestUploads");
+  if(!box) return;
+
+  const uploads = (Array.isArray(allContent)?allContent:[])
+    .filter(c=>{
+      const type=(c?.type||"").toUpperCase();
+      return type!=="MESSAGE";
+    })
+    .sort((a,b)=>(b.uploadedAtTs||0)-(a.uploadedAtTs||0))
+    .slice(0,4);
+
+  if(!uploads.length){
+    box.innerHTML=`<div class="empty-activity">📭 No updates</div>`;
+    return;
+  }
+
+  box.innerHTML = uploads.map(c=>{
+
+    const type=(c?.type||"").toUpperCase();
+    const title=c?.title||"Untitled";
+    const url=sanitizeURL(c?.fileUrl||"#");
+
+    let icon="📄";
+    if(type==="NOTES") icon="📘";
+    else if(type==="ASSIGNMENT") icon="📝";
+    else if(type==="PYQ") icon="📂";
+    else if(type==="LATEST_NEWS") icon="📰";
+
+    return `
+      <div class="update-item">
+
+        <div class="update-left">
+          <span class="update-icon">${icon}</span>
+          <span class="update-title">${title}</span>
+        </div>
+
+        <button class="update-view-btn"
+          onclick="handleUpdateClick('${c.id}','${url}','${type}','VIEW')">
+          View →
+        </button>
+
+      </div>
+    `;
+
+  }).join("");
+}
+
+function formatTimeAgo(ts){
+
+  const diff = Date.now() - ts;
+
+  if(diff < 60000) return "now";
+  if(diff < 3600000) return Math.floor(diff/60000)+"m";
+  if(diff < 86400000) return Math.floor(diff/3600000)+"h";
+  return Math.floor(diff/86400000)+"d";
+}
+
+function handleUpdateClick(id,url,type,action){
+
+  if(!id) return;
+
+  /* ======================
+     TRACK (VIEW/DOWNLOAD)
+  ====================== */
+  if(action==="VIEW"){
+    trackView(id,type);
+  }
+
+  /* ======================
+     OPEN FILE
+  ====================== */
+  try{
+    const win = window.open(url,"_blank");
+    if(!win){
+      window.location.href=url;
+    }
+  }catch(e){
+    console.warn("Open failed");
+  }
 }
 
 /* =====================================
-   LEARNING HEATMAP (14 DAYS)
+   LEARNING HEATMAP (14 DAYS) — FINAL PRO
 ===================================== */
 
 function renderLearningHeatmap(activityLog){
 
   const grid = document.getElementById("learningHeatmap");
-
   if(!grid) return;
 
   grid.innerHTML = "";
 
+  /* =========================
+     SAFE DATA CHECK
+  ========================= */
+  if(!Array.isArray(activityLog)){
+    activityLog = [];
+  }
+
+  /* =========================
+     BUILD ACTIVITY MAP (STORE EVENTS)
+  ========================= */
   const activity = {};
 
   for(const ts of activityLog){
 
-    const key = new Date(ts).toISOString().slice(0,10);
+    if(!ts) continue;
 
-    if(!activity[key]) activity[key] = 0;
+    const d = new Date(Number(ts));
+    if(isNaN(d.getTime())) continue;
 
-    activity[key]++;
+    const key =
+      d.getFullYear() + "-" +
+      String(d.getMonth()+1).padStart(2,'0') + "-" +
+      String(d.getDate()).padStart(2,'0');
 
+    if(!activity[key]) activity[key] = [];
+
+    activity[key].push(ts); // 🔥 store events (important)
   }
 
-  for(let i=13;i>=0;i--){
+  /* =========================
+     GENERATE LAST 14 DAYS
+  ========================= */
+  for(let i = 13; i >= 0; i--){
 
     const d = new Date();
+    d.setHours(0,0,0,0);
     d.setDate(d.getDate() - i);
 
-    const key = d.toISOString().slice(0,10);
+    const key =
+      d.getFullYear() + "-" +
+      String(d.getMonth()+1).padStart(2,'0') + "-" +
+      String(d.getDate()).padStart(2,'0');
 
-    const count = activity[key] || 0;
+    const events = activity[key] || [];
+    const count = events.length;
 
+    /* =========================
+       LEVEL LOGIC
+    ========================= */
     let level = 0;
 
     if(count >= 5) level = 4;
@@ -2574,18 +3321,87 @@ function renderLearningHeatmap(activityLog){
     else if(count >= 2) level = 2;
     else if(count >= 1) level = 1;
 
+    /* =========================
+       CREATE CELL
+    ========================= */
     const cell = document.createElement("div");
 
     cell.className = "heatmap-cell level-" + level;
 
-    cell.title = d.toDateString() + " • " + count + " activities";
+    cell.title =
+      d.toDateString() +
+      " • " +
+      count +
+      (count === 1 ? " activity" : " activities");
+
+    /* =========================
+       🔥 CLICK EVENT (MAIN FEATURE)
+    ========================= */
+    cell.style.cursor = "pointer";
+
+    cell.onclick = () => {
+      showHeatmapDetails(d, events);
+    };
 
     grid.appendChild(cell);
-
   }
 
 }
 
+
+/* =====================================
+   📊 SHOW HEATMAP DETAILS (CLICK POPUP)
+===================================== */
+function showHeatmapDetails(date, events){
+
+  const modal = document.getElementById("heatmapModal");
+  const title = document.getElementById("heatmapDate");
+  const list  = document.getElementById("heatmapList");
+
+  if(!modal || !title || !list) return;
+
+  title.innerText = "📅 " + date.toDateString();
+
+  list.innerHTML = "";
+
+  if(!events || events.length === 0){
+    list.innerHTML = `<div class="heatmap-item">No activity</div>`;
+  } else {
+
+    const log = JSON.parse(localStorage.getItem("student_activity_log") || "[]");
+
+    const dayKey =
+      date.getFullYear() + "-" +
+      String(date.getMonth()+1).padStart(2,'0') + "-" +
+      String(date.getDate()).padStart(2,'0');
+
+    const filtered = log.filter(item => {
+
+      const d = new Date(item.time);
+
+      const key =
+        d.getFullYear() + "-" +
+        String(d.getMonth()+1).padStart(2,'0') + "-" +
+        String(d.getDate()).padStart(2,'0');
+
+      return key === dayKey;
+    });
+
+    list.innerHTML = filtered.map(item => `
+      <div class="heatmap-item">
+        <strong>${item.title}</strong><br>
+        <small>${item.action}</small>
+      </div>
+    `).join("");
+  }
+
+  modal.style.display = "flex";
+}
+
+function closeHeatmapModal(){
+  const modal = document.getElementById("heatmapModal");
+  if(modal) modal.style.display = "none";
+}
 
 /* =====================================
    SAFE TEXT UPDATE
@@ -2599,6 +3415,32 @@ function safeText(id,value){
     el.innerText = value;
   }
 
+}
+
+/* =====================================
+   🔥 REAL ACTIVITY TRACKER
+===================================== */
+
+const ACTIVITY_KEY = "student_activity_log";
+
+function logActivity(action, item){
+
+  if(!item || !item.id) return;
+
+  const log = JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]");
+
+  log.unshift({
+    id: item.id,
+    title: item.title || "Untitled",
+    type: (item.type || "").toUpperCase(),
+    action: action,
+    time: Date.now()
+  });
+
+  localStorage.setItem(
+    ACTIVITY_KEY,
+    JSON.stringify(log.slice(0,20))
+  );
 }
 
 function updateTodayBars(){
